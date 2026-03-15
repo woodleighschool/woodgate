@@ -1,81 +1,78 @@
-import { defineConfig } from "eslint/config";
+// eslint.config.js
+import path from "node:path";
+import { fileURLToPath } from "node:url";
+
 import js from "@eslint/js";
+import { defineConfig } from "eslint/config";
 import globals from "globals";
 import tseslint from "typescript-eslint";
-import reactPlugin from "eslint-plugin-react";
-import reactHooksPlugin from "eslint-plugin-react-hooks";
-import unicornPlugin from "eslint-plugin-unicorn";
 
-export default defineConfig([
-  // Global ignores
-  {
-    ignores: ["dist/**", "build/**", "node_modules/**"],
-  },
+import { createTypeScriptImportResolver } from "eslint-import-resolver-typescript";
+import { createNodeResolver, importX } from "eslint-plugin-import-x";
+import jsxA11y from "eslint-plugin-jsx-a11y";
+import react from "eslint-plugin-react";
+import reactHooks from "eslint-plugin-react-hooks";
+import sonarjs from "eslint-plugin-sonarjs";
+import unicorn from "eslint-plugin-unicorn";
 
-  // Base language options for all JS/TS files
+const __dirname = path.dirname(fileURLToPath(import.meta.url));
+
+export default defineConfig(
+  { ignores: ["dist", "build", "coverage", "node_modules", "src/api/openapi.ts"] },
+
+  { files: ["**/*.{ts,tsx}"] },
+
+  js.configs.recommended,
+
+  ...tseslint.configs.strictTypeChecked,
+  ...tseslint.configs.stylisticTypeChecked,
+
+  react.configs.flat.recommended,
+  react.configs.flat["jsx-runtime"],
+
+  jsxA11y.flatConfigs.strict,
+
+  importX.flatConfigs.recommended,
+  importX.flatConfigs.typescript,
+
+  sonarjs.configs.recommended,
+
+  unicorn.configs.recommended,
+
   {
-    files: ["**/*.{js,jsx,ts,tsx}"],
     languageOptions: {
-      ecmaVersion: 2024,
+      ecmaVersion: "latest",
       sourceType: "module",
-      parserOptions: { ecmaFeatures: { jsx: true } },
       globals: {
         ...globals.browser,
-        ...globals.node,
+        ...globals.es2021,
+      },
+      parserOptions: {
+        tsconfigRootDir: __dirname,
+        projectService: true,
       },
     },
     settings: {
       react: { version: "detect" },
+      "import-x/resolver-next": [createTypeScriptImportResolver(), createNodeResolver()],
     },
-  },
-
-  // Core JS rules – now using the strictest core set
-  js.configs.recommended,
-
-  // TypeScript – stricter, but still not type-checked
-  ...tseslint.configs.strict,
-  ...tseslint.configs.stylistic,
-
-  {
-    plugins: { react: reactPlugin },
-    ...reactPlugin.configs.flat.recommended,
-  },
-  {
-    plugins: { react: reactPlugin },
-    ...reactPlugin.configs.flat["jsx-runtime"],
-  },
-  {
-    plugins: { "react-hooks": reactHooksPlugin },
-    rules: {
-      ...reactHooksPlugin.configs["recommended-latest"].rules,
+    plugins: {
+      "react-hooks": reactHooks,
     },
-  },
-  //{
-  //  plugins: { unicorn: unicornPlugin },
-  //  rules: {
-  //    ...unicornPlugin.configs.recommended.rules,
-  //  },
-  //},
-  {
     rules: {
-      "no-console": "off",
+      ...reactHooks.configs.recommended.rules,
+
+      "no-console": "error",
       "no-debugger": "error",
-      "eqeqeq": ["error", "always", { null: "ignore" }],
-      "curly": ["error", "all"],
-      "no-var": "error",
-      "prefer-const": ["error", { destructuring: "all" }],
-      "no-unused-vars": "off",
-      "@typescript-eslint/no-unused-vars": ["error"],
+
+      "@typescript-eslint/consistent-type-imports": ["error", { fixStyle: "inline-type-imports" }],
+      "@typescript-eslint/no-floating-promises": ["error", { ignoreVoid: false, ignoreIIFE: false }],
+      "@typescript-eslint/no-misused-promises": ["error", { checksVoidReturn: true }],
       "@typescript-eslint/explicit-function-return-type": [
         "error",
-        {
-          allowExpressions: true,
-          allowHigherOrderFunctions: true,
-          allowTypedFunctionExpressions: true,
-        },
+        { allowExpressions: false, allowTypedFunctionExpressions: false },
       ],
-      "@typescript-eslint/explicit-module-boundary-types": "error",
-      "react/prop-types": "off",
+      "unicorn/filename-case": "off",
     },
   },
-]);
+);

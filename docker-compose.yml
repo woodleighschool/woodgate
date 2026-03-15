@@ -1,8 +1,9 @@
 services:
   db:
-    image: postgres:16-alpine
+    image: postgres:18-alpine
+    restart: unless-stopped
     environment:
-      POSTGRES_DB: signin-ui
+      POSTGRES_DB: woodgate
       POSTGRES_USER: postgres
       POSTGRES_PASSWORD: postgres
     volumes:
@@ -10,17 +11,18 @@ services:
     ports:
       - "5432:5432"
 
-  signin-ui:
+  woodgate:
     build: .
+    restart: unless-stopped
     ports:
       - "8080:8080"
-      - "8081:8081"
     environment:
       DATABASE_HOST: db
       DATABASE_PORT: 5432
-      DATABASE_NAME: signin-ui
       DATABASE_USER: postgres
       DATABASE_PASSWORD: postgres
+      DATABASE_NAME: woodgate
+      DATABASE_SSLMODE: disable
     depends_on:
       - db
     env_file:

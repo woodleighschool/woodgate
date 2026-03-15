@@ -1,0 +1,7 @@
+package: httpapi
+generate:
+  chi-server: true
+  models: true
+output: ../internal/transport/http/httpapi/openapi.go
+output-options:
+  skip-prune: true

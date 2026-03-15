@@ -1,14 +1,14 @@
-import { defineConfig } from "vite";
 import react from "@vitejs/plugin-react";
-import { URL, fileURLToPath } from "node:url";
+import { fileURLToPath, URL } from "node:url";
+import { defineConfig } from "vite";
 
-const isProduction = process.env.NODE_ENV === "production";
+const isProd = process.env.NODE_ENV === "production";
 
 export default defineConfig({
   plugins: [react()],
   resolve: {
     alias: {
-      "@": fileURLToPath(new URL("src", import.meta.url)),
+      "@": fileURLToPath(new URL("./src", import.meta.url)),
     },
   },
   envPrefix: ["APP_"],
@@ -22,7 +22,7 @@ export default defineConfig({
         changeOrigin: true,
         secure: false,
       },
-      "/healthz": {
+      "/auth": {
         target: "http://localhost:8080",
         changeOrigin: true,
         secure: false,
@@ -38,18 +38,15 @@ export default defineConfig({
     outDir: "dist",
     assetsDir: "assets",
     cssCodeSplit: true,
-    sourcemap: Boolean(process.env.SOURCEMAP) && isProduction,
+    sourcemap: !!process.env.SOURCEMAP && isProd,
     chunkSizeWarningLimit: 900,
     rollupOptions: {
       output: {
-        manualChunks: {
-          react: ["react", "react-dom", "react-router-dom"],
-          mui: ["@mui/material", "@mui/icons-material"],
+        manualChunks: (id) => {
+          if (id.includes("react") || id.includes("react-dom") || id.includes("react-router-dom")) return "react";
+          if (id.includes("@mui/material") || id.includes("@mui/icons-material")) return "mui";
         },
       },
     },
-  },
-  define: {
-    __APP_VERSION__: JSON.stringify(process.env.npm_package_version),
   },
 });

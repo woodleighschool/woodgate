@@ -2,16 +2,17 @@
   "semi": true,
   "trailingComma": "all",
   "singleQuote": false,
-  "printWidth": 160,
+  "printWidth": 120,
   "tabWidth": 2,
   "useTabs": false,
   "arrowParens": "always",
   "bracketSpacing": true,
   "bracketSameLine": false,
-  "proseWrap": "always",
-  "quoteProps": "consistent",
+  "jsxSingleQuote": false,
+  "proseWrap": "preserve",
+  "quoteProps": "as-needed",
   "htmlWhitespaceSensitivity": "css",
   "embeddedLanguageFormatting": "auto",
   "endOfLine": "lf",
-  "singleAttributePerLine": true
+  "plugins": ["prettier-plugin-organize-imports"]
 }

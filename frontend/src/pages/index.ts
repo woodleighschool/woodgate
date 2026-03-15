@@ -1,9 +1,0 @@
-export { default as Login } from "./Login";
-export { default as Dashboard } from "./Dashboard";
-export { default as Locations } from "./Locations";
-export { default as Users } from "./Users";
-export { default as Keys } from "./Keys";
-export { default as Settings } from "./Settings";
-export { default as UserDetails } from "./UserDetails";
-export { default as Checkins } from "./Checkins";
-export { default as Portal } from "./Portal";

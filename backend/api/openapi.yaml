@@ -1,0 +1,1150 @@
+---
+openapi: 3.0.3
+info:
+  title: WoodGate API
+  version: 0.1.0
+servers:
+  - url: /api/v1
+security:
+  - sessionAuth: []
+  - apiKeyAuth: []
+paths:
+  /api-keys:
+    get:
+      operationId: listAPIKeys
+      tags:
+        - api-keys
+      parameters:
+        - $ref: '#/components/parameters/Limit'
+        - $ref: '#/components/parameters/Offset'
+        - $ref: '#/components/parameters/Search'
+        - $ref: '#/components/parameters/Sort'
+        - $ref: '#/components/parameters/Order'
+      responses:
+        '200':
+          description: API key list.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/APIKeyListResponse'
+        default:
+          $ref: '#/components/responses/Problem'
+    post:
+      operationId: createAPIKey
+      tags:
+        - api-keys
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/APIKeyCreateRequest'
+      responses:
+        '201':
+          description: API key created.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CreateAPIKeyData'
+        default:
+          $ref: '#/components/responses/Problem'
+  /api-keys/{id}:
+    get:
+      operationId: getAPIKey
+      tags:
+        - api-keys
+      parameters:
+        - $ref: '#/components/parameters/Id'
+      responses:
+        '200':
+          description: API key detail.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/APIKey'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        default:
+          $ref: '#/components/responses/Problem'
+    patch:
+      operationId: patchAPIKey
+      tags:
+        - api-keys
+      parameters:
+        - $ref: '#/components/parameters/Id'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/APIKeyAccessWriteRequest'
+      responses:
+        '200':
+          description: API key access updated.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/APIKey'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        default:
+          $ref: '#/components/responses/Problem'
+    delete:
+      operationId: deleteAPIKey
+      tags:
+        - api-keys
+      parameters:
+        - $ref: '#/components/parameters/Id'
+      responses:
+        '204':
+          description: API key deleted.
+        '404':
+          $ref: '#/components/responses/NotFound'
+        default:
+          $ref: '#/components/responses/Problem'
+  /assets:
+    get:
+      operationId: listAssets
+      tags:
+        - assets
+      parameters:
+        - $ref: '#/components/parameters/Limit'
+        - $ref: '#/components/parameters/Offset'
+        - $ref: '#/components/parameters/Search'
+        - $ref: '#/components/parameters/Sort'
+        - $ref: '#/components/parameters/Order'
+        - $ref: '#/components/parameters/AssetTypeFilter'
+      responses:
+        '200':
+          description: Asset list.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AssetListResponse'
+        default:
+          $ref: '#/components/responses/Problem'
+    post:
+      operationId: createAsset
+      tags:
+        - assets
+      requestBody:
+        required: true
+        content:
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/AssetCreateRequest'
+      responses:
+        '201':
+          description: Asset created.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Asset'
+        default:
+          $ref: '#/components/responses/Problem'
+  /assets/{id}:
+    get:
+      operationId: getAsset
+      tags:
+        - assets
+      parameters:
+        - $ref: '#/components/parameters/Id'
+      responses:
+        '200':
+          description: Asset detail.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Asset'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        default:
+          $ref: '#/components/responses/Problem'
+    patch:
+      operationId: patchAsset
+      tags:
+        - assets
+      parameters:
+        - $ref: '#/components/parameters/Id'
+      requestBody:
+        required: true
+        content:
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/AssetUpdateRequest'
+      responses:
+        '200':
+          description: Asset updated.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Asset'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        default:
+          $ref: '#/components/responses/Problem'
+    delete:
+      operationId: deleteAsset
+      tags:
+        - assets
+      parameters:
+        - $ref: '#/components/parameters/Id'
+      responses:
+        '204':
+          description: Asset deleted.
+        '404':
+          $ref: '#/components/responses/NotFound'
+        default:
+          $ref: '#/components/responses/Problem'
+  /assets/{id}/content:
+    get:
+      operationId: getAssetContent
+      tags:
+        - assets
+      parameters:
+        - $ref: '#/components/parameters/Id'
+      responses:
+        '200':
+          description: Asset file content.
+          content:
+            image/*:
+              schema:
+                type: string
+                format: binary
+            application/octet-stream:
+              schema:
+                type: string
+                format: binary
+        '404':
+          $ref: '#/components/responses/NotFound'
+        default:
+          $ref: '#/components/responses/Problem'
+  /checkins:
+    get:
+      operationId: listCheckins
+      tags:
+        - checkins
+      parameters:
+        - $ref: '#/components/parameters/Limit'
+        - $ref: '#/components/parameters/Offset'
+        - $ref: '#/components/parameters/Search'
+        - $ref: '#/components/parameters/Sort'
+        - $ref: '#/components/parameters/Order'
+        - $ref: '#/components/parameters/LocationIdFilter'
+        - $ref: '#/components/parameters/UserIdFilter'
+        - $ref: '#/components/parameters/DirectionFilter'
+        - $ref: '#/components/parameters/CreatedFromFilter'
+        - $ref: '#/components/parameters/CreatedToFilter'
+      responses:
+        '200':
+          description: Checkin list.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CheckinListResponse'
+        default:
+          $ref: '#/components/responses/Problem'
+    post:
+      operationId: createCheckin
+      tags:
+        - checkins
+      requestBody:
+        required: true
+        content:
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/CheckinCreateRequest'
+      responses:
+        '201':
+          description: Checkin created.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Checkin'
+        default:
+          $ref: '#/components/responses/Problem'
+  /checkins/{id}:
+    get:
+      operationId: getCheckin
+      tags:
+        - checkins
+      parameters:
+        - $ref: '#/components/parameters/Id'
+      responses:
+        '200':
+          description: Checkin detail.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Checkin'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        default:
+          $ref: '#/components/responses/Problem'
+  /group-memberships:
+    get:
+      operationId: listGroupMemberships
+      tags:
+        - group-memberships
+      parameters:
+        - $ref: '#/components/parameters/Limit'
+        - $ref: '#/components/parameters/Offset'
+        - $ref: '#/components/parameters/Search'
+        - $ref: '#/components/parameters/Sort'
+        - $ref: '#/components/parameters/Order'
+        - $ref: '#/components/parameters/GroupIdFilter'
+        - $ref: '#/components/parameters/UserIdFilter'
+      responses:
+        '200':
+          description: Group membership list.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GroupMembershipListResponse'
+        default:
+          $ref: '#/components/responses/Problem'
+  /group-memberships/{id}:
+    get:
+      operationId: getGroupMembership
+      tags:
+        - group-memberships
+      parameters:
+        - $ref: '#/components/parameters/Id'
+      responses:
+        '200':
+          description: Group membership detail.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GroupMembership'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        default:
+          $ref: '#/components/responses/Problem'
+  /groups:
+    get:
+      operationId: listGroups
+      tags:
+        - groups
+      parameters:
+        - $ref: '#/components/parameters/Limit'
+        - $ref: '#/components/parameters/Offset'
+        - $ref: '#/components/parameters/Search'
+        - $ref: '#/components/parameters/Sort'
+        - $ref: '#/components/parameters/Order'
+      responses:
+        '200':
+          description: Group list.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GroupListResponse'
+        default:
+          $ref: '#/components/responses/Problem'
+  /groups/{id}:
+    get:
+      operationId: getGroup
+      tags:
+        - groups
+      parameters:
+        - $ref: '#/components/parameters/Id'
+      responses:
+        '200':
+          description: Group detail.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Group'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        default:
+          $ref: '#/components/responses/Problem'
+  /locations:
+    get:
+      operationId: listLocations
+      tags:
+        - locations
+      parameters:
+        - $ref: '#/components/parameters/Limit'
+        - $ref: '#/components/parameters/Offset'
+        - $ref: '#/components/parameters/Search'
+        - $ref: '#/components/parameters/Sort'
+        - $ref: '#/components/parameters/Order'
+        - $ref: '#/components/parameters/EnabledFilter'
+      responses:
+        '200':
+          description: Location list.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/LocationListResponse'
+        default:
+          $ref: '#/components/responses/Problem'
+    post:
+      operationId: createLocation
+      tags:
+        - locations
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/LocationWriteRequest'
+      responses:
+        '201':
+          description: Location created.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Location'
+        default:
+          $ref: '#/components/responses/Problem'
+  /locations/{id}:
+    get:
+      operationId: getLocation
+      tags:
+        - locations
+      parameters:
+        - $ref: '#/components/parameters/Id'
+      responses:
+        '200':
+          description: Location detail.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Location'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        default:
+          $ref: '#/components/responses/Problem'
+    patch:
+      operationId: patchLocation
+      tags:
+        - locations
+      parameters:
+        - $ref: '#/components/parameters/Id'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/LocationWriteRequest'
+      responses:
+        '200':
+          description: Location updated.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Location'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        default:
+          $ref: '#/components/responses/Problem'
+    delete:
+      operationId: deleteLocation
+      tags:
+        - locations
+      parameters:
+        - $ref: '#/components/parameters/Id'
+      responses:
+        '204':
+          description: Location deleted.
+        '404':
+          $ref: '#/components/responses/NotFound'
+        default:
+          $ref: '#/components/responses/Problem'
+  /users:
+    get:
+      operationId: listUsers
+      tags:
+        - users
+      parameters:
+        - $ref: '#/components/parameters/Limit'
+        - $ref: '#/components/parameters/Offset'
+        - $ref: '#/components/parameters/Search'
+        - $ref: '#/components/parameters/Sort'
+        - $ref: '#/components/parameters/Order'
+        - $ref: '#/components/parameters/LocationIdFilter'
+      responses:
+        '200':
+          description: User list.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UserListResponse'
+        default:
+          $ref: '#/components/responses/Problem'
+  /users/{id}:
+    get:
+      operationId: getUser
+      tags:
+        - users
+      parameters:
+        - $ref: '#/components/parameters/Id'
+      responses:
+        '200':
+          description: User detail.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/User'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        default:
+          $ref: '#/components/responses/Problem'
+    patch:
+      operationId: patchUser
+      tags:
+        - users
+      parameters:
+        - $ref: '#/components/parameters/Id'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UserAccessWriteRequest'
+      responses:
+        '200':
+          description: User access updated.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/User'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        default:
+          $ref: '#/components/responses/Problem'
+components:
+  securitySchemes:
+    sessionAuth:
+      type: apiKey
+      in: cookie
+      name: woodgate_session
+    apiKeyAuth:
+      type: apiKey
+      in: header
+      name: X-API-Key
+  parameters:
+    Id:
+      name: id
+      in: path
+      required: true
+      schema:
+        type: string
+        format: uuid
+    Limit:
+      name: limit
+      in: query
+      schema:
+        type: integer
+        format: int32
+        minimum: 1
+    Offset:
+      name: offset
+      in: query
+      schema:
+        type: integer
+        format: int32
+        minimum: 0
+    Search:
+      name: search
+      in: query
+      schema:
+        type: string
+    Sort:
+      name: sort
+      in: query
+      schema:
+        type: string
+    Order:
+      name: order
+      in: query
+      schema:
+        type: string
+        enum:
+          - asc
+          - desc
+    EnabledFilter:
+      name: enabled
+      in: query
+      schema:
+        type: boolean
+    GroupIdFilter:
+      name: group_id
+      in: query
+      schema:
+        type: string
+        format: uuid
+    UserIdFilter:
+      name: user_id
+      in: query
+      schema:
+        type: string
+        format: uuid
+    LocationIdFilter:
+      name: location_id
+      in: query
+      schema:
+        type: string
+        format: uuid
+    DirectionFilter:
+      name: direction
+      in: query
+      schema:
+        $ref: '#/components/schemas/CheckinDirection'
+    CreatedFromFilter:
+      name: created_from
+      in: query
+      schema:
+        type: string
+        format: date-time
+    CreatedToFilter:
+      name: created_to
+      in: query
+      schema:
+        type: string
+        format: date-time
+    AssetTypeFilter:
+      name: type
+      in: query
+      schema:
+        $ref: '#/components/schemas/AssetType'
+  responses:
+    Problem:
+      description: Problem response.
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Problem'
+    NotFound:
+      description: Resource not found.
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Problem'
+  schemas:
+    APIKey:
+      type: object
+      required:
+        - id
+        - name
+        - key_prefix
+        - admin
+        - access
+        - created_at
+      properties:
+        id:
+          type: string
+          format: uuid
+        name:
+          type: string
+        key_prefix:
+          type: string
+        last_used_at:
+          type: string
+          format: date-time
+          nullable: true
+        expires_at:
+          type: string
+          format: date-time
+          nullable: true
+        admin:
+          type: boolean
+        access:
+          type: array
+          items:
+            $ref: '#/components/schemas/PermissionGrant'
+        created_at:
+          type: string
+          format: date-time
+    APIKeyAccessWriteRequest:
+      type: object
+      required:
+        - admin
+        - access
+      properties:
+        admin:
+          type: boolean
+        access:
+          type: array
+          items:
+            $ref: '#/components/schemas/PermissionGrant'
+    APIKeyCreateRequest:
+      type: object
+      required:
+        - name
+      properties:
+        name:
+          type: string
+        expires_at:
+          type: string
+          format: date-time
+          nullable: true
+    APIKeyListResponse:
+      type: object
+      required:
+        - rows
+        - total
+      properties:
+        rows:
+          type: array
+          items:
+            $ref: '#/components/schemas/APIKey'
+        total:
+          type: integer
+          format: int32
+    Asset:
+      type: object
+      required:
+        - id
+        - type
+        - url
+        - created_at
+        - updated_at
+      properties:
+        id:
+          type: string
+          format: uuid
+        name:
+          type: string
+          nullable: true
+        type:
+          $ref: '#/components/schemas/AssetType'
+        url:
+          type: string
+          format: uri-reference
+        created_at:
+          type: string
+          format: date-time
+        updated_at:
+          type: string
+          format: date-time
+    AssetCreateRequest:
+      type: object
+      required:
+        - file
+      properties:
+        name:
+          type: string
+        file:
+          type: string
+          format: binary
+    AssetListResponse:
+      type: object
+      required:
+        - rows
+        - total
+      properties:
+        rows:
+          type: array
+          items:
+            $ref: '#/components/schemas/Asset'
+        total:
+          type: integer
+          format: int32
+    AssetType:
+      type: string
+      enum:
+        - asset
+        - photo
+    AssetUpdateRequest:
+      type: object
+      properties:
+        name:
+          type: string
+        file:
+          type: string
+          format: binary
+    Checkin:
+      type: object
+      required:
+        - id
+        - user_id
+        - location_id
+        - direction
+        - notes
+        - created_by_kind
+        - created_by_id
+        - created_at
+      properties:
+        id:
+          type: string
+          format: uuid
+        user_id:
+          type: string
+          format: uuid
+        location_id:
+          type: string
+          format: uuid
+        direction:
+          $ref: '#/components/schemas/CheckinDirection'
+        notes:
+          type: string
+        asset_id:
+          type: string
+          format: uuid
+          nullable: true
+        created_by_kind:
+          $ref: '#/components/schemas/PermissionSubjectKind'
+        created_by_id:
+          type: string
+          format: uuid
+        created_at:
+          type: string
+          format: date-time
+    CheckinCreateRequest:
+      type: object
+      required:
+        - user_id
+        - location_id
+        - direction
+      properties:
+        user_id:
+          type: string
+          format: uuid
+        location_id:
+          type: string
+          format: uuid
+        direction:
+          $ref: '#/components/schemas/CheckinDirection'
+        notes:
+          type: string
+        photo:
+          type: string
+          format: binary
+    CheckinDirection:
+      type: string
+      enum:
+        - check_in
+        - check_out
+    CheckinListResponse:
+      type: object
+      required:
+        - rows
+        - total
+      properties:
+        rows:
+          type: array
+          items:
+            $ref: '#/components/schemas/Checkin'
+        total:
+          type: integer
+          format: int32
+    CreateAPIKeyData:
+      allOf:
+        - $ref: '#/components/schemas/APIKey'
+        - type: object
+          required:
+            - secret
+          properties:
+            secret:
+              type: string
+    FieldError:
+      type: object
+      required:
+        - field
+        - message
+      properties:
+        field:
+          type: string
+        message:
+          type: string
+        code:
+          type: string
+    Group:
+      type: object
+      required:
+        - id
+        - name
+        - description
+        - member_count
+        - created_at
+        - updated_at
+      properties:
+        id:
+          type: string
+          format: uuid
+        name:
+          type: string
+        description:
+          type: string
+        member_count:
+          type: integer
+          format: int32
+        created_at:
+          type: string
+          format: date-time
+        updated_at:
+          type: string
+          format: date-time
+    GroupListResponse:
+      type: object
+      required:
+        - rows
+        - total
+      properties:
+        rows:
+          type: array
+          items:
+            $ref: '#/components/schemas/Group'
+        total:
+          type: integer
+          format: int32
+    GroupMembership:
+      type: object
+      required:
+        - id
+        - group_id
+        - user_id
+        - created_at
+        - updated_at
+      properties:
+        id:
+          type: string
+          format: uuid
+        group_id:
+          type: string
+          format: uuid
+        user_id:
+          type: string
+          format: uuid
+        created_at:
+          type: string
+          format: date-time
+        updated_at:
+          type: string
+          format: date-time
+    GroupMembershipListResponse:
+      type: object
+      required:
+        - rows
+        - total
+      properties:
+        rows:
+          type: array
+          items:
+            $ref: '#/components/schemas/GroupMembership'
+        total:
+          type: integer
+          format: int32
+    Location:
+      type: object
+      required:
+        - id
+        - name
+        - description
+        - enabled
+        - notes
+        - photo
+        - group_ids
+        - created_at
+        - updated_at
+      properties:
+        id:
+          type: string
+          format: uuid
+        name:
+          type: string
+        description:
+          type: string
+        enabled:
+          type: boolean
+        notes:
+          type: boolean
+        photo:
+          type: boolean
+        background_asset_id:
+          type: string
+          format: uuid
+          nullable: true
+        logo_asset_id:
+          type: string
+          format: uuid
+          nullable: true
+        group_ids:
+          type: array
+          items:
+            type: string
+            format: uuid
+        created_at:
+          type: string
+          format: date-time
+        updated_at:
+          type: string
+          format: date-time
+    LocationListResponse:
+      type: object
+      required:
+        - rows
+        - total
+      properties:
+        rows:
+          type: array
+          items:
+            $ref: '#/components/schemas/Location'
+        total:
+          type: integer
+          format: int32
+    LocationWriteRequest:
+      type: object
+      required:
+        - name
+        - description
+        - enabled
+        - notes
+        - photo
+        - group_ids
+      properties:
+        name:
+          type: string
+        description:
+          type: string
+        enabled:
+          type: boolean
+        notes:
+          type: boolean
+        photo:
+          type: boolean
+        background_asset_id:
+          type: string
+          format: uuid
+          nullable: true
+        logo_asset_id:
+          type: string
+          format: uuid
+          nullable: true
+        group_ids:
+          type: array
+          items:
+            type: string
+            format: uuid
+    PermissionAction:
+      type: string
+      enum:
+        - read
+        - create
+        - write
+        - delete
+    PermissionGrant:
+      type: object
+      required:
+        - resource
+        - action
+      properties:
+        resource:
+          $ref: '#/components/schemas/PermissionResource'
+        action:
+          $ref: '#/components/schemas/PermissionAction'
+        location_id:
+          type: string
+          format: uuid
+          nullable: true
+        asset_type:
+          allOf:
+            - $ref: '#/components/schemas/AssetType'
+          nullable: true
+    PermissionResource:
+      type: string
+      enum:
+        - users
+        - groups
+        - locations
+        - checkins
+        - assets
+        - api_keys
+    PermissionSubjectKind:
+      type: string
+      enum:
+        - user
+        - api_key
+    Problem:
+      type: object
+      required:
+        - type
+        - title
+        - status
+        - detail
+        - code
+      properties:
+        type:
+          type: string
+        title:
+          type: string
+        status:
+          type: integer
+          format: int32
+        detail:
+          type: string
+        code:
+          type: string
+        field_errors:
+          type: array
+          items:
+            $ref: '#/components/schemas/FieldError'
+    Source:
+      type: string
+      enum:
+        - local
+        - entra
+    User:
+      type: object
+      required:
+        - id
+        - upn
+        - display_name
+        - department
+        - source
+        - admin
+        - access
+        - created_at
+        - updated_at
+      properties:
+        id:
+          type: string
+          format: uuid
+        upn:
+          type: string
+        display_name:
+          type: string
+        department:
+          type: string
+        source:
+          $ref: '#/components/schemas/Source'
+        admin:
+          type: boolean
+        access:
+          type: array
+          items:
+            $ref: '#/components/schemas/PermissionGrant'
+        created_at:
+          type: string
+          format: date-time
+        updated_at:
+          type: string
+          format: date-time
+    UserAccessWriteRequest:
+      type: object
+      required:
+        - admin
+        - access
+      properties:
+        admin:
+          type: boolean
+        access:
+          type: array
+          items:
+            $ref: '#/components/schemas/PermissionGrant'
+    UserListResponse:
+      type: object
+      required:
+        - rows
+        - total
+      properties:
+        rows:
+          type: array
+          items:
+            $ref: '#/components/schemas/User'
+        total:
+          type: integer
+          format: int32

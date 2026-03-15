@@ -37,7 +37,15 @@ formatters:
       # with the given prefixes are grouped after 3rd-party packages.
       # Default: []
       local-prefixes:
-        - github.com/woodleighschool/signin-ui
+        - github.com/woodleighschool/woodgate
+
+    gci:
+      # Keep import grouping consistent with goimports local-prefixes.
+      sections:
+        - standard
+        - default
+        - prefix(github.com/woodleighschool/woodgate)
+      custom-order: true
 
     golines:
       # Target maximum line length.
