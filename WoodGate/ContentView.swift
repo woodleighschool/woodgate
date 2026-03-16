@@ -94,7 +94,12 @@ struct ContentView: View {
       if let unavailableState = modelData.unavailableState, !session.isDemo {
         switch unavailableState {
         case .connectivity:
-          unavailableView
+          UnavailableCardView(
+            title: "Can't Connect Right Now",
+            systemImage: "wifi.exclamationmark",
+            message:
+            "The server can't be reached right now. You can try refreshing, and this device will keep trying in the background."
+          )
         case .authorization:
           UnavailableCardView(
             title: "This Device Is No Longer Authorized",
@@ -142,15 +147,6 @@ struct ContentView: View {
     .presentationDragIndicator(.visible)
   }
 
-  private var refreshButton: some View {
-    Button("Refresh") {
-      Task {
-        await modelData.refreshSession()
-      }
-    }
-    .buttonStyle(.borderedProminent)
-  }
-
   // MARK: - Private Helpers
 
   private func locationSelectionSheet(selection: LocationSelectionState) -> some View {
@@ -174,37 +170,5 @@ struct ContentView: View {
     }
     .presentationDetents([.large])
     .presentationDragIndicator(.visible)
-  }
-
-  private var unavailableView: some View {
-    VStack(alignment: .leading, spacing: 22) {
-      VStack(alignment: .leading, spacing: 10) {
-        Label("Can't Connect Right Now", systemImage: "wifi.exclamationmark")
-          .font(.system(size: 28, weight: .bold, design: .rounded))
-
-        Text(
-          "The server can't be reached right now. You can try refreshing, and this device will keep trying in the background."
-        )
-        .font(.system(size: 17, weight: .medium, design: .rounded))
-        .foregroundStyle(.secondary)
-        .fixedSize(horizontal: false, vertical: true)
-      }
-
-      ViewThatFits(in: .horizontal) {
-        HStack(spacing: 12) {
-          refreshButton
-        }
-
-        VStack(spacing: 12) {
-          refreshButton
-        }
-      }
-    }
-    .padding(24)
-    .frame(maxWidth: 620)
-    .glassEffect(in: .rect(cornerRadius: 28))
-    .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .center)
-    .safeAreaPadding(.horizontal, 16)
-    .safeAreaPadding(.vertical, 16)
   }
 }
