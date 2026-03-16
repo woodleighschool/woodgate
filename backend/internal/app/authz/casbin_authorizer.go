@@ -101,7 +101,7 @@ func (authorizer *CasbinAuthorizer) Reload(ctx context.Context) error {
 }
 
 func (authorizer *CasbinAuthorizer) Can(
-	_ context.Context,
+	ctx context.Context,
 	principal Principal,
 	resource string,
 	action string,
@@ -115,6 +115,21 @@ func (authorizer *CasbinAuthorizer) Can(
 		return false, err
 	}
 
+	switch resourceName {
+	case string(domain.PermissionResourceCheckins):
+		scope, scopeErr := authorizer.CheckinScope(ctx, principal, action)
+		if scopeErr != nil {
+			return false, scopeErr
+		}
+		return scope.AllowsAny(), nil
+	case string(domain.PermissionResourceAssets):
+		scope, scopeErr := authorizer.AssetScope(ctx, principal, action)
+		if scopeErr != nil {
+			return false, scopeErr
+		}
+		return scope.AllowsAny(), nil
+	}
+
 	authorizer.mu.RLock()
 	defer authorizer.mu.RUnlock()
 
@@ -122,94 +137,89 @@ func (authorizer *CasbinAuthorizer) Can(
 	if err != nil {
 		return false, fmt.Errorf("enforce policy: %w", err)
 	}
+	return allowed, nil
+}
+
+func (authorizer *CasbinAuthorizer) CheckinScope(
+	_ context.Context,
+	principal Principal,
+	action string,
+) (Scope[uuid.UUID], error) {
+	return scopedAccess(
+		authorizer,
+		principal,
+		string(domain.PermissionResourceCheckins),
+		action,
+		locationDomains,
+		parseScopeLocationID,
+	)
+}
+
+func (authorizer *CasbinAuthorizer) AssetScope(
+	_ context.Context,
+	principal Principal,
+	action string,
+) (Scope[domain.AssetType], error) {
+	return scopedAccess(
+		authorizer,
+		principal,
+		string(domain.PermissionResourceAssets),
+		action,
+		assetTypeDomains,
+		parseScopeAssetType,
+	)
+}
+
+func scopedAccess[T comparable](
+	authorizer *CasbinAuthorizer,
+	principal Principal,
+	resource string,
+	action string,
+	domainValues func(*casbin.Enforcer, string, string) []string,
+	parse func(string) (T, error),
+) (Scope[T], error) {
+	if principal.Bootstrap {
+		return Scope[T]{All: true}, nil
+	}
+
+	subject, err := subjectFromPrincipal(principal)
+	if err != nil {
+		return Scope[T]{}, err
+	}
+	actionName, err := mapAction(action)
+	if err != nil {
+		return Scope[T]{}, err
+	}
+
+	authorizer.mu.RLock()
+	defer authorizer.mu.RUnlock()
+
+	admin, err := authorizer.isAdminLocked(subject)
+	if err != nil {
+		return Scope[T]{}, err
+	}
+	if admin {
+		return Scope[T]{All: true}, nil
+	}
+	allowed, err := authorizer.enforcer.Enforce(subject, resource, actionName, globalDomain)
+	if err != nil {
+		return Scope[T]{}, fmt.Errorf("enforce policy: %w", err)
+	}
 	if allowed {
-		return true, nil
+		return Scope[T]{All: true}, nil
 	}
 
-	switch resourceName {
-	case string(domain.PermissionResourceCheckins):
-		for _, domainName := range locationDomains(authorizer.enforcer, subject, actionName) {
-			if domainName != globalDomain {
-				return true, nil
-			}
-		}
-	case string(domain.PermissionResourceAssets):
-		for _, domainName := range assetTypeDomains(authorizer.enforcer, subject, actionName) {
-			if domainName != globalDomain {
-				return true, nil
-			}
-		}
-	}
-
-	return false, nil
-}
-
-func (authorizer *CasbinAuthorizer) GrantedLocations(
-	_ context.Context,
-	principal Principal,
-	action string,
-) ([]uuid.UUID, error) {
-	if principal.Bootstrap {
-		return nil, nil
-	}
-
-	subject, err := subjectFromPrincipal(principal)
-	if err != nil {
-		return nil, err
-	}
-	actionName, err := mapAction(action)
-	if err != nil {
-		return nil, err
-	}
-
-	authorizer.mu.RLock()
-	defer authorizer.mu.RUnlock()
-
-	domains := locationDomains(authorizer.enforcer, subject, actionName)
-	locationIDs := make([]uuid.UUID, 0, len(domains))
+	domains := domainValues(authorizer.enforcer, subject, actionName)
+	values := make([]T, 0, len(domains))
 	for _, domainName := range domains {
-		locationID, parseErr := parseScopeLocationID(domainName)
+		value, parseErr := parse(domainName)
 		if parseErr != nil {
-			return nil, parseErr
+			return Scope[T]{}, parseErr
 		}
-		locationIDs = append(locationIDs, locationID)
+		values = append(values, value)
 	}
 
-	return locationIDs, nil
-}
-
-func (authorizer *CasbinAuthorizer) GrantedAssetTypes(
-	_ context.Context,
-	principal Principal,
-	action string,
-) ([]domain.AssetType, error) {
-	if principal.Bootstrap {
-		return nil, nil
-	}
-
-	subject, err := subjectFromPrincipal(principal)
-	if err != nil {
-		return nil, err
-	}
-	actionName, err := mapAction(action)
-	if err != nil {
-		return nil, err
-	}
-
-	authorizer.mu.RLock()
-	defer authorizer.mu.RUnlock()
-
-	domains := assetTypeDomains(authorizer.enforcer, subject, actionName)
-	assetTypes := make([]domain.AssetType, 0, len(domains))
-	for _, domainName := range domains {
-		assetType, parseErr := parseScopeAssetType(domainName)
-		if parseErr != nil {
-			return nil, parseErr
-		}
-		assetTypes = append(assetTypes, assetType)
-	}
-
-	return assetTypes, nil
+	return Scope[T]{Values: values}, nil
 }
 
 func (authorizer *CasbinAuthorizer) IsAdmin(_ context.Context, principal Principal) (bool, error) {
@@ -225,6 +235,10 @@ func (authorizer *CasbinAuthorizer) IsAdmin(_ context.Context, principal Princip
 	authorizer.mu.RLock()
 	defer authorizer.mu.RUnlock()
 
+	return authorizer.isAdminLocked(subject)
+}
+
+func (authorizer *CasbinAuthorizer) isAdminLocked(subject string) (bool, error) {
 	return authorizer.enforcer.HasGroupingPolicy(subject, adminRoleName, anyDomain)
 }
 

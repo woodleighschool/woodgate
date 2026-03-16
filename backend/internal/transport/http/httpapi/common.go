@@ -372,42 +372,26 @@ func checkinScope(
 	ctx context.Context,
 	authorizer authz.Authorizer,
 	required domain.PermissionAction,
-) ([]uuid.UUID, bool, error) {
+) (authz.Scope[uuid.UUID], error) {
 	principal, err := principalFromContext(ctx)
 	if err != nil {
-		return nil, false, err
-	}
-	if principal.Bootstrap {
-		return nil, true, nil
+		return authz.Scope[uuid.UUID]{}, err
 	}
 
-	locationIDs, err := authorizer.GrantedLocations(ctx, principal, string(required))
-	if err != nil {
-		return nil, false, err
-	}
-
-	return locationIDs, false, nil
+	return authorizer.CheckinScope(ctx, principal, string(required))
 }
 
 func assetScope(
 	ctx context.Context,
 	authorizer authz.Authorizer,
 	required domain.PermissionAction,
-) ([]domain.AssetType, bool, error) {
+) (authz.Scope[domain.AssetType], error) {
 	principal, err := principalFromContext(ctx)
 	if err != nil {
-		return nil, false, err
-	}
-	if principal.Bootstrap {
-		return nil, true, nil
+		return authz.Scope[domain.AssetType]{}, err
 	}
 
-	assetTypes, err := authorizer.GrantedAssetTypes(ctx, principal, string(required))
-	if err != nil {
-		return nil, false, err
-	}
-
-	return assetTypes, false, nil
+	return authorizer.AssetScope(ctx, principal, string(required))
 }
 
 func requireString(field string, value string, validationErr *domain.ValidationError) string {

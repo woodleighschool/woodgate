@@ -103,8 +103,8 @@ CREATE TABLE IF NOT EXISTS permissions (
   CONSTRAINT permissions_action_check CHECK (action IN ('read', 'create', 'write', 'delete')),
   CONSTRAINT permissions_asset_type_check CHECK (asset_type IS NULL OR asset_type IN ('asset', 'photo')),
   CONSTRAINT permissions_scope_check CHECK (
-    (resource = 'checkins' AND location_id IS NOT NULL AND asset_type IS NULL)
-    OR (resource = 'assets' AND location_id IS NULL AND asset_type IS NOT NULL)
+    (resource = 'checkins' AND asset_type IS NULL)
+    OR (resource = 'assets' AND location_id IS NULL)
     OR (resource NOT IN ('checkins', 'assets') AND location_id IS NULL AND asset_type IS NULL)
   )
 );

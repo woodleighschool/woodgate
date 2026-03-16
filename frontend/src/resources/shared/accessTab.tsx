@@ -39,6 +39,8 @@ const globalAccessRows: { label: string; resource: PermissionResource }[] = [
   { label: "Users", resource: "users" },
   { label: "Groups", resource: "groups" },
   { label: "Locations", resource: "locations" },
+  { label: "Assets", resource: "assets" },
+  { label: "Check-ins", resource: "checkins" },
   { label: "API keys", resource: "api_keys" },
 ];
 
@@ -285,8 +287,8 @@ const AccessEditor = ({
   return (
     <Stack spacing={2.5} sx={{ pt: 1 }}>
       <Alert severity="info">
-        Admin bypasses all individual grants. Direct access grants control which resources and actions are available in
-        the UI and API.
+        Admin bypasses all individual grants. Global grants apply across the whole resource. Scoped asset-type and
+        location grants below only matter when the matching global grant is not enabled.
       </Alert>
       <Paper variant="outlined" sx={{ p: 2.5 }}>
         <FormControlLabel
@@ -301,7 +303,11 @@ const AccessEditor = ({
           label="Administrator"
         />
       </Paper>
-      <AccessSection title="Admin resources" description="Global access for the admin surface." rows={globalRows} />
+      <AccessSection
+        title="Global access"
+        description="Resource-wide access for the admin UI and API."
+        rows={globalRows}
+      />
       <AccessSection
         title="Assets by type"
         description="Type-scoped access for reusable assets and check-in photos."

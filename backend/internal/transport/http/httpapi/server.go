@@ -7,7 +7,6 @@ import (
 	"io"
 	"net/http"
 	"os"
-	"slices"
 	"strings"
 	"time"
 
@@ -36,16 +35,16 @@ func (handler *Server) ListUsers(writer http.ResponseWriter, request *http.Reque
 			return
 		}
 
-		grantedLocationIDs, locationsErr := handler.authorizer.GrantedLocations(
+		locationScope, locationsErr := checkinScope(
 			request.Context(),
-			principal,
-			string(domain.PermissionActionCreate),
+			handler.authorizer,
+			domain.PermissionActionCreate,
 		)
 		if locationsErr != nil {
 			writeClassifiedError(writer, locationsErr, apiErrorOptions{})
 			return
 		}
-		if !containsLocationID(grantedLocationIDs, *locationID) {
+		if !locationScope.Contains(*locationID) {
 			writeClassifiedError(writer, domain.ErrPermissionDenied, apiErrorOptions{})
 			return
 		}
@@ -177,14 +176,14 @@ func (handler *Server) ListAssets(writer http.ResponseWriter, request *http.Requ
 		return
 	}
 
-	allowedTypes, bypassScope, err := assetScope(request.Context(), handler.authorizer, domain.PermissionActionRead)
+	allowedTypes, err := assetScope(request.Context(), handler.authorizer, domain.PermissionActionRead)
 	if err != nil {
 		writeClassifiedError(writer, err, apiErrorOptions{})
 		return
 	}
 
-	types := assetTypesFilter(params.Type, allowedTypes, bypassScope)
-	if !bypassScope && len(types) == 0 {
+	types := assetTypesFilter(params.Type, allowedTypes)
+	if !allowedTypes.All && len(types) == 0 {
 		writeJSON(writer, http.StatusOK, AssetListResponse{Rows: []Asset{}, Total: 0})
 		return
 	}
@@ -207,12 +206,12 @@ func (handler *Server) ListAssets(writer http.ResponseWriter, request *http.Requ
 }
 
 func (handler *Server) CreateAsset(writer http.ResponseWriter, request *http.Request) {
-	allowedTypes, bypassScope, err := assetScope(request.Context(), handler.authorizer, domain.PermissionActionCreate)
+	allowedTypes, err := assetScope(request.Context(), handler.authorizer, domain.PermissionActionCreate)
 	if err != nil {
 		writeClassifiedError(writer, err, apiErrorOptions{})
 		return
 	}
-	if !bypassScope && !slices.Contains(allowedTypes, domain.AssetTypeAsset) {
+	if !allowedTypes.Contains(domain.AssetTypeAsset) {
 		writeClassifiedError(writer, domain.ErrPermissionDenied, apiErrorOptions{})
 		return
 	}
@@ -457,7 +456,7 @@ func (handler *Server) ListCheckins(writer http.ResponseWriter, request *http.Re
 		return
 	}
 
-	allowedLocationIDs, bootstrap, err := checkinScope(
+	locationScope, err := checkinScope(
 		request.Context(),
 		handler.authorizer,
 		domain.PermissionActionRead,
@@ -466,8 +465,9 @@ func (handler *Server) ListCheckins(writer http.ResponseWriter, request *http.Re
 		writeClassifiedError(writer, err, apiErrorOptions{})
 		return
 	}
-	if bootstrap {
-		allowedLocationIDs = nil
+	var allowedLocationIDs []uuid.UUID
+	if !locationScope.All {
+		allowedLocationIDs = locationScope.Values
 	}
 
 	items, total, err := handler.admin.ListCheckins(request.Context(), domain.CheckinListOptions{
@@ -514,16 +514,16 @@ func (handler *Server) CreateCheckin(writer http.ResponseWriter, request *http.R
 		return
 	}
 
-	locationIDs, err := handler.authorizer.GrantedLocations(
+	locationScope, err := checkinScope(
 		request.Context(),
-		principal,
-		string(domain.PermissionActionCreate),
+		handler.authorizer,
+		domain.PermissionActionCreate,
 	)
 	if err != nil {
 		writeClassifiedError(writer, err, apiErrorOptions{})
 		return
 	}
-	if !containsLocationID(locationIDs, body.LocationID) {
+	if !locationScope.Contains(body.LocationID) {
 		writeClassifiedError(writer, domain.ErrPermissionDenied, apiErrorOptions{})
 		return
 	}
@@ -568,7 +568,7 @@ func (handler *Server) CreateCheckin(writer http.ResponseWriter, request *http.R
 }
 
 func (handler *Server) GetCheckin(writer http.ResponseWriter, request *http.Request, id Id) {
-	allowedLocationIDs, bootstrap, err := checkinScope(
+	locationScope, err := checkinScope(
 		request.Context(),
 		handler.authorizer,
 		domain.PermissionActionRead,
@@ -577,8 +577,9 @@ func (handler *Server) GetCheckin(writer http.ResponseWriter, request *http.Requ
 		writeClassifiedError(writer, err, apiErrorOptions{})
 		return
 	}
-	if bootstrap {
-		allowedLocationIDs = nil
+	var allowedLocationIDs []uuid.UUID
+	if !locationScope.All {
+		allowedLocationIDs = locationScope.Values
 	}
 
 	item, err := handler.admin.GetCheckin(request.Context(), id, allowedLocationIDs)
@@ -889,8 +890,8 @@ func assetTypeOpenAPIPointer(value *domain.AssetType) *AssetType {
 	return &item
 }
 
-func assetTypesFilter(value *AssetType, allowed []domain.AssetType, bypass bool) []domain.AssetType {
-	if bypass {
+func assetTypesFilter(value *AssetType, allowed authz.Scope[domain.AssetType]) []domain.AssetType {
+	if allowed.All {
 		if value == nil {
 			return nil
 		}
@@ -899,13 +900,13 @@ func assetTypesFilter(value *AssetType, allowed []domain.AssetType, bypass bool)
 
 	if value != nil {
 		requested := domain.AssetType(*value)
-		if slices.Contains(allowed, requested) {
+		if allowed.Contains(requested) {
 			return []domain.AssetType{requested}
 		}
 		return []domain.AssetType{}
 	}
 
-	return allowed
+	return allowed.Values
 }
 
 func allowAssetType(
@@ -914,18 +915,11 @@ func allowAssetType(
 	required domain.PermissionAction,
 	assetType domain.AssetType,
 ) (bool, error) {
-	allowedTypes, bypassScope, err := assetScope(ctx, authorizer, required)
+	allowedTypes, err := assetScope(ctx, authorizer, required)
 	if err != nil {
 		return false, err
 	}
-	if bypassScope {
-		return true, nil
-	}
-	return slices.Contains(allowedTypes, assetType), nil
-}
-
-func containsLocationID(values []uuid.UUID, target uuid.UUID) bool {
-	return slices.Contains(values, target)
+	return allowedTypes.Contains(assetType), nil
 }
 
 func assetContentURL(id uuid.UUID) string {
@@ -1096,14 +1090,8 @@ func validatePermissionGrants(
 		assetType := assetTypePointer(permission.AssetType)
 		fieldPrefix := fmt.Sprintf("access.%d.location_id", index)
 		assetTypeField := fmt.Sprintf("access.%d.asset_type", index)
-		if resource == domain.PermissionResourceCheckins && locationID == nil {
-			validationErr.Add(fieldPrefix, "is required for checkin permissions", "required")
-		}
 		if resource != domain.PermissionResourceCheckins && locationID != nil {
 			validationErr.Add(fieldPrefix, "must be empty unless resource is checkins", "invalid")
-		}
-		if resource == domain.PermissionResourceAssets && assetType == nil {
-			validationErr.Add(assetTypeField, "is required for asset permissions", "required")
 		}
 		if resource != domain.PermissionResourceAssets && assetType != nil {
 			validationErr.Add(assetTypeField, "must be empty unless resource is assets", "invalid")

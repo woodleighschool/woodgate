@@ -2,6 +2,7 @@ package authz
 
 import (
 	"context"
+	"slices"
 
 	"github.com/google/uuid"
 
@@ -21,10 +22,23 @@ type Principal struct {
 	Bootstrap bool
 }
 
+type Scope[T comparable] struct {
+	All    bool
+	Values []T
+}
+
+func (scope Scope[T]) AllowsAny() bool {
+	return scope.All || len(scope.Values) > 0
+}
+
+func (scope Scope[T]) Contains(value T) bool {
+	return scope.All || slices.Contains(scope.Values, value)
+}
+
 type Authorizer interface {
 	Can(ctx context.Context, principal Principal, resource string, action string) (bool, error)
-	GrantedLocations(ctx context.Context, principal Principal, action string) ([]uuid.UUID, error)
-	GrantedAssetTypes(ctx context.Context, principal Principal, action string) ([]domain.AssetType, error)
+	CheckinScope(ctx context.Context, principal Principal, action string) (Scope[uuid.UUID], error)
+	AssetScope(ctx context.Context, principal Principal, action string) (Scope[domain.AssetType], error)
 	IsAdmin(ctx context.Context, principal Principal) (bool, error)
 }
 

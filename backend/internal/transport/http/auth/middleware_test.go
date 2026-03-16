@@ -46,20 +46,20 @@ func (authorizer *recordingAuthorizer) Can(
 	return authorizer.allowed, authorizer.err
 }
 
-func (authorizer *recordingAuthorizer) GrantedLocations(
+func (authorizer *recordingAuthorizer) CheckinScope(
 	context.Context,
 	authz.Principal,
 	string,
-) ([]uuid.UUID, error) {
-	return nil, authorizer.err
+) (authz.Scope[uuid.UUID], error) {
+	return authz.Scope[uuid.UUID]{}, authorizer.err
 }
 
-func (authorizer *recordingAuthorizer) GrantedAssetTypes(
+func (authorizer *recordingAuthorizer) AssetScope(
 	context.Context,
 	authz.Principal,
 	string,
-) ([]domain.AssetType, error) {
-	return nil, authorizer.err
+) (authz.Scope[domain.AssetType], error) {
+	return authz.Scope[domain.AssetType]{}, authorizer.err
 }
 
 func (authorizer *recordingAuthorizer) IsAdmin(context.Context, authz.Principal) (bool, error) {
