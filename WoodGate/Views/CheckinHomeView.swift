@@ -13,6 +13,8 @@ struct CheckinHomeView: View {
 
   @Environment(ModelData.self) private var modelData
 
+  let session: ActiveSession
+
   private struct FormState {
     var query = ""
     var selectedPersonID: UUID?
@@ -27,10 +29,6 @@ struct CheckinHomeView: View {
   @FocusState private var isNotesFocused: Bool
 
   // MARK: - Computed Properties
-
-  private var session: ActiveSession {
-    modelData.currentSession!
-  }
 
   private var selectedPerson: PersonSummary? {
     session.people.first(where: { $0.id == form.selectedPersonID })
@@ -121,9 +119,6 @@ struct CheckinHomeView: View {
   private var checkinCard: some View {
     VStack(alignment: .leading, spacing: 20) {
       headerSection
-      if session.isDemo {
-        demoFeatureButtons
-      }
       personSelectionSection
       detailsSection
       submissionHintSection
@@ -141,7 +136,7 @@ struct CheckinHomeView: View {
   }
 
   private var headerSection: some View {
-    HStack(alignment: .center, spacing: 16) {
+    HStack(alignment: .center, spacing: 12) {
       Text(session.location.name)
         .font(.system(size: 34, weight: .bold, design: .rounded))
         .lineLimit(1)
@@ -149,31 +144,33 @@ struct CheckinHomeView: View {
         .allowsTightening(true)
 
       Spacer(minLength: 0)
-    }
-  }
 
-  private var demoFeatureButtons: some View {
-    HStack(spacing: 12) {
-      demoActionButton(
-        title: "Notes",
-        systemImage: "note.text",
-        enabled: session.location.notes
-      ) {
-        modelData.toggleDemoNotes()
-        if !session.location.notes {
-          form.notes = ""
-        }
-      }
+      if session.isDemo {
+        HStack(spacing: 16) {
+          Toggle(
+            "Notes",
+            isOn: Binding(
+              get: { session.location.notes },
+              set: { _ in
+                modelData.toggleDemoNotes()
+                if !session.location.notes { form.notes = "" }
+              }
+            )
+          )
 
-      demoActionButton(
-        title: "Selfie",
-        systemImage: "camera.fill",
-        enabled: session.location.photo
-      ) {
-        modelData.toggleDemoPhoto()
-        if !session.location.photo {
-          form.selfie = nil
+          Toggle(
+            "Selfie",
+            isOn: Binding(
+              get: { session.location.photo },
+              set: { _ in
+                modelData.toggleDemoPhoto()
+                if !session.location.photo { form.selfie = nil }
+              }
+            )
+          )
         }
+        .font(.system(size: 13, weight: .medium, design: .rounded))
+        .fixedSize()
       }
     }
   }
@@ -345,30 +342,6 @@ struct CheckinHomeView: View {
       isSearchFocused = false
       isSearchPopoverPresented = false
     }
-  }
-
-  private func demoActionButton(
-    title: String,
-    systemImage: String,
-    enabled: Bool,
-    action: @escaping () -> Void
-  ) -> some View {
-    Button(action: action) {
-      HStack(spacing: 8) {
-        Image(systemName: systemImage)
-          .font(.system(size: 16, weight: .semibold))
-        Text(title)
-          .font(.system(size: 16, weight: .bold, design: .rounded))
-      }
-      .frame(maxWidth: .infinity)
-      .frame(minHeight: 48)
-      .foregroundStyle(enabled ? .primary : .secondary)
-      .background(
-        RoundedRectangle(cornerRadius: 18, style: .continuous)
-          .fill(enabled ? .thickMaterial : .regularMaterial)
-      )
-    }
-    .buttonStyle(.plain)
   }
 
   private func actionButton(

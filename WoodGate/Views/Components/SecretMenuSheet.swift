@@ -13,13 +13,11 @@ struct SecretMenuSheet: View {
   @Environment(ModelData.self) private var modelData
   @Environment(\.dismiss) private var dismiss
 
+  let session: ActiveSession?
+
   @State private var isRefreshing = false
 
   // MARK: - Computed Properties
-
-  private var session: ActiveSession {
-    modelData.currentSession!
-  }
 
   private var appVersion: String {
     let version = Bundle.main.infoDictionary?["CFBundleShortVersionString"] as? String ?? "Unknown"
@@ -53,14 +51,14 @@ struct SecretMenuSheet: View {
 
   private var actionsSection: some View {
     Section("Actions") {
-      if session.isDemo {
+      if let session, session.isDemo {
         Button(role: .destructive) {
           dismiss()
           modelData.exitDemoMode()
         } label: {
           Label("Exit Demo Mode", systemImage: "xmark.octagon")
         }
-      } else {
+      } else if session != nil {
         Button {
           Task {
             isRefreshing = true
@@ -101,15 +99,15 @@ struct SecretMenuSheet: View {
 
   @ViewBuilder
   private var debugSection: some View {
-    if let currentSession = modelData.currentSession {
+    if let session {
       Section("Debug") {
-        Text("Mode: \(currentSession.isDemo ? "Demo" : "Paired")")
-        Text("Location: \(currentSession.location.name)")
-        Text("People cached: \(currentSession.people.count)")
+        Text("Mode: \(session.isDemo ? "Demo" : "Paired")")
+        Text("Location: \(session.location.name)")
+        Text("People cached: \(session.people.count)")
         Text(
-          "Last refresh: \(currentSession.lastSyncedAt.formatted(date: .abbreviated, time: .shortened))"
+          "Last refresh: \(session.lastSyncedAt.formatted(date: .abbreviated, time: .shortened))"
         )
-        Text("Server: \(currentSession.baseURLString)")
+        Text("Server: \(session.baseURLString)")
       }
       .font(.system(size: 13, weight: .regular))
       .foregroundStyle(.secondary)

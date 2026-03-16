@@ -66,7 +66,7 @@ struct ContentView: View {
       scannerSheet
     }
     .sheet(isPresented: $isSecretMenuPresented) {
-      SecretMenuSheet()
+      SecretMenuSheet(session: modelData.currentSession)
     }
     .sheet(item: locationSelectionBinding) { selection in
       locationSelectionSheet(selection: selection)
@@ -109,7 +109,7 @@ struct ContentView: View {
           )
         }
       } else {
-        CheckinHomeView()
+        CheckinHomeView(session: session)
       }
     } else if AppSettings.shared.hasPairing {
       Color.clear
