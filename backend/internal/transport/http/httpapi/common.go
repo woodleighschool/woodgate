@@ -142,6 +142,14 @@ func optionalString[T ~string](value *T) string {
 	return string(*value)
 }
 
+func mapSliceValue[T any, U any](items []T, mapper func(T) U) []U {
+	mapped := make([]U, 0, len(items))
+	for _, item := range items {
+		mapped = append(mapped, mapper(item))
+	}
+	return mapped
+}
+
 func parseListOptions[S ~string, T ~string, O ~string](
 	limit *int32,
 	offset *int32,
@@ -400,4 +408,105 @@ func requireString(field string, value string, validationErr *domain.ValidationE
 		validationErr.Add(field, "must not be empty", "required")
 	}
 	return trimmed
+}
+
+func parseMultipartForm(writer http.ResponseWriter, request *http.Request) error {
+	if !strings.HasPrefix(request.Header.Get("Content-Type"), "multipart/form-data") {
+		return badRequestError("request body must be multipart/form-data")
+	}
+
+	maxMultipartBodyBytes := int64(maxJSONBodyBytes * multipartBodyMultiple)
+	request.Body = http.MaxBytesReader(writer, request.Body, maxMultipartBodyBytes)
+	if parseErr := request.ParseMultipartForm(maxMultipartBodyBytes); parseErr != nil {
+		return badRequestError("request body is invalid")
+	}
+
+	return nil
+}
+
+func multipartValue(request *http.Request, field string) string {
+	if request.MultipartForm == nil {
+		return ""
+	}
+	values := request.MultipartForm.Value[field]
+	if len(values) == 0 {
+		return ""
+	}
+	return values[0]
+}
+
+func readMultipartFile(
+	request *http.Request,
+	field string,
+	requireFile bool,
+	validationErr *domain.ValidationError,
+) ([]byte, error) {
+	file, _, fileErr := request.FormFile(field)
+	switch {
+	case errors.Is(fileErr, http.ErrMissingFile) && requireFile:
+		validationErr.Add(field, "is required", "required")
+		return nil, nil
+	case fileErr != nil && !errors.Is(fileErr, http.ErrMissingFile):
+		return nil, badRequestError("request body is invalid")
+	case errors.Is(fileErr, http.ErrMissingFile):
+		return nil, nil
+	}
+
+	defer file.Close()
+
+	maxMultipartBodyBytes := int64(maxJSONBodyBytes * multipartBodyMultiple)
+	content, readErr := io.ReadAll(io.LimitReader(file, maxMultipartBodyBytes+1))
+	if readErr != nil {
+		return nil, readErr
+	}
+	if len(content) == 0 {
+		validationErr.Add(field, "must not be empty", "required")
+	}
+	if int64(len(content)) > maxMultipartBodyBytes {
+		validationErr.Add(field, "is too large", "invalid")
+	}
+
+	return content, nil
+}
+
+func validatePermissionGrants(
+	access []PermissionGrant,
+	detail string,
+) ([]domain.PermissionGrant, error) {
+	validationErr := &domain.ValidationError{Code: "validation_error", Detail: detail}
+	grants := make([]domain.PermissionGrant, 0, len(access))
+	for index, permission := range access {
+		resource, err := domain.ParsePermissionResource(string(permission.Resource))
+		if err != nil {
+			return nil, badRequestError("invalid access resource")
+		}
+		action, err := domain.ParsePermissionAction(string(permission.Action))
+		if err != nil {
+			return nil, badRequestError("invalid access action")
+		}
+
+		locationID := uuidPointer(permission.LocationId)
+		assetType := assetTypePointer(permission.AssetType)
+		fieldPrefix := fmt.Sprintf("access.%d.location_id", index)
+		assetTypeField := fmt.Sprintf("access.%d.asset_type", index)
+		if resource != domain.PermissionResourceCheckins && locationID != nil {
+			validationErr.Add(fieldPrefix, "must be empty unless resource is checkins", "invalid")
+		}
+		if resource != domain.PermissionResourceAssets && assetType != nil {
+			validationErr.Add(assetTypeField, "must be empty unless resource is assets", "invalid")
+		}
+
+		grants = append(grants, domain.PermissionGrant{
+			Resource:   resource,
+			Action:     action,
+			LocationID: locationID,
+			AssetType:  assetType,
+		})
+	}
+
+	if validationErr.HasFieldErrors() {
+		return nil, validationErr
+	}
+
+	return grants, nil
 }
