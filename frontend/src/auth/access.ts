@@ -1,4 +1,4 @@
-import type { AuthMe, ResourceCapability } from "@/api/authClient";
+import type { AuthPermissions, ResourceCapability } from "@/api/authClient";
 
 const resourceKeyByName: Record<string, string> = {
   users: "users",
@@ -17,7 +17,7 @@ const emptyCapability: ResourceCapability = {
   delete: false,
 };
 
-export const capabilityFor = (permissions: AuthMe | undefined, resourceName: string): ResourceCapability => {
+export const capabilityFor = (permissions: AuthPermissions | undefined, resourceName: string): ResourceCapability => {
   if (!permissions) {
     return emptyCapability;
   }
@@ -52,7 +52,7 @@ const capabilityKeyForAction = (action: string): keyof ResourceCapability | unde
   }
 };
 
-export const canAccess = (permissions: AuthMe | undefined, resourceName: string, action: string): boolean => {
+export const canAccess = (permissions: AuthPermissions | undefined, resourceName: string, action: string): boolean => {
   const capabilityKey = capabilityKeyForAction(action);
   if (!capabilityKey) {
     return false;

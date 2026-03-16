@@ -15,7 +15,19 @@ export interface ResourceCapability {
   delete: boolean;
 }
 
-export interface AuthMe {
+// go-pkgz/auth user payload returned by GET /auth/user.
+export interface AuthUser {
+  id: string;
+  name?: string;
+  email?: string;
+  picture?: string;
+  aud?: string;
+  ip?: string;
+  attrs?: Record<string, unknown>;
+  role?: string;
+}
+
+export interface AuthPermissions {
   principal: {
     type: "user" | "api_key";
     id: string;
@@ -55,8 +67,11 @@ const expectJson = async <T>(response: Response): Promise<T> => {
 };
 
 export const authApi = {
-  getMe: (signal?: AbortSignal): Promise<AuthMe> =>
-    authFetch("/auth/me", signal ? { signal } : undefined).then(expectJson<AuthMe>),
+  getUser: (signal?: AbortSignal): Promise<AuthUser> =>
+    authFetch("/auth/user", signal ? { signal } : undefined).then(expectJson<AuthUser>),
+
+  getPermissions: (signal?: AbortSignal): Promise<AuthPermissions> =>
+    authFetch("/auth/me", signal ? { signal } : undefined).then(expectJson<AuthPermissions>),
 
   listProviders: (signal?: AbortSignal): Promise<string[]> =>
     authFetch("/auth/list", signal ? { signal } : undefined).then(expectJson<string[]>),

@@ -16,12 +16,14 @@ const AppToolbar = (): ReactElement => (
   </Box>
 );
 
-const AdminAppBar = (): ReactElement => <AppBar toolbar={<AppToolbar />} />;
+const AdminAppBar = (): ReactElement => (
+  <AppBar toolbar={<AppToolbar />} sx={{ "& .RaUserMenu-userButton": { whiteSpace: "nowrap" } }} />
+);
 
 type LayoutProperties = ComponentProps<typeof Layout>;
 
-export const AdminLayout = (properties: LayoutProperties): ReactElement => (
-  <Layout {...properties} appBar={AdminAppBar}>
-    {properties.children}
+export const AdminLayout = ({ children, ...rest }: LayoutProperties): ReactElement => (
+  <Layout {...rest} appBar={AdminAppBar}>
+    {children}
   </Layout>
 );

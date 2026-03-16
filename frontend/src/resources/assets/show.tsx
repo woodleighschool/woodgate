@@ -36,7 +36,6 @@ const AssetShowActionsBody = (): ReactElement => {
 export const AssetShow = (): ReactElement => (
   <Show actions={<AssetShowActions />}>
     <SimpleShowLayout>
-      <TextField source="id" />
       <ImageField source="url" title="name" label="Image" />
       <TextField source="name" label="Name" emptyText="-" />
       <TextField source="type" label="Type" />

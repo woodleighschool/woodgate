@@ -1,4 +1,3 @@
-import { invalidateAuthMe } from "@/api/auth";
 import type { AssetType, PermissionAction, PermissionGrant, PermissionResource } from "@/api/types";
 import {
   Alert,
@@ -222,7 +221,6 @@ const AccessEditor = ({
       },
       {
         onSuccess: (): void => {
-          invalidateAuthMe();
           notify("Access updated.", { type: "success" });
           refresh();
         },

@@ -29,7 +29,6 @@ const GroupShowBody = (): ReactElement => {
     <Show actions={<GroupShowActions />}>
       <TabbedShowLayout>
         <TabbedShowLayout.Tab label="Overview">
-          <TextField source="id" />
           <TextField source="name" label="Name" />
           <TextField source="description" label="Description" />
           <NumberField source="member_count" label="Members" />

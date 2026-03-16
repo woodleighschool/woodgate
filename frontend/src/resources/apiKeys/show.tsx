@@ -213,7 +213,6 @@ const APIKeyShowBody = (): ReactElement => {
               API key created. Copy it now; the secret will not be shown again after this session.
             </Alert>
           ) : undefined}
-          <TextField source="id" />
           <TextField source="name" label="Name" />
           <TextField source="key_prefix" label="Prefix" />
           {secret && baseUrl ? (
