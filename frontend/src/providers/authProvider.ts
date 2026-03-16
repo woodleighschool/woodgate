@@ -1,4 +1,4 @@
-import { getAuthMe, isAuthError, loginLocal, logout } from "@/api/auth";
+import { getAuthMe, isUnauthorizedError, loginLocal, logout } from "@/api/auth";
 import type { AuthMe } from "@/api/authClient";
 import { canAccess } from "@/auth/access";
 import type { AuthProvider, UserIdentity } from "react-admin";
@@ -20,7 +20,7 @@ export const authProvider: AuthProvider = {
   },
 
   checkError(error: unknown): Promise<void> {
-    if (isAuthError(error)) {
+    if (isUnauthorizedError(error)) {
       return Promise.reject(new Error("Not authenticated"));
     }
     return Promise.resolve();

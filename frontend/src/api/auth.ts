@@ -8,11 +8,17 @@ export interface AuthProviders {
 let cachedAuthMe: AuthMe | undefined;
 let cachedAuthMePromise: Promise<AuthMe | undefined> | undefined;
 
-export const isAuthError = (error: unknown): boolean => {
+const statusCodeOf = (error: unknown): number | undefined => {
   if (typeof error !== "object" || error === null) {
-    return false;
+    return undefined;
   }
-  const status = (error as { status?: number }).status;
+  return (error as { status?: number }).status;
+};
+
+export const isUnauthorizedError = (error: unknown): boolean => statusCodeOf(error) === 401;
+
+const isTerminalSessionError = (error: unknown): boolean => {
+  const status = statusCodeOf(error);
   return status === 401 || status === 403;
 };
 
@@ -30,7 +36,7 @@ export async function getAuthMe(signal?: AbortSignal): Promise<AuthMe | undefine
       cachedAuthMe = me;
       return me;
     } catch (error) {
-      if (isAuthError(error)) {
+      if (isTerminalSessionError(error)) {
         cachedAuthMe = undefined;
         return undefined;
       }
@@ -57,7 +63,7 @@ export async function logout(): Promise<void> {
   try {
     await authApi.logout();
   } catch (error) {
-    if (isAuthError(error)) {
+    if (isTerminalSessionError(error)) {
       invalidateAuthMe();
       return;
     }
