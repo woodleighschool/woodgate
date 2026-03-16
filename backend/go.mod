@@ -10,6 +10,7 @@ tool (
 require (
 	github.com/caarlos0/env/v11 v11.4.0
 	github.com/casbin/casbin/v2 v2.135.0
+	github.com/casbin/casbin/v3 v3.10.0
 	github.com/gabriel-vasile/mimetype v1.4.13
 	github.com/go-chi/chi/v5 v5.2.5
 	github.com/go-pkgz/auth/v2 v2.1.1
