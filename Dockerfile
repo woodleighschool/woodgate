@@ -10,7 +10,7 @@ ENV NODE_ENV=production
 RUN npm run build
 
 # Build the woodgate binary
-FROM golang:1.26.1 AS backend
+FROM golang:1.26.2 AS backend
 ARG TARGETOS
 ARG TARGETARCH
 ARG LDFLAGS
