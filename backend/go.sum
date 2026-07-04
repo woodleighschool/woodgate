@@ -84,6 +84,8 @@ github.com/go-openapi/swag v0.23.0 h1:vsEVJDUo2hPJ2tu0/Xc+4noaxyEffXNIs3cOULZ+Gr
 github.com/go-openapi/swag v0.23.0/go.mod h1:esZ8ITTYEsH1V2trKHjAN8Ai7xHb8RV+YSZ577vPjgQ=
 github.com/go-pkgz/auth/v2 v2.1.1 h1:CBH3Z6ovLT51Nx9TkBcu2L8Dd/xwL6CgJcgqUnC2isQ=
 github.com/go-pkgz/auth/v2 v2.1.1/go.mod h1:9LwzESczjMavmXNZo1XhYpfYdKWtoCbXt/ZIi0GTvF0=
+github.com/go-pkgz/auth/v2 v2.1.2 h1:tB2TxXR3oiUpqU45K6Zqw5TpB6AUeVQkTAuTCGCI01g=
+github.com/go-pkgz/auth/v2 v2.1.2/go.mod h1:IvxxhJIrwd1hKqFwQgBF9i+sMTmGfzAw66wmhw1zfJc=
 github.com/go-pkgz/repeater/v2 v2.2.0 h1:8nZR/NaknmLfx2YMHbr78u9OL4Xj+8+romm9dz4FpMg=
 github.com/go-pkgz/repeater/v2 v2.2.0/go.mod h1:RgX5vUbLKq7PV82QUDP5pFbQS1os4Z+U9XzKymK23A8=
 github.com/go-pkgz/rest v1.21.0 h1:Y/C4d/TpclJJDxqnH1RAcS6Hmox0RIReAlkwMcUWXK4=
@@ -158,6 +160,8 @@ github.com/keybase/go-keychain v0.0.1 h1:way+bWYa6lDppZoZcgMbYsvC7GxljxrskdNInRt
 github.com/keybase/go-keychain v0.0.1/go.mod h1:PdEILRW3i9D8JcdM+FmY6RwkHGnhHxXwkPPMeUgOK1k=
 github.com/klauspost/compress v1.18.4 h1:RPhnKRAQ4Fh8zU2FY/6ZFDwTVTxgJ/EMydqSTzE9a2c=
 github.com/klauspost/compress v1.18.4/go.mod h1:R0h/fSBs8DE4ENlcrlib3PsXS61voFxhIs2DeRhCvJ4=
+github.com/klauspost/compress v1.18.5 h1:/h1gH5Ce+VWNLSWqPzOVn6XBO+vJbCNGvjoaGBFW2IE=
+github.com/klauspost/compress v1.18.5/go.mod h1:cwPg85FWrGar70rWktvGQj8/hthj3wpl0PGDogxkrSQ=
 github.com/kr/pretty v0.1.0/go.mod h1:dAy3ld7l9f0ibDNOQOHHMYYIIbhfbHSm3C4ZsoJORNo=
 github.com/kr/pretty v0.3.1 h1:flRD4NNwYAUpkphVc1HcthR4KEIFJ65n8Mw5qdRn3LE=
 github.com/kr/pretty v0.3.1/go.mod h1:hoEshYVHaxMs3cyo3Yncou5ZscifuDolrwPKZanG3xk=
@@ -195,6 +199,8 @@ github.com/mohae/deepcopy v0.0.0-20170929034955-c48cc78d4826 h1:RWengNIwukTxcDr9
 github.com/mohae/deepcopy v0.0.0-20170929034955-c48cc78d4826/go.mod h1:TaXosZuwdSHYgviHp1DAtfrULt5eUgsSMsZf+YrPgl8=
 github.com/montanaflynn/stats v0.8.2 h1:52wnefTJnPI5FoHif1DQh2soKRw0yYs+4AVyvtcZCH0=
 github.com/montanaflynn/stats v0.8.2/go.mod h1:etXPPgVO6n31NxCd9KQUMvCM+ve0ruNzt6R8Bnaayow=
+github.com/montanaflynn/stats v0.9.0 h1:tsBJ0RXwph9BmAuFoCmqGv6e8xa0MENQ8m0ptKq29mQ=
+github.com/montanaflynn/stats v0.9.0/go.mod h1:etXPPgVO6n31NxCd9KQUMvCM+ve0ruNzt6R8Bnaayow=
 github.com/moul/http2curl v1.0.0 h1:dRMWoAtb+ePxMlLkrCbAqh4TlPHXvoGUSQ323/9Zahs=
 github.com/moul/http2curl v1.0.0/go.mod h1:8UbvGypXm98wA/IqH45anm5Y2Z6ep6O31QGOAZ3H0fQ=
 github.com/ncruces/go-strftime v1.0.0 h1:HMFp8mLCTPp341M/ZnA4qaf7ZlsbTc+miZjCLOFAw7w=
