@@ -1,4 +1,3 @@
-// Package webdist embeds the production frontend into the WoodGate binary.
 package webdist
 
 import (
