@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.2.1](https://github.com/woodleighschool/woodgate/compare/1.2.0...1.2.1) (2026-07-30)
+
+
+### Bug Fixes
+
+* **entra:** request user departments ([f355a6f](https://github.com/woodleighschool/woodgate/commit/f355a6f29635e6135466d22e57e49f43e8df06c0))
+
 ## [1.2.0](https://github.com/woodleighschool/woodgate/compare/1.1.0...1.2.0) (2026-07-30)
 
 
