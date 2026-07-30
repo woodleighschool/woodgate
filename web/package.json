@@ -33,7 +33,7 @@
     "@vitejs/plugin-react": "^6.0.4",
     "openapi-typescript": "^7.13.0",
     "oxlint-tsgolint": "^7.0.2001",
-    "typescript": "~6.0.3",
+    "typescript": "~7.0.2",
     "vite": "^8.1.5"
   },
   "packageManager": "pnpm@11.18.0"
