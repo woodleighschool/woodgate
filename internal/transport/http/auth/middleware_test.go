@@ -102,7 +102,12 @@ func TestNewAPIMiddleware_AuthenticatesAPIKeyRequests(t *testing.T) {
 		writer.WriteHeader(http.StatusOK)
 	}))
 
-	request := httptest.NewRequest(http.MethodPatch, "/api/v1/users/aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa", nil)
+	request := httptest.NewRequestWithContext(
+		t.Context(),
+		http.MethodPatch,
+		"/api/v1/users/aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa",
+		nil,
+	)
 	request.Header.Set("X-Api-Key", "woodgate_test_key")
 	response := httptest.NewRecorder()
 
@@ -139,7 +144,7 @@ func TestNewAPIMiddleware_AuthenticatesSessionRequests(t *testing.T) {
 		writer.WriteHeader(http.StatusOK)
 	}))
 
-	request := httptest.NewRequest(http.MethodGet, "/api/v1/locations", nil)
+	request := httptest.NewRequestWithContext(t.Context(), http.MethodGet, "/api/v1/locations", nil)
 	response := httptest.NewRecorder()
 
 	handler.ServeHTTP(response, request)
@@ -172,7 +177,7 @@ func TestNewAPIMiddleware_ReturnsUnauthorizedForInvalidAPIKey(t *testing.T) {
 		writer.WriteHeader(http.StatusOK)
 	}))
 
-	request := httptest.NewRequest(http.MethodGet, "/api/v1/checkins", nil)
+	request := httptest.NewRequestWithContext(t.Context(), http.MethodGet, "/api/v1/checkins", nil)
 	request.Header.Set("X-Api-Key", "invalid")
 	response := httptest.NewRecorder()
 
@@ -198,7 +203,7 @@ func TestNewAPIMiddleware_ReturnsForbiddenWhenAuthorizationFails(t *testing.T) {
 		writer.WriteHeader(http.StatusOK)
 	}))
 
-	request := httptest.NewRequest(http.MethodGet, "/api/v1/users", nil)
+	request := httptest.NewRequestWithContext(t.Context(), http.MethodGet, "/api/v1/users", nil)
 	response := httptest.NewRecorder()
 
 	handler.ServeHTTP(response, request)

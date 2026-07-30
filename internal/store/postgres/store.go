@@ -108,7 +108,7 @@ func runMigrations(connectionString string) error {
 	if err != nil {
 		return err
 	}
-	defer sqlDB.Close()
+	defer func() { _ = sqlDB.Close() }()
 
 	if upErr := migrations.Up(sqlDB); upErr != nil {
 		return fmt.Errorf("apply migrations: %w", upErr)

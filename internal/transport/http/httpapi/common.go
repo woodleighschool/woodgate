@@ -452,7 +452,7 @@ func readMultipartFile(
 		return nil, nil
 	}
 
-	defer file.Close()
+	defer func() { _ = file.Close() }()
 
 	maxMultipartBodyBytes := int64(maxJSONBodyBytes * multipartBodyMultiple)
 	content, readErr := io.ReadAll(io.LimitReader(file, maxMultipartBodyBytes+1))

@@ -30,7 +30,6 @@ func New(
 ) http.Handler {
 	router := chi.NewRouter()
 	router.Use(middleware.RequestID)
-	router.Use(middleware.RealIP)
 	router.Use(httpmiddleware.RequestLogger(logger))
 	router.Use(middleware.Recoverer)
 
@@ -48,11 +47,11 @@ func statusHandler(
 	statusCode int,
 	payload statusResponse,
 ) http.HandlerFunc {
-	return func(writer http.ResponseWriter, _ *http.Request) {
+	return func(writer http.ResponseWriter, request *http.Request) {
 		writer.Header().Set("Content-Type", "application/json")
 		writer.WriteHeader(statusCode)
 		if err := json.NewEncoder(writer).Encode(payload); err != nil {
-			logger.Error("encode health response", "error", err)
+			logger.ErrorContext(request.Context(), "encode health response", "error", err)
 		}
 	}
 }
@@ -64,7 +63,7 @@ func readinessHandler(logger *slog.Logger, readinessCheck func(context.Context) 
 			defer cancel()
 
 			if err := readinessCheck(checkContext); err != nil {
-				logger.Warn("readiness check failed", "error", err)
+				logger.WarnContext(request.Context(), "readiness check failed", "error", err)
 				statusHandler(
 					logger,
 					http.StatusServiceUnavailable,

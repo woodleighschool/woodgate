@@ -245,7 +245,12 @@ const APIKeyShowBody = (): ReactElement => {
           <TextField source="key_prefix" label="Prefix" />
           {secret && baseUrl ? (
             <Labeled label="Secret">
-              <Stack direction="row" spacing={2} alignItems="center" useFlexGap flexWrap="wrap">
+              <Stack
+                direction="row"
+                spacing={2}
+                useFlexGap
+                sx={{ alignItems: "center", flexWrap: "wrap" }}
+              >
                 <Typography component="code" sx={{ wordBreak: "break-all" }}>
                   {secret}
                 </Typography>

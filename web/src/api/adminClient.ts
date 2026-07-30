@@ -222,12 +222,3 @@ export const apiKeysApi = {
     expectBody(client["/api-keys"].POST({ body })),
   delete: (id: string): Promise<void> => expectOk(client["/api-keys/{id}"].DELETE(withPath(id))),
 };
-
-export {
-  type APIKeyAccessWriteRequest,
-  type APIKeyCreateRequest,
-  type CheckinCreateRequest,
-  type LocationWriteRequest,
-  type PermissionGrant,
-  type UserAccessWriteRequest,
-} from "@/api/types";

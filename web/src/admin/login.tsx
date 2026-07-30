@@ -36,7 +36,7 @@ export const LoginPage = (): ReactElement => {
     <Login>
       <Stack spacing={2} sx={{ px: 3, py: 3 }}>
         <Stack spacing={0.5}>
-          <Typography variant="h5" fontWeight={600}>
+          <Typography variant="h5" sx={{ fontWeight: 600 }}>
             Sign In
           </Typography>
           <Typography variant="body2" color="text.secondary">

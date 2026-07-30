@@ -17,7 +17,7 @@ const emptyCapability: ResourceCapability = {
   delete: false,
 };
 
-export const capabilityFor = (
+const capabilityFor = (
   permissions: AuthPermissions | undefined,
   resourceName: string,
 ): ResourceCapability => {

@@ -12,6 +12,7 @@ import (
 func RequestLogger(logger *slog.Logger) func(http.Handler) http.Handler {
 	return func(next http.Handler) http.Handler {
 		return http.HandlerFunc(func(writer http.ResponseWriter, request *http.Request) {
+			ctx := request.Context()
 			started := time.Now()
 			wrapped := middleware.NewWrapResponseWriter(writer, request.ProtoMajor)
 
@@ -23,7 +24,7 @@ func RequestLogger(logger *slog.Logger) func(http.Handler) http.Handler {
 			}
 
 			args := []any{
-				"request_id", middleware.GetReqID(request.Context()),
+				"request_id", middleware.GetReqID(ctx),
 				"method", request.Method,
 				"path", request.URL.Path,
 				"query", request.URL.RawQuery,
@@ -36,11 +37,11 @@ func RequestLogger(logger *slog.Logger) func(http.Handler) http.Handler {
 
 			switch {
 			case status >= http.StatusInternalServerError:
-				logger.Error("http request", args...)
+				logger.ErrorContext(ctx, "http request", args...)
 			case status >= http.StatusBadRequest:
-				logger.Warn("http request", args...)
+				logger.WarnContext(ctx, "http request", args...)
 			default:
-				logger.Info("http request", args...)
+				logger.InfoContext(ctx, "http request", args...)
 			}
 		})
 	}
