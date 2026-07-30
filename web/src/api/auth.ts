@@ -9,8 +9,7 @@ export const isAuthError = (error: unknown): boolean => {
   if (typeof error !== "object" || error === null) {
     return false;
   }
-  const status = (error as { status?: number }).status;
-  return status === 401;
+  return Reflect.get(error, "status") === 401;
 };
 
 export async function getCurrentUser(signal?: AbortSignal): Promise<AuthUser | undefined> {

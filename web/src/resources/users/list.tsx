@@ -1,6 +1,7 @@
-import { SourceField } from "@/resources/shared/sourceField";
 import type { ReactElement } from "react";
 import { DataTable, DateField, List, SearchInput } from "react-admin";
+
+import { SourceField } from "@/resources/shared/sourceField";
 
 const userFilters = [<SearchInput key="search" source="search" alwaysOn />];
 

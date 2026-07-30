@@ -1,3 +1,18 @@
+import type {
+  CreateParams,
+  DataProvider,
+  DeleteManyParams,
+  DeleteParams,
+  GetListParams,
+  GetManyParams,
+  GetManyReferenceParams,
+  GetOneParams,
+  Identifier,
+  UpdateManyParams,
+  UpdateParams,
+} from "react-admin";
+import { z } from "zod";
+
 import {
   apiKeysApi,
   assetsApi,
@@ -10,44 +25,66 @@ import {
   type AssetUpdateRequest,
 } from "@/api/adminClient";
 import type {
-  APIKeyAccessWriteRequest,
   APIKeyCreateRequest,
   LocationWriteRequest,
   UserAccessWriteRequest,
 } from "@/api/types";
-import type {
-  CreateParams,
-  CreateResult,
-  DataProvider,
-  DeleteManyParams,
-  DeleteManyResult,
-  DeleteParams,
-  DeleteResult,
-  GetListParams,
-  GetListResult,
-  GetManyParams,
-  GetManyReferenceParams,
-  GetManyReferenceResult,
-  GetManyResult,
-  GetOneParams,
-  GetOneResult,
-  Identifier,
-  RaRecord,
-  UpdateManyParams,
-  UpdateManyResult,
-  UpdateParams,
-  UpdateResult,
-} from "react-admin";
 
 type RecordShape = Record<string, unknown>;
 
 interface ListResult {
-  data: RaRecord[];
+  data: any[];
   total: number;
 }
 
+interface BaseListQuery {
+  limit?: number;
+  offset?: number;
+  search?: string;
+  sort?: string;
+  order?: "asc" | "desc";
+}
+
+const permissionGrantSchema = z.object({
+  resource: z.enum(["users", "groups", "locations", "checkins", "assets", "api_keys"]),
+  action: z.enum(["read", "create", "write", "delete"]),
+  location_id: z.string().nullable().optional(),
+  asset_type: z.enum(["asset", "photo"]).nullable().optional(),
+});
+
+const accessWriteRequestSchema = z.object({
+  admin: z.boolean(),
+  access: z.array(permissionGrantSchema),
+});
+
+const apiKeyCreateRequestSchema = z.object({
+  name: z.string(),
+  expires_at: z.string().nullable().optional(),
+});
+
+const toAccessWriteRequest = (data: RecordShape): UserAccessWriteRequest => {
+  const parsed = accessWriteRequestSchema.parse(data);
+  return {
+    admin: parsed.admin,
+    access: parsed.access.map((grant) => ({
+      resource: grant.resource,
+      action: grant.action,
+      ...(grant.location_id === undefined ? {} : { location_id: grant.location_id }),
+      ...(grant.asset_type === undefined ? {} : { asset_type: grant.asset_type }),
+    })),
+  };
+};
+
+const toAPIKeyCreateRequest = (data: RecordShape): APIKeyCreateRequest => {
+  const parsed = apiKeyCreateRequestSchema.parse(data);
+  return {
+    name: parsed.name,
+    ...(parsed.expires_at === undefined ? {} : { expires_at: parsed.expires_at }),
+  };
+};
+
 const asRecord = (value: unknown): RecordShape =>
-  typeof value === "object" && value !== null ? (value as RecordShape) : {};
+  typeof value === "object" && value !== null ? Object.fromEntries(Object.entries(value)) : {};
 
 const toIdentifier = String;
 
@@ -62,7 +99,6 @@ const getOptionalString = (value: unknown): string | undefined => {
 
 const getNullableString = (value: unknown): string | null | undefined => {
   if (value === null) {
-    // eslint-disable-next-line unicorn/no-null
     return null;
   }
 
@@ -71,7 +107,6 @@ const getNullableString = (value: unknown): string | null | undefined => {
   }
 
   const trimmed = value.trim();
-  // eslint-disable-next-line unicorn/no-null
   return trimmed === "" ? null : trimmed;
 };
 const isFile = (value: unknown): value is File => value instanceof File;
@@ -84,7 +119,7 @@ const getAssetFile = (value: unknown): File | undefined => {
     return value;
   }
   if (typeof value === "object" && value !== null && "rawFile" in value) {
-    const rawFile = (value as { rawFile?: unknown }).rawFile;
+    const rawFile = Reflect.get(value, "rawFile");
     return isFile(rawFile) ? rawFile : undefined;
   }
 
@@ -98,29 +133,38 @@ const getSort = (parameters: GetListParams | GetManyReferenceParams): string | u
   return field;
 };
 
-const getOrder = (parameters: GetListParams | GetManyReferenceParams): string | undefined =>
-  typeof parameters.sort?.order === "string" ? parameters.sort.order.toLowerCase() : undefined;
-
-const asListQuery = (
+const getOrder = (
   parameters: GetListParams | GetManyReferenceParams,
-  extra?: Record<string, string | number | boolean | undefined>,
-): Record<string, string | number | boolean | undefined> => {
+): "asc" | "desc" | undefined => {
+  const order = parameters.sort?.order.toLowerCase();
+  return order === "asc" || order === "desc" ? order : undefined;
+};
+
+const asListQuery = <Extra extends object>(
+  parameters: GetListParams | GetManyReferenceParams,
+  extra: Extra,
+): BaseListQuery & Extra => {
   const filter = asRecord(parameters.filter);
   const page = parameters.pagination?.page;
   const perPage = parameters.pagination?.perPage;
+  const search = getSearch(filter);
+  const sort = getSort(parameters);
+  const order = getOrder(parameters);
 
   return {
-    limit: typeof perPage === "number" ? perPage : undefined,
-    offset: typeof page === "number" && typeof perPage === "number" ? (page - 1) * perPage : undefined,
-    search: getSearch(filter),
-    sort: getSort(parameters),
-    order: getOrder(parameters),
+    ...(typeof perPage === "number" ? { limit: perPage } : {}),
+    ...(typeof page === "number" && typeof perPage === "number"
+      ? { offset: (page - 1) * perPage }
+      : {}),
+    ...(search === undefined ? {} : { search }),
+    ...(sort === undefined ? {} : { sort }),
+    ...(order === undefined ? {} : { order }),
     ...extra,
   };
 };
 
-const toListResult = (payload: { rows: unknown[]; total: number }): ListResult => ({
-  data: payload.rows as RaRecord[],
+const toListResult = (payload: { rows: any[]; total: number }): ListResult => ({
+  data: payload.rows,
   total: payload.total,
 });
 
@@ -128,63 +172,77 @@ const unsupported = (operation: string, resource: string): never => {
   throw new Error(`${operation} not supported for resource: ${resource}`);
 };
 
-type ListHandler = (parameters: GetListParams | GetManyReferenceParams, signal?: AbortSignal) => Promise<ListResult>;
-type GetOneHandler = (id: Identifier, signal?: AbortSignal) => Promise<RaRecord>;
-type CreateHandler = (data: RecordShape) => Promise<RaRecord>;
-type UpdateHandler = (id: Identifier, data: RecordShape) => Promise<RaRecord>;
+type ListHandler = (
+  parameters: GetListParams | GetManyReferenceParams,
+  signal?: AbortSignal,
+) => Promise<ListResult>;
+type GetOneHandler = (id: Identifier, signal?: AbortSignal) => Promise<any>;
+type CreateHandler = (data: RecordShape) => Promise<any>;
+type UpdateHandler = (id: Identifier, data: RecordShape) => Promise<any>;
 type DeleteHandler = (id: Identifier) => Promise<void>;
 
-type ResourceName = "users" | "groups" | "group-memberships" | "assets" | "locations" | "checkins" | "api-keys";
+type ResourceName =
+  | "users"
+  | "groups"
+  | "group-memberships"
+  | "assets"
+  | "locations"
+  | "checkins"
+  | "api-keys";
 
 const listHandlers: Record<ResourceName, ListHandler> = {
   users: async (parameters, signal): Promise<ListResult> => {
     const filter = asRecord(parameters.filter);
+    const locationId = getOptionalString(filter.location_id);
 
     return toListResult(
       await usersApi.list(
-        asListQuery(parameters, {
-          location_id: getOptionalString(filter.location_id),
-        }),
+        asListQuery(parameters, locationId === undefined ? {} : { location_id: locationId }),
         signal,
       ),
     );
   },
 
   groups: async (parameters, signal): Promise<ListResult> =>
-    toListResult(await groupsApi.list(asListQuery(parameters), signal)),
+    toListResult(await groupsApi.list(asListQuery(parameters, {}), signal)),
 
   "group-memberships": async (parameters, signal): Promise<ListResult> => {
     const filter = asRecord(parameters.filter);
+    const groupId = getOptionalString(filter.group_id);
+    const userId = getOptionalString(filter.user_id);
 
     return toListResult(
       await groupMembershipsApi.list(
         asListQuery(parameters, {
-          group_id: getOptionalString(filter.group_id),
-          user_id: getOptionalString(filter.user_id),
+          ...(groupId === undefined ? {} : { group_id: groupId }),
+          ...(userId === undefined ? {} : { user_id: userId }),
         }),
         signal,
       ),
     );
   },
 
-  assets: async (parameters, signal): Promise<ListResult> =>
-    toListResult(
+  assets: async (parameters, signal): Promise<ListResult> => {
+    const assetType = getOptionalString(asRecord(parameters.filter).type);
+
+    return toListResult(
       await assetsApi.list(
-        asListQuery(parameters, {
-          type: getOptionalString(asRecord(parameters.filter).type),
-        }),
+        asListQuery(
+          parameters,
+          assetType === "asset" || assetType === "photo" ? { type: assetType } : {},
+        ),
         signal,
       ),
-    ),
+    );
+  },
 
   locations: async (parameters, signal): Promise<ListResult> => {
     const filter = asRecord(parameters.filter);
+    const enabled = typeof filter.enabled === "boolean" ? filter.enabled : undefined;
 
     return toListResult(
       await locationsApi.list(
-        asListQuery(parameters, {
-          enabled: typeof filter.enabled === "boolean" ? filter.enabled : undefined,
-        }),
+        asListQuery(parameters, enabled === undefined ? {} : { enabled }),
         signal,
       ),
     );
@@ -192,49 +250,51 @@ const listHandlers: Record<ResourceName, ListHandler> = {
 
   checkins: async (parameters, signal): Promise<ListResult> => {
     const filter = asRecord(parameters.filter);
+    const locationId = getOptionalString(filter.location_id);
+    const userId = getOptionalString(filter.user_id);
+    const direction = getOptionalString(filter.direction);
+    const createdFrom = getOptionalString(filter.created_from);
+    const createdTo = getOptionalString(filter.created_to);
 
     return toListResult(
       await checkinsApi.list(
         asListQuery(parameters, {
-          location_id: getOptionalString(filter.location_id),
-          user_id: getOptionalString(filter.user_id),
-          direction: getOptionalString(filter.direction),
-          created_from: getOptionalString(filter.created_from),
-          created_to: getOptionalString(filter.created_to),
+          ...(locationId === undefined ? {} : { location_id: locationId }),
+          ...(userId === undefined ? {} : { user_id: userId }),
+          ...(direction === "check_in" || direction === "check_out" ? { direction } : {}),
+          ...(createdFrom === undefined ? {} : { created_from: createdFrom }),
+          ...(createdTo === undefined ? {} : { created_to: createdTo }),
         }),
         signal,
       ),
     );
   },
   "api-keys": async (parameters, signal): Promise<ListResult> =>
-    toListResult(await apiKeysApi.list(asListQuery(parameters), signal)),
+    toListResult(await apiKeysApi.list(asListQuery(parameters, {}), signal)),
 };
 
 const getOneHandlers: Record<ResourceName, GetOneHandler> = {
-  users: (id, signal): Promise<RaRecord> => usersApi.get(String(id), signal) as Promise<RaRecord>,
-  groups: (id, signal): Promise<RaRecord> => groupsApi.get(String(id), signal) as Promise<RaRecord>,
-  "group-memberships": (id, signal): Promise<RaRecord> =>
-    groupMembershipsApi.get(String(id), signal) as Promise<RaRecord>,
-  assets: (id, signal): Promise<RaRecord> => assetsApi.get(String(id), signal) as Promise<RaRecord>,
-  locations: (id, signal): Promise<RaRecord> => locationsApi.get(String(id), signal) as Promise<RaRecord>,
-  checkins: (id, signal): Promise<RaRecord> => checkinsApi.get(String(id), signal) as Promise<RaRecord>,
-  "api-keys": (id, signal): Promise<RaRecord> => apiKeysApi.get(String(id), signal) as Promise<RaRecord>,
+  users: (id, signal): Promise<any> => usersApi.get(String(id), signal),
+  groups: (id, signal): Promise<any> => groupsApi.get(String(id), signal),
+  "group-memberships": (id, signal): Promise<any> => groupMembershipsApi.get(String(id), signal),
+  assets: (id, signal): Promise<any> => assetsApi.get(String(id), signal),
+  locations: (id, signal): Promise<any> => locationsApi.get(String(id), signal),
+  checkins: (id, signal): Promise<any> => checkinsApi.get(String(id), signal),
+  "api-keys": (id, signal): Promise<any> => apiKeysApi.get(String(id), signal),
 };
 
 const createHandlers: Partial<Record<ResourceName, CreateHandler>> = {
-  assets: (data): Promise<RaRecord> => assetsApi.create(toAssetCreateRequest(data)) as Promise<RaRecord>,
-  locations: (data): Promise<RaRecord> => locationsApi.create(toLocationWriteRequest(data)) as Promise<RaRecord>,
-  "api-keys": (data): Promise<RaRecord> => apiKeysApi.create(data as APIKeyCreateRequest) as Promise<RaRecord>,
+  assets: (data): Promise<any> => assetsApi.create(toAssetCreateRequest(data)),
+  locations: (data): Promise<any> => locationsApi.create(toLocationWriteRequest(data)),
+  "api-keys": (data): Promise<any> => apiKeysApi.create(toAPIKeyCreateRequest(data)),
 };
 
 const updateHandlers: Partial<Record<ResourceName, UpdateHandler>> = {
-  users: (id, data): Promise<RaRecord> =>
-    usersApi.patch(String(id), data as UserAccessWriteRequest) as Promise<RaRecord>,
-  assets: (id, data): Promise<RaRecord> => assetsApi.patch(String(id), toAssetUpdateRequest(data)) as Promise<RaRecord>,
-  locations: (id, data): Promise<RaRecord> =>
-    locationsApi.patch(String(id), toLocationWriteRequest(data)) as Promise<RaRecord>,
-  "api-keys": (id, data): Promise<RaRecord> =>
-    apiKeysApi.patch(String(id), data as APIKeyAccessWriteRequest) as Promise<RaRecord>,
+  users: (id, data): Promise<any> => usersApi.patch(String(id), toAccessWriteRequest(data)),
+  assets: (id, data): Promise<any> => assetsApi.patch(String(id), toAssetUpdateRequest(data)),
+  locations: (id, data): Promise<any> =>
+    locationsApi.patch(String(id), toLocationWriteRequest(data)),
+  "api-keys": (id, data): Promise<any> => apiKeysApi.patch(String(id), toAccessWriteRequest(data)),
 };
 
 const deleteHandlers: Partial<Record<ResourceName, DeleteHandler>> = {
@@ -246,11 +306,11 @@ const deleteHandlers: Partial<Record<ResourceName, DeleteHandler>> = {
 const isResourceName = (value: string): value is ResourceName => value in listHandlers;
 
 const assertResourceName = (operation: string, resource: string): ResourceName => {
-  if (!isResourceName(resource)) {
-    unsupported(operation, resource);
+  if (isResourceName(resource)) {
+    return resource;
   }
 
-  return resource as ResourceName;
+  return unsupported(operation, resource);
 };
 
 const getCreateHandler = (resourceName: ResourceName): CreateHandler => {
@@ -321,84 +381,61 @@ const toLocationWriteRequest = (data: RecordShape): LocationWriteRequest => {
 };
 
 export const dataProvider: DataProvider = {
-  async getList<RecordType extends RaRecord = RaRecord>(
-    resource: string,
-    parameters: GetListParams,
-  ): Promise<GetListResult<RecordType>> {
+  async getList(resource: string, parameters: GetListParams) {
     const resourceName = assertResourceName("List", resource);
-    const result = await listHandlers[resourceName](parameters, parameters.signal);
-    return result as GetListResult<RecordType>;
+    return listHandlers[resourceName](parameters, parameters.signal);
   },
 
-  async getOne<RecordType extends RaRecord = RaRecord>(
-    resource: string,
-    parameters: GetOneParams,
-  ): Promise<GetOneResult<RecordType>> {
+  async getOne(resource: string, parameters: GetOneParams) {
     const resourceName = assertResourceName("GetOne", resource);
     const data = await getOneHandlers[resourceName](toIdentifier(parameters.id), parameters.signal);
-    return { data: data as RecordType };
+    return { data };
   },
 
-  async getMany<RecordType extends RaRecord = RaRecord>(
-    resource: string,
-    parameters: GetManyParams,
-  ): Promise<GetManyResult<RecordType>> {
+  async getMany(resource: string, parameters: GetManyParams) {
     const resourceName = assertResourceName("GetMany", resource);
     const data = await Promise.all(
-      parameters.ids.map((id): Promise<RaRecord> => getOneHandlers[resourceName](toIdentifier(id), parameters.signal)),
+      parameters.ids.map(
+        (id): Promise<any> => getOneHandlers[resourceName](toIdentifier(id), parameters.signal),
+      ),
     );
-    return { data: data as RecordType[] };
+    return { data };
   },
 
-  async getManyReference<RecordType extends RaRecord = RaRecord>(
-    resource: string,
-    parameters: GetManyReferenceParams,
-  ): Promise<GetManyReferenceResult<RecordType>> {
+  async getManyReference(resource: string, parameters: GetManyReferenceParams) {
     const resourceName = assertResourceName("GetManyReference", resource);
     const filter = asRecord(parameters.filter);
-    return (await listHandlers[resourceName](
+    return listHandlers[resourceName](
       {
         ...parameters,
         filter: { ...filter, [parameters.target]: toIdentifier(parameters.id) },
       },
       parameters.signal,
-    )) as GetManyReferenceResult<RecordType>;
+    );
   },
 
-  async create<ResultRecordType extends RaRecord = RaRecord>(
-    resource: string,
-    parameters: CreateParams,
-  ): Promise<CreateResult<ResultRecordType>> {
+  async create(resource: string, parameters: CreateParams) {
     const resourceName = assertResourceName("Create", resource);
     const handler = getCreateHandler(resourceName);
-    const data = await handler(parameters.data as RecordShape);
-    return { data: data as ResultRecordType };
+    const data = await handler(asRecord(parameters.data));
+    return { data };
   },
 
-  async update<RecordType extends RaRecord = RaRecord>(
-    resource: string,
-    parameters: UpdateParams,
-  ): Promise<UpdateResult<RecordType>> {
+  async update(resource: string, parameters: UpdateParams) {
     const resourceName = assertResourceName("Update", resource);
     const handler = getUpdateHandler(resourceName);
-    const data = await handler(toIdentifier(parameters.id), parameters.data as RecordShape);
-    return { data: data as RecordType };
+    const data = await handler(toIdentifier(parameters.id), asRecord(parameters.data));
+    return { data };
   },
 
-  async delete<RecordType extends RaRecord = RaRecord>(
-    resource: string,
-    parameters: DeleteParams,
-  ): Promise<DeleteResult<RecordType>> {
+  async delete(resource: string, parameters: DeleteParams) {
     const resourceName = assertResourceName("Delete", resource);
     const handler = getDeleteHandler(resourceName);
     await handler(toIdentifier(parameters.id));
-    return { data: parameters.previousData as RecordType };
+    return { data: parameters.previousData ?? { id: parameters.id } };
   },
 
-  async deleteMany<RecordType extends RaRecord = RaRecord>(
-    resource: string,
-    parameters: DeleteManyParams,
-  ): Promise<DeleteManyResult<RecordType>> {
+  async deleteMany(resource: string, parameters: DeleteManyParams) {
     const resourceName = assertResourceName("DeleteMany", resource);
     const handler = getDeleteHandler(resourceName);
     const ids = parameters.ids.map((id): Identifier => toIdentifier(id));
@@ -406,14 +443,11 @@ export const dataProvider: DataProvider = {
     return { data: ids };
   },
 
-  async updateMany<RecordType extends RaRecord = RaRecord>(
-    resource: string,
-    parameters: UpdateManyParams,
-  ): Promise<UpdateManyResult<RecordType>> {
+  async updateMany(resource: string, parameters: UpdateManyParams) {
     const resourceName = assertResourceName("UpdateMany", resource);
     const handler = getUpdateHandler(resourceName);
     const ids = parameters.ids.map((id): Identifier => toIdentifier(id));
-    await Promise.all(ids.map((id): Promise<RaRecord> => handler(id, parameters.data as RecordShape)));
+    await Promise.all(ids.map((id): Promise<any> => handler(id, asRecord(parameters.data))));
     return { data: ids };
   },
 };

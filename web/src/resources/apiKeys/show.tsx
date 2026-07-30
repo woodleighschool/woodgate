@@ -1,4 +1,3 @@
-import { AccessTab } from "@/resources/shared/accessTab";
 import {
   Alert,
   Button,
@@ -36,6 +35,8 @@ import {
 } from "react-admin";
 import { useLocation } from "react-router-dom";
 
+import { AccessTab } from "@/resources/shared/accessTab";
+
 // Minimum grants the app needs:
 //   - locations:read       — list and get locations
 //   - users:read           — list users for a selected location roster
@@ -55,6 +56,19 @@ interface APIKeyShowState {
   secret?: string;
 }
 
+const getAPIKeyShowState = (value: unknown): APIKeyShowState | undefined => {
+  if (typeof value !== "object" || value === null) {
+    return undefined;
+  }
+
+  const baseUrl = Reflect.get(value, "baseUrl");
+  const secret = Reflect.get(value, "secret");
+  return {
+    ...(typeof baseUrl === "string" ? { baseUrl } : {}),
+    ...(typeof secret === "string" ? { secret } : {}),
+  };
+};
+
 const APIKeyShowActions = (): ReactElement => (
   <TopToolbar>
     <ListButton />
@@ -66,7 +80,13 @@ const APIKeyShowActions = (): ReactElement => (
 
 export const APIKeyShow = (): ReactElement => <APIKeyShowBody />;
 
-const PairingQRButton = ({ secret, baseUrl }: { secret: string; baseUrl: string }): ReactElement => {
+const PairingQRButton = ({
+  secret,
+  baseUrl,
+}: {
+  secret: string;
+  baseUrl: string;
+}): ReactElement => {
   const record = useRecordContext<{ id: string }>();
   const notify = useNotify();
   const [update, { isPending: applying }] = useUpdate();
@@ -75,9 +95,16 @@ const PairingQRButton = ({ secret, baseUrl }: { secret: string; baseUrl: string 
   const [locationId, setLocationId] = useState("");
   const qrPayload = JSON.stringify({ api_key: secret, base_url: baseUrl });
 
-  const { data: locations = [], isPending: locationsLoading } = useGetList<{ id: string; name: string }>(
+  const { data: locations = [], isPending: locationsLoading } = useGetList<{
+    id: string;
+    name: string;
+  }>(
     "locations",
-    { pagination: { page: 1, perPage: 250 }, sort: { field: "name", order: "ASC" }, filter: { enabled: true } },
+    {
+      pagination: { page: 1, perPage: 250 },
+      sort: { field: "name", order: "ASC" },
+      filter: { enabled: true },
+    },
     { enabled: confirmOpen },
   );
 
@@ -123,8 +150,9 @@ const PairingQRButton = ({ secret, baseUrl }: { secret: string; baseUrl: string 
         <DialogContent>
           <Stack spacing={3} sx={{ pt: 1 }}>
             <DialogContentText>
-              This will set the key&apos;s permissions to the minimum required by the app: read locations, read users
-              for the selected location, read reusable assets, and create check-ins for that location.
+              This will set the key&apos;s permissions to the minimum required by the app: read
+              locations, read users for the selected location, read reusable assets, and create
+              check-ins for that location.
             </DialogContentText>
             <FormControl fullWidth size="small" disabled={locationsLoading || applying}>
               <InputLabel id="location-label">Location</InputLabel>
@@ -200,7 +228,7 @@ const PairingQRButton = ({ secret, baseUrl }: { secret: string; baseUrl: string 
 const APIKeyShowBody = (): ReactElement => {
   const { canAccess: canWriteAPIKeys } = useCanAccess({ action: "write", resource: "api-keys" });
   const location = useLocation();
-  const state = location.state as APIKeyShowState | undefined;
+  const state = getAPIKeyShowState(location.state);
   const baseUrl = state?.baseUrl;
   const secret = state?.secret;
 

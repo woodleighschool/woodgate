@@ -1,5 +1,14 @@
 import type { ReactElement } from "react";
-import { Create, FileInput, ImageField, ListButton, SimpleForm, TextInput, TopToolbar, required } from "react-admin";
+import {
+  Create,
+  FileInput,
+  ImageField,
+  ListButton,
+  SimpleForm,
+  TextInput,
+  TopToolbar,
+  required,
+} from "react-admin";
 
 const AssetCreateActions = (): ReactElement => (
   <TopToolbar>

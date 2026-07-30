@@ -34,10 +34,20 @@ const AssetEditForm = (): ReactElement => {
   return (
     <SimpleForm toolbar={isPhoto ? false : undefined}>
       <ImageField source="url" title="name" label="Current Image" />
-      <TextInput source="name" label="Name" helperText="Optional cosmetic name" fullWidth disabled={isPhoto} />
+      <TextInput
+        source="name"
+        label="Name"
+        helperText="Optional cosmetic name"
+        fullWidth
+        disabled={isPhoto}
+      />
       <TextInput source="type" label="Type" disabled fullWidth />
       {isPhoto ? undefined : (
-        <FileInput source="file" label="Replace Asset File" accept={{ "image/png": [], "image/jpeg": [] }}>
+        <FileInput
+          source="file"
+          label="Replace Asset File"
+          accept={{ "image/png": [], "image/jpeg": [] }}
+        >
           <ImageField source="src" title="title" />
         </FileInput>
       )}

@@ -1,8 +1,9 @@
-import { listAuthProviders, type AuthProviders } from "@/api/auth";
 import MicrosoftIcon from "@mui/icons-material/Microsoft";
 import { Stack, Typography } from "@mui/material";
 import { useEffect, useState, type ReactElement } from "react";
 import { Button, Login, LoginForm } from "react-admin";
+
+import { listAuthProviders, type AuthProviders } from "@/api/auth";
 
 export const LoginPage = (): ReactElement => {
   const [providers, setProviders] = useState<AuthProviders | undefined>();
@@ -11,11 +12,9 @@ export const LoginPage = (): ReactElement => {
     const controller = new AbortController();
 
     listAuthProviders(controller.signal)
-      .then((result: AuthProviders): void => {
-        setProviders(result);
-      })
+      .then((result: AuthProviders) => setProviders(result))
       .catch((error: unknown): void => {
-        if ((error as { name?: string }).name === "AbortError") {
+        if (error instanceof Error && error.name === "AbortError") {
           return;
         }
         setProviders(undefined);

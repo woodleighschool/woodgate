@@ -1,4 +1,3 @@
-import type { AssetType, PermissionAction, PermissionGrant, PermissionResource } from "@/api/types";
 import {
   Alert,
   Box,
@@ -18,6 +17,8 @@ import {
 import type { ReactElement } from "react";
 import { useState } from "react";
 import { useGetList, useNotify, useRecordContext, useRefresh, useUpdate } from "react-admin";
+
+import type { AssetType, PermissionAction, PermissionGrant, PermissionResource } from "@/api/types";
 
 type ParentResource = "users" | "api-keys";
 
@@ -52,7 +53,9 @@ const locationRecordsForAccess = (
   grants: PermissionGrant[] | undefined,
   locations: LocationRecord[],
 ): LocationRecord[] => {
-  const items = new Map(locations.map((location): [string, LocationRecord] => [location.id, location]));
+  const items = new Map(
+    locations.map((location): [string, LocationRecord] => [location.id, location]),
+  );
 
   for (const grant of grants ?? []) {
     if (grant.resource !== "checkins" || !grant.location_id || items.has(grant.location_id)) {
@@ -135,7 +138,15 @@ const AccessSection = ({
   title: string;
 }): ReactElement => (
   <Paper variant="outlined" sx={{ overflow: "hidden" }}>
-    <Box sx={{ px: 2.5, py: 2, borderBottom: 1, borderColor: "divider", backgroundColor: "action.hover" }}>
+    <Box
+      sx={{
+        px: 2.5,
+        py: 2,
+        borderBottom: 1,
+        borderColor: "divider",
+        backgroundColor: "action.hover",
+      }}
+    >
       <Typography variant="h6">{title}</Typography>
       <Typography variant="body2" color="text.secondary">
         {description}
@@ -166,7 +177,12 @@ const AccessRow = ({
 }: {
   label: string;
   locationId?: string;
-  onToggle: (action: PermissionAction, enabled: boolean, locationId?: string, assetType?: AssetType) => void;
+  onToggle: (
+    action: PermissionAction,
+    enabled: boolean,
+    locationId?: string,
+    assetType?: AssetType,
+  ) => void;
   resource: PermissionResource;
   grants: PermissionGrant[];
   assetType?: AssetType;
@@ -209,7 +225,8 @@ const AccessEditor = ({
   const [admin, setAdmin] = useState<boolean>(initialAdmin);
   const [access, setAccess] = useState<PermissionGrant[]>(initialAccess);
 
-  const isDirty = accessSignature(admin, access) !== accessSignature(Boolean(record.admin), record.access);
+  const isDirty =
+    accessSignature(admin, access) !== accessSignature(Boolean(record.admin), record.access);
 
   const save = async (): Promise<void> => {
     await update(
@@ -225,7 +242,9 @@ const AccessEditor = ({
           refresh();
         },
         onError: (error): void => {
-          notify(error instanceof Error ? error.message : "Failed to update access.", { type: "error" });
+          notify(error instanceof Error ? error.message : "Failed to update access.", {
+            type: "error",
+          });
         },
       },
     );
@@ -239,7 +258,9 @@ const AccessEditor = ({
         resource={permissionResource}
         grants={access}
         onToggle={(action: PermissionAction, enabled: boolean): void => {
-          setAccess((current): PermissionGrant[] => toggleGrant(current, permissionResource, action, enabled));
+          setAccess((current): PermissionGrant[] =>
+            toggleGrant(current, permissionResource, action, enabled),
+          );
         }}
       />
     ),
@@ -254,7 +275,9 @@ const AccessEditor = ({
         resource="checkins"
         grants={access}
         onToggle={(action: PermissionAction, enabled: boolean, nextLocationId?: string): void => {
-          setAccess((current): PermissionGrant[] => toggleGrant(current, "checkins", action, enabled, nextLocationId));
+          setAccess((current): PermissionGrant[] =>
+            toggleGrant(current, "checkins", action, enabled, nextLocationId),
+          );
         }}
       />
     ),
@@ -285,8 +308,9 @@ const AccessEditor = ({
   return (
     <Stack spacing={2.5} sx={{ pt: 1 }}>
       <Alert severity="info">
-        Admin bypasses all individual grants. Global grants apply across the whole resource. Scoped asset-type and
-        location grants below only matter when the matching global grant is not enabled.
+        Admin bypasses all individual grants. Global grants apply across the whole resource. Scoped
+        asset-type and location grants below only matter when the matching global grant is not
+        enabled.
       </Alert>
       <Paper variant="outlined" sx={{ p: 2.5 }}>
         <FormControlLabel

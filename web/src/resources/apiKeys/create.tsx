@@ -6,6 +6,12 @@ interface APIKeyShowState {
   secret: string;
 }
 
+const isCreatedAPIKey = (value: unknown): value is { id: string; secret: string } =>
+  typeof value === "object" &&
+  value !== null &&
+  typeof Reflect.get(value, "id") === "string" &&
+  typeof Reflect.get(value, "secret") === "string";
+
 const APIKeyCreateActions = (): ReactElement => (
   <TopToolbar>
     <ListButton />
@@ -20,7 +26,10 @@ export const APIKeyCreate = (): ReactElement => {
       actions={<APIKeyCreateActions />}
       mutationOptions={{
         onSuccess: (data): void => {
-          const record = data as { id: string; secret: string };
+          if (!isCreatedAPIKey(data)) {
+            throw new Error("API key response is missing its ID or secret");
+          }
+          const record = data;
           const state: APIKeyShowState = {
             baseUrl: globalThis.location.origin,
             secret: record.secret,

@@ -1,9 +1,12 @@
+import type { AuthProvider, UserIdentity } from "react-admin";
+
 import { getCurrentUser, isAuthError, loginLocal, logout } from "@/api/auth";
 import { authApi, type AuthPermissions } from "@/api/authClient";
 import { canAccess } from "@/auth/access";
-import type { AuthProvider, UserIdentity } from "react-admin";
 
-const getCurrentPermissions = async (signal?: AbortSignal): Promise<AuthPermissions | undefined> => {
+const getCurrentPermissions = async (
+  signal?: AbortSignal,
+): Promise<AuthPermissions | undefined> => {
   try {
     return await authApi.getPermissions(signal);
   } catch (error) {

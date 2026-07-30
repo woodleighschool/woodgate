@@ -1,4 +1,3 @@
-import { trimmedRequired } from "@/resources/shared/validation";
 import type { ReactElement } from "react";
 import {
   AutocompleteArrayInput,
@@ -8,6 +7,8 @@ import {
   SelectInput,
   TextInput,
 } from "react-admin";
+
+import { trimmedRequired } from "@/resources/shared/validation";
 
 export const LocationFields = (): ReactElement => (
   <>

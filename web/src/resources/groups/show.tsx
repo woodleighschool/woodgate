@@ -37,7 +37,11 @@ const GroupShowBody = (): ReactElement => {
         </TabbedShowLayout.Tab>
         {canListMemberships ? (
           <TabbedShowLayout.Tab label="Users">
-            <ReferenceManyField reference="group-memberships" target="group_id" pagination={<Pagination />}>
+            <ReferenceManyField
+              reference="group-memberships"
+              target="group_id"
+              pagination={<Pagination />}
+            >
               <DataTable rowClick={false} bulkActionButtons={false}>
                 <DataTable.Col source="user_id" label="User">
                   <ReferenceField source="user_id" reference="users">

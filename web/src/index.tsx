@@ -1,6 +1,7 @@
-import { App } from "@/admin";
 import { StrictMode } from "react";
 import { createRoot } from "react-dom/client";
+
+import { App } from "@/admin";
 
 const rootElement = document.querySelector("#root");
 if (!rootElement) {

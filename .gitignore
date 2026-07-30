@@ -1,32 +1,50 @@
-# Go
+# Go binaries and test artifacts
 *.exe
 *.dll
 *.dylib
 *.test
 *.out
 
-# Go build / tooling
+# Build and tool outputs
+/woodgate
 /bin/
-/vendor/
+/tmp/
 /.gocache/
+
+# Go workspace overrides
 go.work
 go.work.sum
+/vendor/
 
-# Node / Frontend
+# Frontend dependencies and build outputs
 node_modules/
-dist/
-public/
 *.tsbuildinfo
 vite.config.js
-
-# Vite / tooling outputs
 vite.config.d.ts
+.vite/
+dist/
+!web/dist/
+web/dist/*
+!web/dist/.gitkeep
+
+# Local mise overrides
+.mise.local.toml
+.mise.local.lock
 
 # Env files
 .env
+.env.*
+!.env.example
 
 # Editor / IDE
 .vscode/
+
+# Xcode and Swift Package Manager
+xcuserdata/
+Packages/
+Package.pins
+Package.resolved
+.build/
 
 # macOS
 .DS_Store
@@ -40,17 +58,3 @@ vite.config.d.ts
 Network Trash Folder
 Temporary Items
 .apdisk
-
-
-# Xcode
-
-## User settings
-xcuserdata/
-
-# Swift Package Manager
-Packages/
-Package.pins
-Package.resolved
-# *.xcodeproj
-
-.build/

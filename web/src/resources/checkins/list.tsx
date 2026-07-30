@@ -1,4 +1,3 @@
-import { CHECKIN_DIRECTION_CHOICES } from "@/resources/checkins/choices";
 import type { ReactElement } from "react";
 import {
   DataTable,
@@ -11,6 +10,8 @@ import {
   TextField,
 } from "react-admin";
 
+import { CHECKIN_DIRECTION_CHOICES } from "@/resources/checkins/choices";
+
 const checkinFilters = [
   <SearchInput key="search" source="search" alwaysOn />,
   <SelectInput key="direction" source="direction" choices={CHECKIN_DIRECTION_CHOICES} />,
@@ -21,7 +22,11 @@ export const CheckinList = (): ReactElement => (
     <DataTable rowClick="show">
       <DataTable.Col source="asset_id" label="Photo">
         <ReferenceField source="asset_id" reference="assets">
-          <ImageField source="url" title="name" sx={{ "& img": { width: 56, height: 56, objectFit: "cover" } }} />
+          <ImageField
+            source="url"
+            title="name"
+            sx={{ "& img": { width: 56, height: 56, objectFit: "cover" } }}
+          />
         </ReferenceField>
       </DataTable.Col>
       <DataTable.Col source="user_id" label="User">

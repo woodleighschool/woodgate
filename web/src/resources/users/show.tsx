@@ -1,5 +1,3 @@
-import { AccessTab } from "@/resources/shared/accessTab";
-import { SourceField } from "@/resources/shared/sourceField";
 import type { ReactElement } from "react";
 import {
   DataTable,
@@ -15,6 +13,9 @@ import {
   TopToolbar,
   useCanAccess,
 } from "react-admin";
+
+import { AccessTab } from "@/resources/shared/accessTab";
+import { SourceField } from "@/resources/shared/sourceField";
 
 const UserShowActions = (): ReactElement => (
   <TopToolbar>
@@ -44,7 +45,11 @@ const UserShowBody = (): ReactElement => {
         </TabbedShowLayout.Tab>
         {canListGroups ? (
           <TabbedShowLayout.Tab label="Groups">
-            <ReferenceManyField reference="group-memberships" target="user_id" pagination={<Pagination />}>
+            <ReferenceManyField
+              reference="group-memberships"
+              target="user_id"
+              pagination={<Pagination />}
+            >
               <DataTable rowClick={false} bulkActionButtons={false}>
                 <DataTable.Col source="group_id" label="Group">
                   <ReferenceField source="group_id" reference="groups">

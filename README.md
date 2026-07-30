@@ -71,28 +71,24 @@ API keys are created in the admin UI. Each key should have check-in permission s
 
 ## 🧪 Local development
 
-**Backend:**
+Install the pinned toolchain and dependencies:
 
 ```bash
-cd backend
-go mod download
-go generate ./...
-go run ./cmd/woodgate
+mise install
+mise run deps
 ```
 
-**Frontend:**
+Run the backend and web development servers together:
 
 ```bash
-cd frontend
-npm install
-npm run dev
+mise run dev
 ```
 
 Vite proxies `/api` and `/auth` to `localhost:8080`. The backend serves the built frontend in container deployments.
 
 **App:**
 
-Open `WoodGate.xcodeproj` in Xcode and run on a connected iPad or simulator.
+Open `app/WoodGate.xcodeproj` in Xcode and run on a connected iPad or simulator.
 
 ## ⚠️ Limitations
 

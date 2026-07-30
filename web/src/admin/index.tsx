@@ -1,3 +1,6 @@
+import type { ReactElement } from "react";
+import { Admin, Resource } from "react-admin";
+
 import { AdminLayout } from "@/admin/layout";
 import { LoginPage } from "@/admin/login";
 import { darkTheme, lightTheme } from "@/admin/theme";
@@ -9,16 +12,14 @@ import checkins from "@/resources/checkins";
 import groups from "@/resources/groups";
 import locations from "@/resources/locations";
 import users from "@/resources/users";
-import type { ReactElement } from "react";
-import { Admin, Resource, type RaThemeOptions } from "react-admin";
 
 export const App = (): ReactElement => (
   <Admin
     dataProvider={dataProvider}
     authProvider={authProvider}
     loginPage={LoginPage}
-    theme={lightTheme as RaThemeOptions}
-    darkTheme={darkTheme as RaThemeOptions}
+    theme={lightTheme}
+    darkTheme={darkTheme}
     layout={AdminLayout}
     title="WoodGate"
     requireAuth

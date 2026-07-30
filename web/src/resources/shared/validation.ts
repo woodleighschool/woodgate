@@ -7,5 +7,7 @@ export const trimmedRequired =
   (label: string): Validator =>
   (value: unknown): string | undefined => {
     const parsedValue = typeof value === "string" ? value : "";
-    return nonEmptyTrimmedString.safeParse(parsedValue).success ? undefined : `${label} is required`;
+    return nonEmptyTrimmedString.safeParse(parsedValue).success
+      ? undefined
+      : `${label} is required`;
   };

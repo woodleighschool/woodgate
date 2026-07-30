@@ -1,6 +1,16 @@
-import { LocationFields } from "@/resources/locations/fields";
 import type { ReactElement } from "react";
-import { CanAccess, DateField, DeleteButton, Edit, Labeled, ListButton, SimpleForm, TopToolbar } from "react-admin";
+import {
+  CanAccess,
+  DateField,
+  DeleteButton,
+  Edit,
+  Labeled,
+  ListButton,
+  SimpleForm,
+  TopToolbar,
+} from "react-admin";
+
+import { LocationFields } from "@/resources/locations/fields";
 
 const LocationEditActions = (): ReactElement => (
   <TopToolbar>

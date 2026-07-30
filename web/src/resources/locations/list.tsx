@@ -44,7 +44,11 @@ export const LocationList = (): ReactElement => (
         </CanAccess>
       </DataTable.Col>
       <DataTable.Col source="logo_asset_id" label="Logo Asset">
-        <CanAccess action="show" resource="assets" accessDenied={<TextField source="logo_asset_id" emptyText="-" />}>
+        <CanAccess
+          action="show"
+          resource="assets"
+          accessDenied={<TextField source="logo_asset_id" emptyText="-" />}
+        >
           <ReferenceField source="logo_asset_id" reference="assets" empty={<>-</>}>
             <TextField source="name" />
           </ReferenceField>

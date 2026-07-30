@@ -1,6 +1,6 @@
 import type { ThemeOptions } from "@mui/material/styles";
 import { deepmerge } from "@mui/utils";
-import { defaultDarkTheme, defaultLightTheme } from "react-admin";
+import { defaultDarkTheme, defaultLightTheme, type RaThemeOptions } from "react-admin";
 
 const sharedOverrides: ThemeOptions = {
   shape: {
@@ -110,7 +110,16 @@ const sharedOverrides: ThemeOptions = {
   },
 };
 
-export const lightTheme = deepmerge(defaultLightTheme, {
+const toRaThemeOptions = (theme: ThemeOptions, mode: "light" | "dark"): RaThemeOptions => ({
+  ...theme,
+  palette: {
+    mode,
+    ...theme.palette,
+  },
+  components: theme.components ?? {},
+});
+
+export const lightTheme = deepmerge<RaThemeOptions>(toRaThemeOptions(defaultLightTheme, "light"), {
   ...sharedOverrides,
   palette: {
     mode: "light",
@@ -173,9 +182,9 @@ export const lightTheme = deepmerge(defaultLightTheme, {
       },
     },
   },
-} satisfies ThemeOptions);
+} satisfies RaThemeOptions);
 
-export const darkTheme = deepmerge(defaultDarkTheme, {
+export const darkTheme = deepmerge<RaThemeOptions>(toRaThemeOptions(defaultDarkTheme, "dark"), {
   ...sharedOverrides,
   palette: {
     mode: "dark",
@@ -238,4 +247,4 @@ export const darkTheme = deepmerge(defaultDarkTheme, {
       },
     },
   },
-} satisfies ThemeOptions);
+} satisfies RaThemeOptions);

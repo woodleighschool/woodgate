@@ -1,7 +1,8 @@
-import { GroupList } from "@/resources/groups/list";
-import { GroupShow } from "@/resources/groups/show";
 import GroupsIcon from "@mui/icons-material/Groups";
 import type { ResourceProps } from "react-admin";
+
+import { GroupList } from "@/resources/groups/list";
+import { GroupShow } from "@/resources/groups/show";
 
 const groups: Partial<ResourceProps> = {
   icon: GroupsIcon,

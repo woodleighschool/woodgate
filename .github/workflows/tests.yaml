@@ -1,6 +1,6 @@
 ---
 # yaml-language-server: $schema=https://json.schemastore.org/github-workflow.json
-name: Lint
+name: Tests
 
 on:
   push:
@@ -28,8 +28,8 @@ env:
   MISE_NO_HOOKS: "1"
 
 jobs:
-  fmt-check:
-    name: Format Check
+  go-test:
+    name: Go Tests
     runs-on: ubuntu-24.04
     steps:
       - name: Checkout
@@ -41,25 +41,7 @@ jobs:
         uses: jdx/mise-action@9e7f7633ff6f6d6048a9418a68d48f288f50eb14 # v4.2.3
         with:
           experimental: true
-          install_args: --locked go node pnpm oxfmt
-
-      - name: Check formatting
-        run: mise run fmt-check
-
-  go-lint:
-    name: Go Lint
-    runs-on: ubuntu-24.04
-    steps:
-      - name: Checkout
-        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
-        with:
-          persist-credentials: false
-
-      - name: Setup Mise
-        uses: jdx/mise-action@9e7f7633ff6f6d6048a9418a68d48f288f50eb14 # v4.2.3
-        with:
-          experimental: true
-          install_args: --locked go golangci-lint
+          install_args: --locked go
 
       - name: Cache Go modules and build
         uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
@@ -70,18 +52,14 @@ jobs:
           key: ${{ runner.os }}-go-${{ hashFiles('go.sum') }}
           restore-keys: ${{ runner.os }}-go-
 
-      - name: Cache golangci-lint
-        uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
-        with:
-          path: ~/.cache/golangci-lint
-          key: ${{ runner.os }}-golangci-lint-${{ hashFiles('go.sum', '.golangci.yml') }}
-          restore-keys: ${{ runner.os }}-golangci-lint-
+      - name: Check Go module tidiness
+        run: mise run tidy-check
 
-      - name: Run Go lint
-        run: mise run go-lint
+      - name: Run dependency-free Go checks
+        run: mise run test
 
-  web-lint:
-    name: Web Lint
+  build:
+    name: Build and Generated Contracts
     runs-on: ubuntu-24.04
     steps:
       - name: Checkout
@@ -93,7 +71,16 @@ jobs:
         uses: jdx/mise-action@9e7f7633ff6f6d6048a9418a68d48f288f50eb14 # v4.2.3
         with:
           experimental: true
-          install_args: --locked node pnpm oxlint
+          install_args: --locked go node pnpm
+
+      - name: Cache Go modules and build
+        uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
+        with:
+          path: |
+            ~/.cache/go-build
+            ~/go/pkg/mod
+          key: ${{ runner.os }}-go-${{ hashFiles('go.sum') }}
+          restore-keys: ${{ runner.os }}-go-
 
       - name: Resolve pnpm store
         id: pnpm
@@ -106,23 +93,21 @@ jobs:
           key: ${{ runner.os }}-pnpm-${{ hashFiles('web/pnpm-lock.yaml') }}
           restore-keys: ${{ runner.os }}-pnpm-
 
-      - name: Run web lint and typecheck
-        run: mise run //web:lint
+      - name: Regenerate checked-in code
+        run: mise run generate
 
-  workflow-lint:
-    name: Workflow Lint
-    runs-on: ubuntu-24.04
-    steps:
-      - name: Checkout
-        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
-        with:
-          persist-credentials: false
+      - name: Check generated code is committed
+        run: |
+          generated_status=$(git status --short --untracked-files=all -- \
+            api \
+            internal/store \
+            internal/transport/http/httpapi/openapi.go \
+            web/src/api/openapi.ts)
+          test -z "$generated_status" || {
+            printf '%s\n' "$generated_status"
+            git diff -- api internal/store internal/transport/http/httpapi/openapi.go web/src/api/openapi.ts
+            exit 1
+          }
 
-      - name: Setup Mise
-        uses: jdx/mise-action@9e7f7633ff6f6d6048a9418a68d48f288f50eb14 # v4.2.3
-        with:
-          experimental: true
-          install_args: --locked zizmor
-
-      - name: Run workflow lint
-        run: mise run workflow-lint
+      - name: Build application
+        run: mise run build
