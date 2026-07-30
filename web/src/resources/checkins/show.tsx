@@ -1,6 +1,7 @@
 import type { ReactElement } from "react";
 import {
   DateField,
+  FunctionField,
   ImageField,
   Labeled,
   ListButton,
@@ -11,6 +12,9 @@ import {
   TopToolbar,
   useRecordContext,
 } from "react-admin";
+
+import type { Checkin } from "@/api/types";
+import { CHECKIN_DIRECTION_LABELS } from "@/resources/checkins/choices";
 
 const CreatedByField = (): ReactElement | undefined => {
   const record = useRecordContext();
@@ -48,7 +52,11 @@ export const CheckinShow = (): ReactElement => (
       <TextField source="user_display_name" label="User" />
       <TextField source="department" label="Department" />
       <TextField source="location_name" label="Location" />
-      <TextField source="direction" label="Direction" />
+      <FunctionField<Checkin>
+        source="direction"
+        label="Direction"
+        render={(record) => CHECKIN_DIRECTION_LABELS[record.direction]}
+      />
       <TextField source="notes" label="Notes" />
       <ImageField source="photo_url" title="user_display_name" label="Photo" />
       <CreatedByField />

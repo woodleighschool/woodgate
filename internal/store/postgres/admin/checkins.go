@@ -31,6 +31,7 @@ func (store *Store) ListCheckins(
 		"location_id":       "c.location_id",
 		"location_name":     "l.name",
 		"direction":         "c.direction",
+		"notes":             "c.notes",
 		"created_at":        "c.created_at",
 	}, []string{"c.created_at DESC", "c.id DESC"})
 	if err != nil {

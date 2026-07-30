@@ -73,11 +73,12 @@ INSERT INTO checkins (
   direction,
   notes,
   created_by_kind,
-  created_by_id
+  created_by_id,
+  created_at
 )
 VALUES
-  ($1, $2, $3, 'check_in', '', 'user', $2),
-  ($4, $5, $3, 'check_out', '', 'user', $5)
+  ($1, $2, $3, 'check_in', 'Alpha note', 'user', $2, '2026-01-01T00:00:00Z'),
+  ($4, $5, $3, 'check_out', 'Zulu note', 'user', $5, '2026-01-02T00:00:00Z')
 `, matchingCheckinID, matchingUserID, locationID, otherCheckinID, otherUserID)
 	if err != nil {
 		t.Fatalf("seed checkin: %v", err)
@@ -118,5 +119,28 @@ VALUES
 	}
 	if !slices.Equal(departments, []string{"Operations", "Teaching"}) {
 		t.Fatalf("departments = %#v", departments)
+	}
+
+	for _, test := range []struct {
+		order       string
+		wantFirstID uuid.UUID
+	}{
+		{order: "asc", wantFirstID: matchingCheckinID},
+		{order: "desc", wantFirstID: otherCheckinID},
+	} {
+		t.Run("created_at_"+test.order, func(t *testing.T) {
+			sortedItems, _, listErr := checkinStore.ListCheckins(ctx, domain.CheckinListOptions{
+				ListOptions: domain.ListOptions{
+					Sort:  "created_at",
+					Order: test.order,
+				},
+			}, nil)
+			if listErr != nil {
+				t.Fatalf("sort checkins: %v", listErr)
+			}
+			if len(sortedItems) != 2 || sortedItems[0].ID != test.wantFirstID {
+				t.Fatalf("sorted items = %#v, want first checkin %s", sortedItems, test.wantFirstID)
+			}
+		})
 	}
 }

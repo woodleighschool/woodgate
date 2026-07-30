@@ -2,6 +2,7 @@ import type { ReactElement } from "react";
 import {
   DataTable,
   DateField,
+  FunctionField,
   ImageField,
   List,
   SearchInput,
@@ -9,8 +10,8 @@ import {
   useGetList,
 } from "react-admin";
 
-import type { DepartmentOption } from "@/api/types";
-import { CHECKIN_DIRECTION_CHOICES } from "@/resources/checkins/choices";
+import type { Checkin, DepartmentOption } from "@/api/types";
+import { CHECKIN_DIRECTION_CHOICES, CHECKIN_DIRECTION_LABELS } from "@/resources/checkins/choices";
 
 interface DepartmentInputProps {
   source: string;
@@ -47,7 +48,7 @@ const checkinFilters = [
 export const CheckinList = (): ReactElement => (
   <List sort={{ field: "created_at", order: "DESC" }} filters={checkinFilters}>
     <DataTable rowClick="show">
-      <DataTable.Col source="photo_url" label="Photo">
+      <DataTable.Col source="photo_url" label="Photo" disableSort>
         <ImageField
           source="photo_url"
           title="user_display_name"
@@ -57,7 +58,12 @@ export const CheckinList = (): ReactElement => (
       <DataTable.Col source="user_display_name" label="User" />
       <DataTable.Col source="department" label="Department" />
       <DataTable.Col source="location_name" label="Location" />
-      <DataTable.Col source="direction" label="Direction" />
+      <DataTable.Col source="direction" label="Direction">
+        <FunctionField<Checkin>
+          source="direction"
+          render={(record) => CHECKIN_DIRECTION_LABELS[record.direction]}
+        />
+      </DataTable.Col>
       <DataTable.Col source="notes" label="Notes" />
       <DataTable.Col source="created_at" label="Created">
         <DateField source="created_at" showTime />
