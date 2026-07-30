@@ -9,12 +9,14 @@ on:
     paths-ignore:
       - "**.md"
       - ".release-please-manifest.json"
+      - "app/Config/Version.xcconfig"
   pull_request:
     branches:
       - main
     paths-ignore:
       - "**.md"
       - ".release-please-manifest.json"
+      - "app/Config/Version.xcconfig"
   workflow_dispatch:
 
 concurrency:

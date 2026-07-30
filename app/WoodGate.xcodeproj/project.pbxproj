@@ -8,6 +8,7 @@
 
 /* Begin PBXFileReference section */
 		4110F7082F641BFF0013E5A4 /* WoodGate.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = WoodGate.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		D10000012F641BFF0013E5A4 /* Version.xcconfig */ = {isa = PBXFileReference; lastKnownFileType = text.xcconfig; path = Version.xcconfig; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFileSystemSynchronizedRootGroup section */
@@ -32,6 +33,7 @@
 		4110F6FF2F641BFF0013E5A4 = {
 			isa = PBXGroup;
 			children = (
+				D10000022F641BFF0013E5A4 /* Config */,
 				4110F70A2F641BFF0013E5A4 /* WoodGate */,
 				4110F7092F641BFF0013E5A4 /* Products */,
 			);
@@ -43,6 +45,14 @@
 				4110F7082F641BFF0013E5A4 /* WoodGate.app */,
 			);
 			name = Products;
+			sourceTree = "<group>";
+		};
+		D10000022F641BFF0013E5A4 /* Config */ = {
+			isa = PBXGroup;
+			children = (
+				D10000012F641BFF0013E5A4 /* Version.xcconfig */,
+			);
+			path = Config;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -250,11 +260,11 @@
 		};
 		4110F7162F641C000013E5A4 /* Debug */ = {
 			isa = XCBuildConfiguration;
+			baseConfigurationReference = D10000012F641BFF0013E5A4 /* Version.xcconfig */;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 2;
 				DEVELOPMENT_TEAM = SMLKBTR495;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
@@ -270,7 +280,6 @@
 					"$(inherited)",
 					"@executable_path/Frameworks",
 				);
-				MARKETING_VERSION = 1.0;
 				PRODUCT_BUNDLE_IDENTIFIER = au.edu.vic.woodleigh.WoodGate;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				STRING_CATALOG_GENERATE_SYMBOLS = YES;
@@ -289,11 +298,11 @@
 		};
 		4110F7172F641C000013E5A4 /* Release */ = {
 			isa = XCBuildConfiguration;
+			baseConfigurationReference = D10000012F641BFF0013E5A4 /* Version.xcconfig */;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 2;
 				DEVELOPMENT_TEAM = SMLKBTR495;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
@@ -309,7 +318,6 @@
 					"$(inherited)",
 					"@executable_path/Frameworks",
 				);
-				MARKETING_VERSION = 1.0;
 				PRODUCT_BUNDLE_IDENTIFIER = au.edu.vic.woodleigh.WoodGate;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				STRING_CATALOG_GENERATE_SYMBOLS = YES;
