@@ -190,7 +190,9 @@ type ResourceName =
   | "checkins"
   | "api-keys";
 
-const listHandlers: Record<ResourceName, ListHandler> = {
+type ListResourceName = ResourceName | "checkin-departments";
+
+const listHandlers: Record<ListResourceName, ListHandler> = {
   users: async (parameters, signal): Promise<ListResult> => {
     const filter = asRecord(parameters.filter);
     const locationId = getOptionalString(filter.location_id);
@@ -253,6 +255,7 @@ const listHandlers: Record<ResourceName, ListHandler> = {
     const locationId = getOptionalString(filter.location_id);
     const userId = getOptionalString(filter.user_id);
     const direction = getOptionalString(filter.direction);
+    const department = getOptionalString(filter.department);
     const createdFrom = getOptionalString(filter.created_from);
     const createdTo = getOptionalString(filter.created_to);
 
@@ -262,6 +265,7 @@ const listHandlers: Record<ResourceName, ListHandler> = {
           ...(locationId === undefined ? {} : { location_id: locationId }),
           ...(userId === undefined ? {} : { user_id: userId }),
           ...(direction === "check_in" || direction === "check_out" ? { direction } : {}),
+          ...(department === undefined ? {} : { department }),
           ...(createdFrom === undefined ? {} : { created_from: createdFrom }),
           ...(createdTo === undefined ? {} : { created_to: createdTo }),
         }),
@@ -269,6 +273,8 @@ const listHandlers: Record<ResourceName, ListHandler> = {
       ),
     );
   },
+  "checkin-departments": async (_parameters, signal): Promise<ListResult> =>
+    toListResult(await checkinsApi.listDepartments(signal)),
   "api-keys": async (parameters, signal): Promise<ListResult> =>
     toListResult(await apiKeysApi.list(asListQuery(parameters, {}), signal)),
 };
@@ -303,7 +309,17 @@ const deleteHandlers: Partial<Record<ResourceName, DeleteHandler>> = {
   "api-keys": (id): Promise<void> => apiKeysApi.delete(String(id)),
 };
 
-const isResourceName = (value: string): value is ResourceName => value in listHandlers;
+const isListResourceName = (value: string): value is ListResourceName => value in listHandlers;
+
+const assertListResourceName = (operation: string, resource: string): ListResourceName => {
+  if (isListResourceName(resource)) {
+    return resource;
+  }
+
+  return unsupported(operation, resource);
+};
+
+const isResourceName = (value: string): value is ResourceName => value in getOneHandlers;
 
 const assertResourceName = (operation: string, resource: string): ResourceName => {
   if (isResourceName(resource)) {
@@ -382,7 +398,7 @@ const toLocationWriteRequest = (data: RecordShape): LocationWriteRequest => {
 
 export const dataProvider: DataProvider = {
   async getList(resource: string, parameters: GetListParams) {
-    const resourceName = assertResourceName("List", resource);
+    const resourceName = assertListResourceName("List", resource);
     return listHandlers[resourceName](parameters, parameters.signal);
   },
 

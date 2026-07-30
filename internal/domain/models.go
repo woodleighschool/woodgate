@@ -108,15 +108,18 @@ type Location struct {
 }
 
 type Checkin struct {
-	ID            uuid.UUID
-	UserID        uuid.UUID
-	LocationID    uuid.UUID
-	Direction     CheckinDirection
-	Notes         string
-	AssetID       *uuid.UUID
-	CreatedByKind PermissionSubjectKind
-	CreatedByID   uuid.UUID
-	CreatedAt     time.Time
+	ID              uuid.UUID
+	UserID          uuid.UUID
+	UserDisplayName string
+	Department      string
+	LocationID      uuid.UUID
+	LocationName    string
+	Direction       CheckinDirection
+	Notes           string
+	AssetID         *uuid.UUID
+	CreatedByKind   PermissionSubjectKind
+	CreatedByID     uuid.UUID
+	CreatedAt       time.Time
 }
 
 type APIKey struct {

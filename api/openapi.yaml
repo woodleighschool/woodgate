@@ -15,20 +15,20 @@ paths:
       tags:
         - api-keys
       parameters:
-        - $ref: '#/components/parameters/Limit'
-        - $ref: '#/components/parameters/Offset'
-        - $ref: '#/components/parameters/Search'
-        - $ref: '#/components/parameters/Sort'
-        - $ref: '#/components/parameters/Order'
+        - $ref: "#/components/parameters/Limit"
+        - $ref: "#/components/parameters/Offset"
+        - $ref: "#/components/parameters/Search"
+        - $ref: "#/components/parameters/Sort"
+        - $ref: "#/components/parameters/Order"
       responses:
-        '200':
+        "200":
           description: API key list.
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/APIKeyListResponse'
+                $ref: "#/components/schemas/APIKeyListResponse"
         default:
-          $ref: '#/components/responses/Problem'
+          $ref: "#/components/responses/Problem"
     post:
       operationId: createAPIKey
       tags:
@@ -38,91 +38,91 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/APIKeyCreateRequest'
+              $ref: "#/components/schemas/APIKeyCreateRequest"
       responses:
-        '201':
+        "201":
           description: API key created.
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/CreateAPIKeyData'
+                $ref: "#/components/schemas/CreateAPIKeyData"
         default:
-          $ref: '#/components/responses/Problem'
+          $ref: "#/components/responses/Problem"
   /api-keys/{id}:
     get:
       operationId: getAPIKey
       tags:
         - api-keys
       parameters:
-        - $ref: '#/components/parameters/Id'
+        - $ref: "#/components/parameters/Id"
       responses:
-        '200':
+        "200":
           description: API key detail.
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/APIKey'
-        '404':
-          $ref: '#/components/responses/NotFound'
+                $ref: "#/components/schemas/APIKey"
+        "404":
+          $ref: "#/components/responses/NotFound"
         default:
-          $ref: '#/components/responses/Problem'
+          $ref: "#/components/responses/Problem"
     patch:
       operationId: patchAPIKey
       tags:
         - api-keys
       parameters:
-        - $ref: '#/components/parameters/Id'
+        - $ref: "#/components/parameters/Id"
       requestBody:
         required: true
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/APIKeyAccessWriteRequest'
+              $ref: "#/components/schemas/APIKeyAccessWriteRequest"
       responses:
-        '200':
+        "200":
           description: API key access updated.
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/APIKey'
-        '404':
-          $ref: '#/components/responses/NotFound'
+                $ref: "#/components/schemas/APIKey"
+        "404":
+          $ref: "#/components/responses/NotFound"
         default:
-          $ref: '#/components/responses/Problem'
+          $ref: "#/components/responses/Problem"
     delete:
       operationId: deleteAPIKey
       tags:
         - api-keys
       parameters:
-        - $ref: '#/components/parameters/Id'
+        - $ref: "#/components/parameters/Id"
       responses:
-        '204':
+        "204":
           description: API key deleted.
-        '404':
-          $ref: '#/components/responses/NotFound'
+        "404":
+          $ref: "#/components/responses/NotFound"
         default:
-          $ref: '#/components/responses/Problem'
+          $ref: "#/components/responses/Problem"
   /assets:
     get:
       operationId: listAssets
       tags:
         - assets
       parameters:
-        - $ref: '#/components/parameters/Limit'
-        - $ref: '#/components/parameters/Offset'
-        - $ref: '#/components/parameters/Search'
-        - $ref: '#/components/parameters/Sort'
-        - $ref: '#/components/parameters/Order'
-        - $ref: '#/components/parameters/AssetTypeFilter'
+        - $ref: "#/components/parameters/Limit"
+        - $ref: "#/components/parameters/Offset"
+        - $ref: "#/components/parameters/Search"
+        - $ref: "#/components/parameters/Sort"
+        - $ref: "#/components/parameters/Order"
+        - $ref: "#/components/parameters/AssetTypeFilter"
       responses:
-        '200':
+        "200":
           description: Asset list.
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/AssetListResponse'
+                $ref: "#/components/schemas/AssetListResponse"
         default:
-          $ref: '#/components/responses/Problem'
+          $ref: "#/components/responses/Problem"
     post:
       operationId: createAsset
       tags:
@@ -132,79 +132,79 @@ paths:
         content:
           multipart/form-data:
             schema:
-              $ref: '#/components/schemas/AssetCreateRequest'
+              $ref: "#/components/schemas/AssetCreateRequest"
       responses:
-        '201':
+        "201":
           description: Asset created.
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/Asset'
+                $ref: "#/components/schemas/Asset"
         default:
-          $ref: '#/components/responses/Problem'
+          $ref: "#/components/responses/Problem"
   /assets/{id}:
     get:
       operationId: getAsset
       tags:
         - assets
       parameters:
-        - $ref: '#/components/parameters/Id'
+        - $ref: "#/components/parameters/Id"
       responses:
-        '200':
+        "200":
           description: Asset detail.
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/Asset'
-        '404':
-          $ref: '#/components/responses/NotFound'
+                $ref: "#/components/schemas/Asset"
+        "404":
+          $ref: "#/components/responses/NotFound"
         default:
-          $ref: '#/components/responses/Problem'
+          $ref: "#/components/responses/Problem"
     patch:
       operationId: patchAsset
       tags:
         - assets
       parameters:
-        - $ref: '#/components/parameters/Id'
+        - $ref: "#/components/parameters/Id"
       requestBody:
         required: true
         content:
           multipart/form-data:
             schema:
-              $ref: '#/components/schemas/AssetUpdateRequest'
+              $ref: "#/components/schemas/AssetUpdateRequest"
       responses:
-        '200':
+        "200":
           description: Asset updated.
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/Asset'
-        '404':
-          $ref: '#/components/responses/NotFound'
+                $ref: "#/components/schemas/Asset"
+        "404":
+          $ref: "#/components/responses/NotFound"
         default:
-          $ref: '#/components/responses/Problem'
+          $ref: "#/components/responses/Problem"
     delete:
       operationId: deleteAsset
       tags:
         - assets
       parameters:
-        - $ref: '#/components/parameters/Id'
+        - $ref: "#/components/parameters/Id"
       responses:
-        '204':
+        "204":
           description: Asset deleted.
-        '404':
-          $ref: '#/components/responses/NotFound'
+        "404":
+          $ref: "#/components/responses/NotFound"
         default:
-          $ref: '#/components/responses/Problem'
+          $ref: "#/components/responses/Problem"
   /assets/{id}/content:
     get:
       operationId: getAssetContent
       tags:
         - assets
       parameters:
-        - $ref: '#/components/parameters/Id'
+        - $ref: "#/components/parameters/Id"
       responses:
-        '200':
+        "200":
           description: Asset file content.
           content:
             image/*:
@@ -215,35 +215,36 @@ paths:
               schema:
                 type: string
                 format: binary
-        '404':
-          $ref: '#/components/responses/NotFound'
+        "404":
+          $ref: "#/components/responses/NotFound"
         default:
-          $ref: '#/components/responses/Problem'
+          $ref: "#/components/responses/Problem"
   /checkins:
     get:
       operationId: listCheckins
       tags:
         - checkins
       parameters:
-        - $ref: '#/components/parameters/Limit'
-        - $ref: '#/components/parameters/Offset'
-        - $ref: '#/components/parameters/Search'
-        - $ref: '#/components/parameters/Sort'
-        - $ref: '#/components/parameters/Order'
-        - $ref: '#/components/parameters/LocationIdFilter'
-        - $ref: '#/components/parameters/UserIdFilter'
-        - $ref: '#/components/parameters/DirectionFilter'
-        - $ref: '#/components/parameters/CreatedFromFilter'
-        - $ref: '#/components/parameters/CreatedToFilter'
+        - $ref: "#/components/parameters/Limit"
+        - $ref: "#/components/parameters/Offset"
+        - $ref: "#/components/parameters/Search"
+        - $ref: "#/components/parameters/Sort"
+        - $ref: "#/components/parameters/Order"
+        - $ref: "#/components/parameters/LocationIdFilter"
+        - $ref: "#/components/parameters/UserIdFilter"
+        - $ref: "#/components/parameters/DirectionFilter"
+        - $ref: "#/components/parameters/DepartmentFilter"
+        - $ref: "#/components/parameters/CreatedFromFilter"
+        - $ref: "#/components/parameters/CreatedToFilter"
       responses:
-        '200':
+        "200":
           description: Checkin list.
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/CheckinListResponse'
+                $ref: "#/components/schemas/CheckinListResponse"
         default:
-          $ref: '#/components/responses/Problem'
+          $ref: "#/components/responses/Problem"
     post:
       operationId: createCheckin
       tags:
@@ -253,133 +254,147 @@ paths:
         content:
           multipart/form-data:
             schema:
-              $ref: '#/components/schemas/CheckinCreateRequest'
+              $ref: "#/components/schemas/CheckinCreateRequest"
       responses:
-        '201':
+        "201":
           description: Checkin created.
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/Checkin'
+                $ref: "#/components/schemas/Checkin"
         default:
-          $ref: '#/components/responses/Problem'
+          $ref: "#/components/responses/Problem"
+  /checkins/departments:
+    get:
+      operationId: listCheckinDepartments
+      tags:
+        - checkins
+      responses:
+        "200":
+          description: Departments represented in accessible check-ins.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/DepartmentOptionListResponse"
+        default:
+          $ref: "#/components/responses/Problem"
   /checkins/{id}:
     get:
       operationId: getCheckin
       tags:
         - checkins
       parameters:
-        - $ref: '#/components/parameters/Id'
+        - $ref: "#/components/parameters/Id"
       responses:
-        '200':
+        "200":
           description: Checkin detail.
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/Checkin'
-        '404':
-          $ref: '#/components/responses/NotFound'
+                $ref: "#/components/schemas/Checkin"
+        "404":
+          $ref: "#/components/responses/NotFound"
         default:
-          $ref: '#/components/responses/Problem'
+          $ref: "#/components/responses/Problem"
   /group-memberships:
     get:
       operationId: listGroupMemberships
       tags:
         - group-memberships
       parameters:
-        - $ref: '#/components/parameters/Limit'
-        - $ref: '#/components/parameters/Offset'
-        - $ref: '#/components/parameters/Search'
-        - $ref: '#/components/parameters/Sort'
-        - $ref: '#/components/parameters/Order'
-        - $ref: '#/components/parameters/GroupIdFilter'
-        - $ref: '#/components/parameters/UserIdFilter'
+        - $ref: "#/components/parameters/Limit"
+        - $ref: "#/components/parameters/Offset"
+        - $ref: "#/components/parameters/Search"
+        - $ref: "#/components/parameters/Sort"
+        - $ref: "#/components/parameters/Order"
+        - $ref: "#/components/parameters/GroupIdFilter"
+        - $ref: "#/components/parameters/UserIdFilter"
       responses:
-        '200':
+        "200":
           description: Group membership list.
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/GroupMembershipListResponse'
+                $ref: "#/components/schemas/GroupMembershipListResponse"
         default:
-          $ref: '#/components/responses/Problem'
+          $ref: "#/components/responses/Problem"
   /group-memberships/{id}:
     get:
       operationId: getGroupMembership
       tags:
         - group-memberships
       parameters:
-        - $ref: '#/components/parameters/Id'
+        - $ref: "#/components/parameters/Id"
       responses:
-        '200':
+        "200":
           description: Group membership detail.
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/GroupMembership'
-        '404':
-          $ref: '#/components/responses/NotFound'
+                $ref: "#/components/schemas/GroupMembership"
+        "404":
+          $ref: "#/components/responses/NotFound"
         default:
-          $ref: '#/components/responses/Problem'
+          $ref: "#/components/responses/Problem"
   /groups:
     get:
       operationId: listGroups
       tags:
         - groups
       parameters:
-        - $ref: '#/components/parameters/Limit'
-        - $ref: '#/components/parameters/Offset'
-        - $ref: '#/components/parameters/Search'
-        - $ref: '#/components/parameters/Sort'
-        - $ref: '#/components/parameters/Order'
+        - $ref: "#/components/parameters/Limit"
+        - $ref: "#/components/parameters/Offset"
+        - $ref: "#/components/parameters/Search"
+        - $ref: "#/components/parameters/Sort"
+        - $ref: "#/components/parameters/Order"
       responses:
-        '200':
+        "200":
           description: Group list.
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/GroupListResponse'
+                $ref: "#/components/schemas/GroupListResponse"
         default:
-          $ref: '#/components/responses/Problem'
+          $ref: "#/components/responses/Problem"
   /groups/{id}:
     get:
       operationId: getGroup
       tags:
         - groups
       parameters:
-        - $ref: '#/components/parameters/Id'
+        - $ref: "#/components/parameters/Id"
       responses:
-        '200':
+        "200":
           description: Group detail.
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/Group'
-        '404':
-          $ref: '#/components/responses/NotFound'
+                $ref: "#/components/schemas/Group"
+        "404":
+          $ref: "#/components/responses/NotFound"
         default:
-          $ref: '#/components/responses/Problem'
+          $ref: "#/components/responses/Problem"
   /locations:
     get:
       operationId: listLocations
       tags:
         - locations
       parameters:
-        - $ref: '#/components/parameters/Limit'
-        - $ref: '#/components/parameters/Offset'
-        - $ref: '#/components/parameters/Search'
-        - $ref: '#/components/parameters/Sort'
-        - $ref: '#/components/parameters/Order'
-        - $ref: '#/components/parameters/EnabledFilter'
+        - $ref: "#/components/parameters/Limit"
+        - $ref: "#/components/parameters/Offset"
+        - $ref: "#/components/parameters/Search"
+        - $ref: "#/components/parameters/Sort"
+        - $ref: "#/components/parameters/Order"
+        - $ref: "#/components/parameters/EnabledFilter"
       responses:
-        '200':
+        "200":
           description: Location list.
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/LocationListResponse'
+                $ref: "#/components/schemas/LocationListResponse"
         default:
-          $ref: '#/components/responses/Problem'
+          $ref: "#/components/responses/Problem"
     post:
       operationId: createLocation
       tags:
@@ -389,132 +404,132 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/LocationWriteRequest'
+              $ref: "#/components/schemas/LocationWriteRequest"
       responses:
-        '201':
+        "201":
           description: Location created.
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/Location'
+                $ref: "#/components/schemas/Location"
         default:
-          $ref: '#/components/responses/Problem'
+          $ref: "#/components/responses/Problem"
   /locations/{id}:
     get:
       operationId: getLocation
       tags:
         - locations
       parameters:
-        - $ref: '#/components/parameters/Id'
+        - $ref: "#/components/parameters/Id"
       responses:
-        '200':
+        "200":
           description: Location detail.
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/Location'
-        '404':
-          $ref: '#/components/responses/NotFound'
+                $ref: "#/components/schemas/Location"
+        "404":
+          $ref: "#/components/responses/NotFound"
         default:
-          $ref: '#/components/responses/Problem'
+          $ref: "#/components/responses/Problem"
     patch:
       operationId: patchLocation
       tags:
         - locations
       parameters:
-        - $ref: '#/components/parameters/Id'
+        - $ref: "#/components/parameters/Id"
       requestBody:
         required: true
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/LocationWriteRequest'
+              $ref: "#/components/schemas/LocationWriteRequest"
       responses:
-        '200':
+        "200":
           description: Location updated.
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/Location'
-        '404':
-          $ref: '#/components/responses/NotFound'
+                $ref: "#/components/schemas/Location"
+        "404":
+          $ref: "#/components/responses/NotFound"
         default:
-          $ref: '#/components/responses/Problem'
+          $ref: "#/components/responses/Problem"
     delete:
       operationId: deleteLocation
       tags:
         - locations
       parameters:
-        - $ref: '#/components/parameters/Id'
+        - $ref: "#/components/parameters/Id"
       responses:
-        '204':
+        "204":
           description: Location deleted.
-        '404':
-          $ref: '#/components/responses/NotFound'
+        "404":
+          $ref: "#/components/responses/NotFound"
         default:
-          $ref: '#/components/responses/Problem'
+          $ref: "#/components/responses/Problem"
   /users:
     get:
       operationId: listUsers
       tags:
         - users
       parameters:
-        - $ref: '#/components/parameters/Limit'
-        - $ref: '#/components/parameters/Offset'
-        - $ref: '#/components/parameters/Search'
-        - $ref: '#/components/parameters/Sort'
-        - $ref: '#/components/parameters/Order'
-        - $ref: '#/components/parameters/LocationIdFilter'
+        - $ref: "#/components/parameters/Limit"
+        - $ref: "#/components/parameters/Offset"
+        - $ref: "#/components/parameters/Search"
+        - $ref: "#/components/parameters/Sort"
+        - $ref: "#/components/parameters/Order"
+        - $ref: "#/components/parameters/LocationIdFilter"
       responses:
-        '200':
+        "200":
           description: User list.
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/UserListResponse'
+                $ref: "#/components/schemas/UserListResponse"
         default:
-          $ref: '#/components/responses/Problem'
+          $ref: "#/components/responses/Problem"
   /users/{id}:
     get:
       operationId: getUser
       tags:
         - users
       parameters:
-        - $ref: '#/components/parameters/Id'
+        - $ref: "#/components/parameters/Id"
       responses:
-        '200':
+        "200":
           description: User detail.
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/User'
-        '404':
-          $ref: '#/components/responses/NotFound'
+                $ref: "#/components/schemas/User"
+        "404":
+          $ref: "#/components/responses/NotFound"
         default:
-          $ref: '#/components/responses/Problem'
+          $ref: "#/components/responses/Problem"
     patch:
       operationId: patchUser
       tags:
         - users
       parameters:
-        - $ref: '#/components/parameters/Id'
+        - $ref: "#/components/parameters/Id"
       requestBody:
         required: true
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/UserAccessWriteRequest'
+              $ref: "#/components/schemas/UserAccessWriteRequest"
       responses:
-        '200':
+        "200":
           description: User access updated.
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/User'
-        '404':
-          $ref: '#/components/responses/NotFound'
+                $ref: "#/components/schemas/User"
+        "404":
+          $ref: "#/components/responses/NotFound"
         default:
-          $ref: '#/components/responses/Problem'
+          $ref: "#/components/responses/Problem"
 components:
   securitySchemes:
     sessionAuth:
@@ -592,7 +607,12 @@ components:
       name: direction
       in: query
       schema:
-        $ref: '#/components/schemas/CheckinDirection'
+        $ref: "#/components/schemas/CheckinDirection"
+    DepartmentFilter:
+      name: department
+      in: query
+      schema:
+        type: string
     CreatedFromFilter:
       name: created_from
       in: query
@@ -609,20 +629,20 @@ components:
       name: type
       in: query
       schema:
-        $ref: '#/components/schemas/AssetType'
+        $ref: "#/components/schemas/AssetType"
   responses:
     Problem:
       description: Problem response.
       content:
         application/json:
           schema:
-            $ref: '#/components/schemas/Problem'
+            $ref: "#/components/schemas/Problem"
     NotFound:
       description: Resource not found.
       content:
         application/json:
           schema:
-            $ref: '#/components/schemas/Problem'
+            $ref: "#/components/schemas/Problem"
   schemas:
     APIKey:
       type: object
@@ -654,7 +674,7 @@ components:
         access:
           type: array
           items:
-            $ref: '#/components/schemas/PermissionGrant'
+            $ref: "#/components/schemas/PermissionGrant"
         created_at:
           type: string
           format: date-time
@@ -669,7 +689,7 @@ components:
         access:
           type: array
           items:
-            $ref: '#/components/schemas/PermissionGrant'
+            $ref: "#/components/schemas/PermissionGrant"
     APIKeyCreateRequest:
       type: object
       required:
@@ -690,7 +710,7 @@ components:
         rows:
           type: array
           items:
-            $ref: '#/components/schemas/APIKey'
+            $ref: "#/components/schemas/APIKey"
         total:
           type: integer
           format: int32
@@ -710,7 +730,7 @@ components:
           type: string
           nullable: true
         type:
-          $ref: '#/components/schemas/AssetType'
+          $ref: "#/components/schemas/AssetType"
         url:
           type: string
           format: uri-reference
@@ -739,7 +759,7 @@ components:
         rows:
           type: array
           items:
-            $ref: '#/components/schemas/Asset'
+            $ref: "#/components/schemas/Asset"
         total:
           type: integer
           format: int32
@@ -761,7 +781,10 @@ components:
       required:
         - id
         - user_id
+        - user_display_name
+        - department
         - location_id
+        - location_name
         - direction
         - notes
         - created_by_kind
@@ -774,19 +797,28 @@ components:
         user_id:
           type: string
           format: uuid
+        user_display_name:
+          type: string
+        department:
+          type: string
         location_id:
           type: string
           format: uuid
+        location_name:
+          type: string
         direction:
-          $ref: '#/components/schemas/CheckinDirection'
+          $ref: "#/components/schemas/CheckinDirection"
         notes:
           type: string
         asset_id:
           type: string
           format: uuid
           nullable: true
+        photo_url:
+          type: string
+          nullable: true
         created_by_kind:
-          $ref: '#/components/schemas/PermissionSubjectKind'
+          $ref: "#/components/schemas/PermissionSubjectKind"
         created_by_id:
           type: string
           format: uuid
@@ -807,7 +839,7 @@ components:
           type: string
           format: uuid
         direction:
-          $ref: '#/components/schemas/CheckinDirection'
+          $ref: "#/components/schemas/CheckinDirection"
         notes:
           type: string
         photo:
@@ -818,6 +850,29 @@ components:
       enum:
         - check_in
         - check_out
+    DepartmentOption:
+      type: object
+      required:
+        - id
+        - name
+      properties:
+        id:
+          type: string
+        name:
+          type: string
+    DepartmentOptionListResponse:
+      type: object
+      required:
+        - rows
+        - total
+      properties:
+        rows:
+          type: array
+          items:
+            $ref: "#/components/schemas/DepartmentOption"
+        total:
+          type: integer
+          format: int32
     CheckinListResponse:
       type: object
       required:
@@ -827,13 +882,13 @@ components:
         rows:
           type: array
           items:
-            $ref: '#/components/schemas/Checkin'
+            $ref: "#/components/schemas/Checkin"
         total:
           type: integer
           format: int32
     CreateAPIKeyData:
       allOf:
-        - $ref: '#/components/schemas/APIKey'
+        - $ref: "#/components/schemas/APIKey"
         - type: object
           required:
             - secret
@@ -887,7 +942,7 @@ components:
         rows:
           type: array
           items:
-            $ref: '#/components/schemas/Group'
+            $ref: "#/components/schemas/Group"
         total:
           type: integer
           format: int32
@@ -924,7 +979,7 @@ components:
         rows:
           type: array
           items:
-            $ref: '#/components/schemas/GroupMembership'
+            $ref: "#/components/schemas/GroupMembership"
         total:
           type: integer
           format: int32
@@ -982,7 +1037,7 @@ components:
         rows:
           type: array
           items:
-            $ref: '#/components/schemas/Location'
+            $ref: "#/components/schemas/Location"
         total:
           type: integer
           format: int32
@@ -1033,16 +1088,16 @@ components:
         - action
       properties:
         resource:
-          $ref: '#/components/schemas/PermissionResource'
+          $ref: "#/components/schemas/PermissionResource"
         action:
-          $ref: '#/components/schemas/PermissionAction'
+          $ref: "#/components/schemas/PermissionAction"
         location_id:
           type: string
           format: uuid
           nullable: true
         asset_type:
           allOf:
-            - $ref: '#/components/schemas/AssetType'
+            - $ref: "#/components/schemas/AssetType"
           nullable: true
     PermissionResource:
       type: string
@@ -1081,7 +1136,7 @@ components:
         field_errors:
           type: array
           items:
-            $ref: '#/components/schemas/FieldError'
+            $ref: "#/components/schemas/FieldError"
     Source:
       type: string
       enum:
@@ -1110,13 +1165,13 @@ components:
         department:
           type: string
         source:
-          $ref: '#/components/schemas/Source'
+          $ref: "#/components/schemas/Source"
         admin:
           type: boolean
         access:
           type: array
           items:
-            $ref: '#/components/schemas/PermissionGrant'
+            $ref: "#/components/schemas/PermissionGrant"
         created_at:
           type: string
           format: date-time
@@ -1134,7 +1189,7 @@ components:
         access:
           type: array
           items:
-            $ref: '#/components/schemas/PermissionGrant'
+            $ref: "#/components/schemas/PermissionGrant"
     UserListResponse:
       type: object
       required:
@@ -1144,7 +1199,7 @@ components:
         rows:
           type: array
           items:
-            $ref: '#/components/schemas/User'
+            $ref: "#/components/schemas/User"
         total:
           type: integer
           format: int32

@@ -29,17 +29,3 @@ RETURNING
   created_by_kind,
   created_by_id,
   created_at;
-
--- name: GetCheckin :one
-SELECT
-  c.id,
-  c.user_id,
-  c.location_id,
-  c.direction,
-  c.notes,
-  c.asset_id,
-  c.created_by_kind,
-  c.created_by_id,
-  c.created_at
-FROM checkins AS c
-WHERE c.id = $1;

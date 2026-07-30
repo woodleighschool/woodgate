@@ -45,20 +45,12 @@ const CheckinShowActions = (): ReactElement => (
 export const CheckinShow = (): ReactElement => (
   <Show actions={<CheckinShowActions />}>
     <SimpleShowLayout>
-      <ReferenceField source="user_id" reference="users" label="User">
-        <TextField source="display_name" />
-      </ReferenceField>
-      <ReferenceField source="user_id" reference="users" label="Department">
-        <TextField source="department" />
-      </ReferenceField>
-      <ReferenceField source="location_id" reference="locations" label="Location">
-        <TextField source="name" />
-      </ReferenceField>
+      <TextField source="user_display_name" label="User" />
+      <TextField source="department" label="Department" />
+      <TextField source="location_name" label="Location" />
       <TextField source="direction" label="Direction" />
       <TextField source="notes" label="Notes" />
-      <ReferenceField source="asset_id" reference="assets" label="Photo">
-        <ImageField source="url" title="name" />
-      </ReferenceField>
+      <ImageField source="photo_url" title="user_display_name" label="Photo" />
       <CreatedByField />
       <DateField source="created_at" label="Created" showTime />
     </SimpleShowLayout>

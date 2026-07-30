@@ -79,6 +79,7 @@ type AdminService interface {
 	) (domain.Location, error)
 	DeleteLocation(context.Context, uuid.UUID) error
 	ListCheckins(context.Context, domain.CheckinListOptions, []uuid.UUID) ([]domain.Checkin, int32, error)
+	ListCheckinDepartments(context.Context, []uuid.UUID) ([]string, error)
 	CreateCheckin(
 		context.Context,
 		uuid.UUID,

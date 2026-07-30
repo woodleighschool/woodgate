@@ -24,11 +24,14 @@ func (store *Store) ListCheckins(
 	}
 
 	orderBy, err := pgutil.OrderBy(options.Sort, options.Order, map[string]string{
-		"id":          "c.id",
-		"user_id":     "c.user_id",
-		"location_id": "c.location_id",
-		"direction":   "c.direction",
-		"created_at":  "c.created_at",
+		"id":                "c.id",
+		"user_id":           "c.user_id",
+		"user_display_name": "u.display_name",
+		"department":        "u.department",
+		"location_id":       "c.location_id",
+		"location_name":     "l.name",
+		"direction":         "c.direction",
+		"created_at":        "c.created_at",
 	}, []string{"c.created_at DESC", "c.id DESC"})
 	if err != nil {
 		return nil, 0, err
@@ -41,6 +44,7 @@ func (store *Store) ListCheckins(
 		uuidOrNil(options.LocationID),
 		uuidOrNil(options.UserID),
 		stringValue(options.Direction),
+		options.Department,
 		timePointerValue(options.CreatedFrom),
 		timePointerValue(options.CreatedTo),
 		pgutil.SearchPattern(options.Search),
@@ -52,6 +56,42 @@ func (store *Store) ListCheckins(
 	}
 
 	return pgutil.CollectRows(rows, scanCheckinRow)
+}
+
+func (store *Store) ListCheckinDepartments(
+	ctx context.Context,
+	allowedLocationIDs []uuid.UUID,
+) ([]string, error) {
+	if allowedLocationIDs != nil && len(allowedLocationIDs) == 0 {
+		return []string{}, nil
+	}
+
+	rows, err := store.store.Pool().Query(ctx, `
+SELECT DISTINCT u.department
+FROM checkins AS c
+JOIN users AS u ON u.id = c.user_id
+WHERE ($1::UUID[] IS NULL OR c.location_id = ANY($1::UUID[]))
+  AND btrim(u.department) <> ''
+ORDER BY u.department
+`, uuidSliceOrNil(allowedLocationIDs))
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+
+	departments := make([]string, 0)
+	for rows.Next() {
+		var department string
+		if scanErr := rows.Scan(&department); scanErr != nil {
+			return nil, scanErr
+		}
+		departments = append(departments, department)
+	}
+	if rowsErr := rows.Err(); rowsErr != nil {
+		return nil, rowsErr
+	}
+
+	return departments, nil
 }
 
 func (store *Store) CreateCheckin(
@@ -91,35 +131,65 @@ func (store *Store) GetCheckin(
 	id uuid.UUID,
 	allowedLocationIDs []uuid.UUID,
 ) (domain.Checkin, error) {
-	row, err := store.queries.GetCheckin(ctx, id)
+	row := store.store.Pool().QueryRow(ctx, `
+SELECT
+  c.id,
+  c.user_id,
+  u.display_name,
+  u.department,
+  c.location_id,
+  l.name,
+  c.direction,
+  c.notes,
+  c.asset_id,
+  c.created_by_kind,
+  c.created_by_id,
+  c.created_at
+FROM checkins AS c
+JOIN users AS u ON u.id = c.user_id
+JOIN locations AS l ON l.id = c.location_id
+WHERE c.id = $1
+`, id)
+
+	var (
+		item         domain.Checkin
+		directionRaw string
+		subjectRaw   string
+	)
+	err := row.Scan(
+		&item.ID,
+		&item.UserID,
+		&item.UserDisplayName,
+		&item.Department,
+		&item.LocationID,
+		&item.LocationName,
+		&directionRaw,
+		&item.Notes,
+		&item.AssetID,
+		&subjectRaw,
+		&item.CreatedByID,
+		&item.CreatedAt,
+	)
 	if err != nil {
 		return domain.Checkin{}, err
 	}
 
-	if allowedLocationIDs != nil && !containsUUID(allowedLocationIDs, row.LocationID) {
+	if allowedLocationIDs != nil && !containsUUID(allowedLocationIDs, item.LocationID) {
 		return domain.Checkin{}, pgx.ErrNoRows
 	}
 
-	direction, err := pgutil.ToCheckinDirection(row.Direction)
+	direction, err := pgutil.ToCheckinDirection(directionRaw)
 	if err != nil {
 		return domain.Checkin{}, err
 	}
-	subjectKind, err := pgutil.ToPermissionSubjectKind(row.CreatedByKind)
+	subjectKind, err := pgutil.ToPermissionSubjectKind(subjectRaw)
 	if err != nil {
 		return domain.Checkin{}, err
 	}
 
-	return domain.Checkin{
-		ID:            row.ID,
-		UserID:        row.UserID,
-		LocationID:    row.LocationID,
-		Direction:     direction,
-		Notes:         row.Notes,
-		AssetID:       row.AssetID,
-		CreatedByKind: subjectKind,
-		CreatedByID:   row.CreatedByID,
-		CreatedAt:     row.CreatedAt,
-	}, nil
+	item.Direction = direction
+	item.CreatedByKind = subjectKind
+	return item, nil
 }
 
 func listCheckinsQuery(orderBy string) string {
@@ -127,7 +197,10 @@ func listCheckinsQuery(orderBy string) string {
 SELECT
   c.id,
   c.user_id,
+  u.display_name,
+  u.department,
   c.location_id,
+  l.name,
   c.direction,
   c.notes,
   c.asset_id,
@@ -136,21 +209,27 @@ SELECT
   c.created_at,
   COUNT(*) OVER()::INT4 AS total
 FROM checkins AS c
+JOIN users AS u ON u.id = c.user_id
+JOIN locations AS l ON l.id = c.location_id
 WHERE ($1::UUID[] IS NULL OR c.location_id = ANY($1::UUID[]))
   AND ($2::UUID IS NULL OR c.location_id = $2::UUID)
   AND ($3::UUID IS NULL OR c.user_id = $3::UUID)
   AND ($4 = '' OR c.direction = $4)
-  AND ($5::TIMESTAMPTZ IS NULL OR c.created_at >= $5::TIMESTAMPTZ)
-  AND ($6::TIMESTAMPTZ IS NULL OR c.created_at <= $6::TIMESTAMPTZ)
+  AND ($5 = '' OR u.department = $5)
+  AND ($6::TIMESTAMPTZ IS NULL OR c.created_at >= $6::TIMESTAMPTZ)
+  AND ($7::TIMESTAMPTZ IS NULL OR c.created_at <= $7::TIMESTAMPTZ)
   AND (
-    $7 = ''
-    OR c.user_id::TEXT ILIKE $7
-    OR c.location_id::TEXT ILIKE $7
-    OR c.notes ILIKE $7
+    $8 = ''
+    OR u.display_name ILIKE $8
+    OR u.department ILIKE $8
+    OR l.name ILIKE $8
+    OR c.user_id::TEXT ILIKE $8
+    OR c.location_id::TEXT ILIKE $8
+    OR c.notes ILIKE $8
   )
 ORDER BY %s
-LIMIT NULLIF($8::INT, 0)
-OFFSET $9
+LIMIT NULLIF($9::INT, 0)
+OFFSET $10
 `, orderBy)
 }
 
@@ -158,7 +237,10 @@ func scanCheckinRow(rows pgx.Rows) (domain.Checkin, int32, error) {
 	var (
 		id            uuid.UUID
 		userID        uuid.UUID
+		userName      string
+		department    string
 		locationID    uuid.UUID
+		locationName  string
 		directionRaw  string
 		notes         string
 		assetID       *uuid.UUID
@@ -171,7 +253,10 @@ func scanCheckinRow(rows pgx.Rows) (domain.Checkin, int32, error) {
 	if scanErr := rows.Scan(
 		&id,
 		&userID,
+		&userName,
+		&department,
 		&locationID,
+		&locationName,
 		&directionRaw,
 		&notes,
 		&assetID,
@@ -193,15 +278,18 @@ func scanCheckinRow(rows pgx.Rows) (domain.Checkin, int32, error) {
 	}
 
 	return domain.Checkin{
-		ID:            id,
-		UserID:        userID,
-		LocationID:    locationID,
-		Direction:     direction,
-		Notes:         notes,
-		AssetID:       assetID,
-		CreatedByKind: subjectKind,
-		CreatedByID:   createdByID,
-		CreatedAt:     createdAt,
+		ID:              id,
+		UserID:          userID,
+		UserDisplayName: userName,
+		Department:      department,
+		LocationID:      locationID,
+		LocationName:    locationName,
+		Direction:       direction,
+		Notes:           notes,
+		AssetID:         assetID,
+		CreatedByKind:   subjectKind,
+		CreatedByID:     createdByID,
+		CreatedAt:       createdAt,
 	}, total, nil
 }
 

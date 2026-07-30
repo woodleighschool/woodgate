@@ -170,6 +170,13 @@ func (service *Service) ListCheckins(
 	return service.store.ListCheckins(ctx, options, allowedLocationIDs)
 }
 
+func (service *Service) ListCheckinDepartments(
+	ctx context.Context,
+	allowedLocationIDs []uuid.UUID,
+) ([]string, error) {
+	return service.store.ListCheckinDepartments(ctx, allowedLocationIDs)
+}
+
 func (service *Service) CreateCheckin(
 	ctx context.Context,
 	userID uuid.UUID,

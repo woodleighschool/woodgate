@@ -49,6 +49,7 @@ type CheckinListOptions struct {
 	LocationID  *uuid.UUID
 	UserID      *uuid.UUID
 	Direction   *CheckinDirection
+	Department  string
 	CreatedFrom *time.Time
 	CreatedTo   *time.Time
 }

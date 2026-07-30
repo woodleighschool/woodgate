@@ -80,35 +80,3 @@ func (q *Queries) CreateCheckin(ctx context.Context, arg CreateCheckinParams) (C
 	)
 	return i, err
 }
-
-const getCheckin = `-- name: GetCheckin :one
-SELECT
-  c.id,
-  c.user_id,
-  c.location_id,
-  c.direction,
-  c.notes,
-  c.asset_id,
-  c.created_by_kind,
-  c.created_by_id,
-  c.created_at
-FROM checkins AS c
-WHERE c.id = $1
-`
-
-func (q *Queries) GetCheckin(ctx context.Context, id uuid.UUID) (Checkin, error) {
-	row := q.db.QueryRow(ctx, getCheckin, id)
-	var i Checkin
-	err := row.Scan(
-		&i.ID,
-		&i.UserID,
-		&i.LocationID,
-		&i.Direction,
-		&i.Notes,
-		&i.AssetID,
-		&i.CreatedByKind,
-		&i.CreatedByID,
-		&i.CreatedAt,
-	)
-	return i, err
-}

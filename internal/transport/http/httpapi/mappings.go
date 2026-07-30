@@ -72,16 +72,24 @@ func mapLocation(item domain.Location) Location {
 
 func mapCheckin(item domain.Checkin) Checkin {
 	return Checkin{
-		Id:            idFromUUID(item.ID),
-		UserId:        idFromUUID(item.UserID),
-		LocationId:    idFromUUID(item.LocationID),
-		Direction:     CheckinDirection(item.Direction),
-		Notes:         item.Notes,
-		AssetId:       idPointer(item.AssetID),
-		CreatedByKind: PermissionSubjectKind(item.CreatedByKind),
-		CreatedById:   idFromUUID(item.CreatedByID),
-		CreatedAt:     item.CreatedAt,
+		Id:              idFromUUID(item.ID),
+		UserId:          idFromUUID(item.UserID),
+		UserDisplayName: item.UserDisplayName,
+		Department:      item.Department,
+		LocationId:      idFromUUID(item.LocationID),
+		LocationName:    item.LocationName,
+		Direction:       CheckinDirection(item.Direction),
+		Notes:           item.Notes,
+		AssetId:         idPointer(item.AssetID),
+		PhotoUrl:        assetContentURLPointer(item.AssetID),
+		CreatedByKind:   PermissionSubjectKind(item.CreatedByKind),
+		CreatedById:     idFromUUID(item.CreatedByID),
+		CreatedAt:       item.CreatedAt,
 	}
+}
+
+func mapDepartmentOption(item string) DepartmentOption {
+	return DepartmentOption{Id: item, Name: item}
 }
 
 func mapAPIKey(item domain.APIKey) APIKey {
@@ -190,4 +198,12 @@ func assetTypeOpenAPIPointer(value *domain.AssetType) *AssetType {
 
 func assetContentURL(id uuid.UUID) string {
 	return "/api/v1/assets/" + id.String() + "/content"
+}
+
+func assetContentURLPointer(id *uuid.UUID) *string {
+	if id == nil {
+		return nil
+	}
+	url := assetContentURL(*id)
+	return &url
 }

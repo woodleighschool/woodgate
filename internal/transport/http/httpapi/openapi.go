@@ -353,15 +353,19 @@ type AssetUpdateRequest struct {
 
 // Checkin defines model for Checkin.
 type Checkin struct {
-	AssetId       *openapi_types.UUID   `json:"asset_id,omitempty"`
-	CreatedAt     time.Time             `json:"created_at"`
-	CreatedById   openapi_types.UUID    `json:"created_by_id"`
-	CreatedByKind PermissionSubjectKind `json:"created_by_kind"`
-	Direction     CheckinDirection      `json:"direction"`
-	Id            openapi_types.UUID    `json:"id"`
-	LocationId    openapi_types.UUID    `json:"location_id"`
-	Notes         string                `json:"notes"`
-	UserId        openapi_types.UUID    `json:"user_id"`
+	AssetId         *openapi_types.UUID   `json:"asset_id,omitempty"`
+	CreatedAt       time.Time             `json:"created_at"`
+	CreatedById     openapi_types.UUID    `json:"created_by_id"`
+	CreatedByKind   PermissionSubjectKind `json:"created_by_kind"`
+	Department      string                `json:"department"`
+	Direction       CheckinDirection      `json:"direction"`
+	Id              openapi_types.UUID    `json:"id"`
+	LocationId      openapi_types.UUID    `json:"location_id"`
+	LocationName    string                `json:"location_name"`
+	Notes           string                `json:"notes"`
+	PhotoUrl        *string               `json:"photo_url,omitempty"`
+	UserDisplayName string                `json:"user_display_name"`
+	UserId          openapi_types.UUID    `json:"user_id"`
 }
 
 // CheckinCreateRequest defines model for CheckinCreateRequest.
@@ -393,6 +397,18 @@ type CreateAPIKeyData struct {
 	LastUsedAt *time.Time         `json:"last_used_at,omitempty"`
 	Name       string             `json:"name"`
 	Secret     string             `json:"secret"`
+}
+
+// DepartmentOption defines model for DepartmentOption.
+type DepartmentOption struct {
+	Id   string `json:"id"`
+	Name string `json:"name"`
+}
+
+// DepartmentOptionListResponse defines model for DepartmentOptionListResponse.
+type DepartmentOptionListResponse struct {
+	Rows  []DepartmentOption `json:"rows"`
+	Total int32              `json:"total"`
 }
 
 // FieldError defines model for FieldError.
@@ -530,6 +546,9 @@ type CreatedFromFilter = time.Time
 // CreatedToFilter defines model for CreatedToFilter.
 type CreatedToFilter = time.Time
 
+// DepartmentFilter defines model for DepartmentFilter.
+type DepartmentFilter = string
+
 // DirectionFilter defines model for DirectionFilter.
 type DirectionFilter = CheckinDirection
 
@@ -607,6 +626,7 @@ type ListCheckinsParams struct {
 	LocationId  *LocationIdFilter        `form:"location_id,omitempty" json:"location_id,omitempty"`
 	UserId      *UserIdFilter            `form:"user_id,omitempty" json:"user_id,omitempty"`
 	Direction   *DirectionFilter         `form:"direction,omitempty" json:"direction,omitempty"`
+	Department  *DepartmentFilter        `form:"department,omitempty" json:"department,omitempty"`
 	CreatedFrom *CreatedFromFilter       `form:"created_from,omitempty" json:"created_from,omitempty"`
 	CreatedTo   *CreatedToFilter         `form:"created_to,omitempty" json:"created_to,omitempty"`
 }
@@ -732,6 +752,9 @@ type ServerInterface interface {
 	// (POST /checkins)
 	CreateCheckin(w http.ResponseWriter, r *http.Request)
 
+	// (GET /checkins/departments)
+	ListCheckinDepartments(w http.ResponseWriter, r *http.Request)
+
 	// (GET /checkins/{id})
 	GetCheckin(w http.ResponseWriter, r *http.Request, id Id)
 
@@ -838,6 +861,11 @@ func (_ Unimplemented) ListCheckins(w http.ResponseWriter, r *http.Request, para
 
 // (POST /checkins)
 func (_ Unimplemented) CreateCheckin(w http.ResponseWriter, r *http.Request) {
+	w.WriteHeader(http.StatusNotImplemented)
+}
+
+// (GET /checkins/departments)
+func (_ Unimplemented) ListCheckinDepartments(w http.ResponseWriter, r *http.Request) {
 	w.WriteHeader(http.StatusNotImplemented)
 }
 
@@ -1517,6 +1545,19 @@ func (siw *ServerInterfaceWrapper) ListCheckins(w http.ResponseWriter, r *http.R
 		return
 	}
 
+	// ------------- Optional query parameter "department" -------------
+
+	err = runtime.BindQueryParameterWithOptions("form", true, false, "department", r.URL.Query(), &params.Department, runtime.BindQueryParameterOptions{Type: "string", Format: ""})
+	if err != nil {
+		var requiredError *runtime.RequiredParameterError
+		if errors.As(err, &requiredError) {
+			siw.ErrorHandlerFunc(w, r, &RequiredParamError{ParamName: "department"})
+		} else {
+			siw.ErrorHandlerFunc(w, r, &InvalidParamFormatError{ParamName: "department", Err: err})
+		}
+		return
+	}
+
 	// ------------- Optional query parameter "created_from" -------------
 
 	err = runtime.BindQueryParameterWithOptions("form", true, false, "created_from", r.URL.Query(), &params.CreatedFrom, runtime.BindQueryParameterOptions{Type: "string", Format: "date-time"})
@@ -1567,6 +1608,28 @@ func (siw *ServerInterfaceWrapper) CreateCheckin(w http.ResponseWriter, r *http.
 
 	handler := http.Handler(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		siw.Handler.CreateCheckin(w, r)
+	}))
+
+	for _, middleware := range siw.HandlerMiddlewares {
+		handler = middleware(handler)
+	}
+
+	handler.ServeHTTP(w, r)
+}
+
+// ListCheckinDepartments operation middleware
+func (siw *ServerInterfaceWrapper) ListCheckinDepartments(w http.ResponseWriter, r *http.Request) {
+
+	ctx := r.Context()
+
+	ctx = context.WithValue(ctx, SessionAuthScopes, []string{})
+
+	ctx = context.WithValue(ctx, ApiKeyAuthScopes, []string{})
+
+	r = r.WithContext(ctx)
+
+	handler := http.Handler(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		siw.Handler.ListCheckinDepartments(w, r)
 	}))
 
 	for _, middleware := range siw.HandlerMiddlewares {
@@ -2445,6 +2508,9 @@ func HandlerWithOptions(si ServerInterface, options ChiServerOptions) http.Handl
 	})
 	r.Group(func(r chi.Router) {
 		r.Post(options.BaseURL+"/checkins", wrapper.CreateCheckin)
+	})
+	r.Group(func(r chi.Router) {
+		r.Get(options.BaseURL+"/checkins/departments", wrapper.ListCheckinDepartments)
 	})
 	r.Group(func(r chi.Router) {
 		r.Get(options.BaseURL+"/checkins/{id}", wrapper.GetCheckin)

@@ -11,6 +11,7 @@ import type {
   Checkin,
   CheckinListResponse,
   CreateAPIKeyData,
+  DepartmentOptionListResponse,
   Group,
   GroupListResponse,
   GroupMembership,
@@ -205,6 +206,8 @@ export const locationsApi = {
 export const checkinsApi = {
   list: (query: CheckinsQuery, signal?: AbortSignal): Promise<CheckinListResponse> =>
     expectBody(client["/checkins"].GET({ params: { query }, ...withSignal(signal) })),
+  listDepartments: (signal?: AbortSignal): Promise<DepartmentOptionListResponse> =>
+    expectBody(client["/checkins/departments"].GET(withSignal(signal))),
   get: (id: string, signal?: AbortSignal): Promise<Checkin> =>
     expectBody(client["/checkins/{id}"].GET({ ...withPath(id), ...withSignal(signal) })),
   create: (body: components["schemas"]["CheckinCreateRequest"]): Promise<Checkin> =>

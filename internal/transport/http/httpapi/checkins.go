@@ -35,6 +35,7 @@ func (handler *Server) ListCheckins(writer http.ResponseWriter, request *http.Re
 		LocationID:  uuidPointer(params.LocationId),
 		UserID:      uuidPointer(params.UserId),
 		Direction:   checkinDirectionPointer(params.Direction),
+		Department:  optionalString(params.Department),
 		CreatedFrom: timePointer(params.CreatedFrom),
 		CreatedTo:   timePointer(params.CreatedTo),
 	}, allowedLocationIDs)
@@ -44,6 +45,33 @@ func (handler *Server) ListCheckins(writer http.ResponseWriter, request *http.Re
 	}
 
 	writeJSON(writer, http.StatusOK, CheckinListResponse{Rows: mapSliceValue(items, mapCheckin), Total: total})
+}
+
+func (handler *Server) ListCheckinDepartments(writer http.ResponseWriter, request *http.Request) {
+	locationScope, err := checkinScope(
+		request.Context(),
+		handler.authorizer,
+		domain.PermissionActionRead,
+	)
+	if err != nil {
+		writeClassifiedError(writer, err, apiErrorOptions{})
+		return
+	}
+	var allowedLocationIDs []uuid.UUID
+	if !locationScope.All {
+		allowedLocationIDs = locationScope.Values
+	}
+
+	items, err := handler.admin.ListCheckinDepartments(request.Context(), allowedLocationIDs)
+	if err != nil {
+		writeClassifiedError(writer, err, apiErrorOptions{})
+		return
+	}
+
+	writeJSON(writer, http.StatusOK, DepartmentOptionListResponse{
+		Rows:  mapSliceValue(items, mapDepartmentOption),
+		Total: safeInt32(len(items)),
+	})
 }
 
 func (handler *Server) CreateCheckin(writer http.ResponseWriter, request *http.Request) {

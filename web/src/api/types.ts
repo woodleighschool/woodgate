@@ -23,6 +23,8 @@ export type LocationWriteRequest = components["schemas"]["LocationWriteRequest"]
 
 export type Checkin = components["schemas"]["Checkin"];
 export type CheckinListResponse = components["schemas"]["CheckinListResponse"];
+export type DepartmentOption = components["schemas"]["DepartmentOption"];
+export type DepartmentOptionListResponse = components["schemas"]["DepartmentOptionListResponse"];
 
 export type PermissionGrant = components["schemas"]["PermissionGrant"];
 export type UserAccessWriteRequest = components["schemas"]["UserAccessWriteRequest"];

@@ -100,6 +100,22 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/checkins/departments": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["listCheckinDepartments"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/checkins/{id}": {
         parameters: {
             query?: never;
@@ -310,12 +326,16 @@ export interface components {
             id: string;
             /** Format: uuid */
             user_id: string;
+            user_display_name: string;
+            department: string;
             /** Format: uuid */
             location_id: string;
+            location_name: string;
             direction: components["schemas"]["CheckinDirection"];
             notes: string;
             /** Format: uuid */
             asset_id?: string | null;
+            photo_url?: string | null;
             created_by_kind: components["schemas"]["PermissionSubjectKind"];
             /** Format: uuid */
             created_by_id: string;
@@ -334,6 +354,15 @@ export interface components {
         };
         /** @enum {string} */
         CheckinDirection: "check_in" | "check_out";
+        DepartmentOption: {
+            id: string;
+            name: string;
+        };
+        DepartmentOptionListResponse: {
+            rows: components["schemas"]["DepartmentOption"][];
+            /** Format: int32 */
+            total: number;
+        };
         CheckinListResponse: {
             rows: components["schemas"]["Checkin"][];
             /** Format: int32 */
@@ -496,6 +525,7 @@ export interface components {
         UserIdFilter: string;
         LocationIdFilter: string;
         DirectionFilter: components["schemas"]["CheckinDirection"];
+        DepartmentFilter: string;
         CreatedFromFilter: string;
         CreatedToFilter: string;
         AssetTypeFilter: components["schemas"]["AssetType"];
@@ -795,6 +825,7 @@ export interface operations {
                 location_id?: components["parameters"]["LocationIdFilter"];
                 user_id?: components["parameters"]["UserIdFilter"];
                 direction?: components["parameters"]["DirectionFilter"];
+                department?: components["parameters"]["DepartmentFilter"];
                 created_from?: components["parameters"]["CreatedFromFilter"];
                 created_to?: components["parameters"]["CreatedToFilter"];
             };
@@ -836,6 +867,27 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["Checkin"];
+                };
+            };
+            default: components["responses"]["Problem"];
+        };
+    };
+    listCheckinDepartments: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Departments represented in accessible check-ins. */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DepartmentOptionListResponse"];
                 };
             };
             default: components["responses"]["Problem"];
