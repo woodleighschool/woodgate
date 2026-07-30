@@ -1,32 +1,48 @@
+---
 services:
-  db:
+  woodgate:
+    image: ghcr.io/woodleighschool/woodgate:rolling
+    # Uncomment below to build local source
+    # build:
+    #   context: .
+    #   dockerfile: Dockerfile
+    # pull_policy: build
+    restart: unless-stopped
+    env_file: .env
+    environment:
+      WOODGATE_PORT: 8080
+      WOODGATE_MEDIA_ROOT: /data
+      DATABASE_HOST: postgres
+      DATABASE_PORT: 5432
+      DATABASE_USER: woodgate
+      DATABASE_PASSWORD: woodgate
+      DATABASE_NAME: woodgate
+      DATABASE_SSLMODE: disable
+    ports:
+      - "${WOODGATE_PORT:-8080}:8080"
+    volumes:
+      - woodgate-data:/data
+    depends_on:
+      postgres:
+        condition: service_healthy
+
+  postgres:
     image: postgres:18-alpine
     restart: unless-stopped
     environment:
+      POSTGRES_USER: woodgate
+      POSTGRES_PASSWORD: woodgate
       POSTGRES_DB: woodgate
-      POSTGRES_USER: postgres
-      POSTGRES_PASSWORD: postgres
+    ports:
+      - "${POSTGRES_PORT:-5432}:5432"
     volumes:
-      - postgres_data:/var/lib/postgresql/data
-    ports:
-      - "5432:5432"
-
-  woodgate:
-    build: .
-    restart: unless-stopped
-    ports:
-      - "8080:8080"
-    environment:
-      DATABASE_HOST: db
-      DATABASE_PORT: 5432
-      DATABASE_USER: postgres
-      DATABASE_PASSWORD: postgres
-      DATABASE_NAME: woodgate
-      DATABASE_SSLMODE: disable
-    depends_on:
-      - db
-    env_file:
-      - .env
+      - postgres-data:/var/lib/postgresql
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U $$POSTGRES_USER -d $$POSTGRES_DB"]
+      interval: 5s
+      timeout: 3s
+      retries: 20
 
 volumes:
-  postgres_data:
+  postgres-data:
+  woodgate-data:
