@@ -3,6 +3,7 @@ package router
 import (
 	"context"
 	"encoding/json"
+	"io/fs"
 	"log/slog"
 	"net/http"
 	"time"
@@ -25,7 +26,7 @@ func New(
 	readinessCheck func(context.Context) error,
 	registerAuthRoutes func(chi.Router),
 	registerAPIRoutes func(chi.Router),
-	frontendDir string,
+	frontendFS fs.FS,
 ) http.Handler {
 	router := chi.NewRouter()
 	router.Use(middleware.RequestID)
@@ -37,7 +38,7 @@ func New(
 	router.Get("/readyz", readinessHandler(logger, readinessCheck))
 	router.Route("/auth", registerAuthRoutes)
 	router.Route("/api/v1", registerAPIRoutes)
-	mountFrontend(router, frontendDir)
+	mountFrontend(router, frontendFS)
 
 	return router
 }

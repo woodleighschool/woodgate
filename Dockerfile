@@ -1,51 +1,51 @@
-# Build the frontend
-FROM node:25-alpine AS frontend
-WORKDIR /workspace/frontend
-COPY frontend/package*.json ./
-RUN npm ci --no-audit --no-fund
-COPY frontend .
-COPY backend/api/openapi.yaml /workspace/backend/api/openapi.yaml
+# syntax=docker/dockerfile:1
+
+# ARGs used in a FROM must live in the global scope (before the first FROM).
+# Both versions are supplied by the release workflow from Mise.
+ARG NODE_VERSION
+ARG GO_VERSION
+
+# ---- Web build ------------------------------------------------------------
+# Build the frontend bundle so the Go stage can embed it. The runtime image
+# does not include Node.
+FROM --platform=$BUILDPLATFORM node:${NODE_VERSION}-alpine AS web
+WORKDIR /workspace/web
+
+# Install dependencies against the lockfile first for layer caching.
+COPY web/package*.json ./
+RUN --mount=type=cache,target=/root/.npm npm ci --no-audit --no-fund
+
+COPY web/ ./
+COPY api/openapi.yaml ../api/openapi.yaml
 RUN npm run gen:api
-ENV NODE_ENV=production
 RUN npm run build
 
-# Build the woodgate binary
-FROM golang:1.26.5 AS backend
+# ---- Go build -------------------------------------------------------------
+FROM --platform=$BUILDPLATFORM golang:${GO_VERSION} AS builder
 ARG TARGETOS
 ARG TARGETARCH
-ARG LDFLAGS
 
 WORKDIR /workspace
-# Copy the Go Modules manifests
-COPY backend/go.mod go.mod
-COPY backend/go.sum go.sum
-# cache deps before building and copying source so that we don't need to re-download as much
-# and so that source changes don't invalidate our downloaded layer
+
+# Cache module downloads before copying source.
+COPY go.mod go.sum ./
 RUN go mod download
 
-# Copy the go source and sqlc config
-COPY backend/cmd/ cmd/
-COPY backend/internal/ internal/
+COPY cmd/ cmd/
+COPY internal/ internal/
+COPY web/ web/
 
-# Build
-# the GOARCH has not a default value to allow the binary be built according to the host where the command
-# was called. For example, if we call make docker-build in a local env which has the Apple Silicon M1 SO
-# the docker BUILDPLATFORM arg will be linux/arm64 when for Apple x86 it will be linux/amd64. Therefore,
-# by leaving it empty we can ensure that the container and binary shipped on it will have the same platform.
-RUN go generate ./...
+# Overlay the freshly built frontend bundle so go:embed uses the real assets.
+COPY --from=web /workspace/web/dist web/dist
+
 RUN CGO_ENABLED=0 GOOS=${TARGETOS:-linux} GOARCH=${TARGETARCH} \
-	go build -trimpath -buildvcs=true \
-		-ldflags="${LDFLAGS} -w -s" \
-		-o woodgate cmd/woodgate/main.go
+    go build -trimpath -ldflags "-s -w" -o woodgate ./cmd/woodgate
 
-# Use distroless as minimal base image to package the woodgate binary
-# Refer to https://github.com/GoogleContainerTools/distroless for more details
+# ---- Runtime --------------------------------------------------------------
 FROM gcr.io/distroless/static:nonroot
+
 WORKDIR /
-COPY --from=backend /workspace/woodgate .
-COPY --from=frontend /workspace/frontend/dist ./frontend
-
-USER 65532:65532
+COPY --from=builder /workspace/woodgate /woodgate
 EXPOSE 8080
-
+USER 65532:65532
 ENTRYPOINT ["/woodgate"]

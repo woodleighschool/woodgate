@@ -26,13 +26,13 @@ import (
 	authhttp "github.com/woodleighschool/woodgate/internal/transport/http/auth"
 	httpapi "github.com/woodleighschool/woodgate/internal/transport/http/httpapi"
 	httprouter "github.com/woodleighschool/woodgate/internal/transport/http/router"
+	webdist "github.com/woodleighschool/woodgate/web"
 )
 
 const (
 	shutdownTimeout   = 10 * time.Second
 	readHeaderTimeout = 5 * time.Second
 	idleTimeout       = 2 * time.Minute
-	frontendDistDir   = "/frontend"
 )
 
 func main() {
@@ -152,7 +152,7 @@ func buildServer(logger *slog.Logger, cfg config.Config, store *postgres.Store) 
 			store.Ping,
 			newAuthRouteRegistrar(authService.RegisterRoutes, principalMiddleware, meHandler),
 			newAPIRouteRegistrar(apiAuthMiddleware, apiHandler),
-			frontendDistDir,
+			webdist.DistDirFS,
 		),
 		ReadHeaderTimeout: readHeaderTimeout,
 		IdleTimeout:       idleTimeout,

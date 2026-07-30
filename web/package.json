@@ -4,10 +4,10 @@
   "private": true,
   "type": "module",
   "scripts": {
-    "build": "tsc -b && vite build",
+    "build": "tsc -b && vite build && touch dist/.gitkeep",
     "dev": "vite",
     "format": "prettier --write 'src/**/*.{ts,tsx,js,jsx}'",
-    "gen:api": "openapi-typescript ../backend/api/openapi.yaml -o src/api/openapi.ts",
+    "gen:api": "openapi-typescript ../api/openapi.yaml -o src/api/openapi.ts",
     "lint": "eslint 'src/**/*.{ts,tsx,js,jsx}' --fix"
   },
   "dependencies": {
