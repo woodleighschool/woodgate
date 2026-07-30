@@ -20,9 +20,9 @@
     "@mui/utils": "^7.3.11",
     "openapi-fetch": "^0.17.0",
     "qrcode.react": "^4.2.0",
-    "react": "^19.2.7",
+    "react": "^19.2.8",
     "react-admin": "^5.15.1",
-    "react-dom": "^19.2.7",
+    "react-dom": "^19.2.8",
     "react-router-dom": "^7.18.2",
     "zod": "^4.4.3"
   },
