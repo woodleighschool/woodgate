@@ -1,0 +1,32 @@
+{
+  "fill": {
+    "solid": "srgb:0.12941,0.32157,0.25490,1.00000"
+  },
+  "groups": [
+    {
+      "layers": [
+        {
+          "fill-specializations": [
+            {
+              "appearance": "dark",
+              "value": "none"
+            }
+          ],
+          "image-name": "logo.svg",
+          "name": "Icon"
+        }
+      ],
+      "shadow": {
+        "kind": "neutral",
+        "opacity": 0.5
+      },
+      "translucency": {
+        "enabled": true,
+        "value": 0.5
+      }
+    }
+  ],
+  "supported-platforms": {
+    "squares": ["macOS"]
+  }
+}
