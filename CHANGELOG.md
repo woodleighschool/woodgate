@@ -1,5 +1,20 @@
 # Changelog
 
+## [1.2.0](https://github.com/woodleighschool/woodgate/compare/1.1.0...1.2.0) (2026-07-30)
+
+
+### Features
+
+* **checkins:** add department filtering ([393c38d](https://github.com/woodleighschool/woodgate/commit/393c38d0cae4bc884cb38abaae9ce0eeec73b5a2))
+
+
+### Bug Fixes
+
+* **checkins:** label directions and fix sorting ([d600797](https://github.com/woodleighschool/woodgate/commit/d600797abdf2c57c7bd721b33303c560ce237b30))
+* **ci:** commit generated web API types ([1253898](https://github.com/woodleighschool/woodgate/commit/125389812556de313663313c5baea09343ba52af))
+* **ci:** limit Periphery to macOS ([1a3159c](https://github.com/woodleighschool/woodgate/commit/1a3159c34c1147dedd7e865c4e1713a8a5077652))
+* **deps:** update dependency @vitejs/plugin-react (6.0.4 → 6.0.5) ([#77](https://github.com/woodleighschool/woodgate/issues/77)) ([dd451ff](https://github.com/woodleighschool/woodgate/commit/dd451ffbd9ea734af9e32ce2c15a6b71784569c6))
+
 ## [1.1.0](https://github.com/woodleighschool/woodgate/compare/1.0.1...1.1.0) (2026-07-30)
 
 
