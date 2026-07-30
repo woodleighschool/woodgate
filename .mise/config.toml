@@ -6,6 +6,8 @@ node = "26.5.0"
 pnpm = "11.18.0"
 golangci-lint = "2.12.2"
 lefthook = "2.1.10"
+periphery = "3.8.0"
+swiftformat = "0.62.1"
 zizmor = "1.28.0"
 oxfmt = "0.61.0"
 oxlint = "1.75.0"
@@ -18,7 +20,7 @@ lockfile = true
 minimum_release_age = "12 hours"
 
 [monorepo]
-config_roots = ["web"]
+config_roots = ["app", "web"]
 
 [tasks.go-deps]
 description = "Download Go dependencies"
@@ -74,8 +76,8 @@ description = "Run Go linters and apply fixes"
 run = "golangci-lint run --fix"
 
 [tasks.lint]
-description = "Run backend and web linters"
-depends = ["go-lint", "//web:lint"]
+description = "Run backend, web, and app linters"
+depends = ["go-lint", "//app:lint", "//web:lint"]
 
 [tasks.go-format]
 description = "Format Go code"
@@ -86,12 +88,12 @@ description = "Check Go formatting"
 run = "test -z \"$(gofmt -l .)\" || { gofmt -l .; exit 1; }"
 
 [tasks.format]
-description = "Format backend and web code"
-depends = ["go-format", "//web:format"]
+description = "Format backend, web, and app code"
+depends = ["go-format", "//app:format", "//web:format"]
 
 [tasks.fmt-check]
-description = "Check backend and web formatting"
-depends = ["go-fmt-check", "//web:fmt-check"]
+description = "Check backend, web, and app formatting"
+depends = ["go-fmt-check", "//app:fmt-check", "//web:fmt-check"]
 
 [tasks.workflow-lint]
 description = "Lint GitHub Actions workflows"

@@ -1,0 +1,36 @@
+[tasks.format]
+description = "Format Swift code"
+run = "swiftformat WoodGate"
+
+[tasks.fmt-check]
+description = "Check Swift formatting"
+run = "swiftformat WoodGate --lint"
+
+[tasks.build]
+description = "Build the app for an iOS simulator"
+run = """
+xcodebuild build \
+  -project WoodGate.xcodeproj \
+  -scheme WoodGate \
+  -destination 'generic/platform=iOS Simulator' \
+  CODE_SIGNING_ALLOWED=NO
+"""
+
+[tasks.periphery]
+description = "Build the app and reject unused Swift code"
+run = """
+periphery scan \
+  --project WoodGate.xcodeproj \
+  --schemes WoodGate \
+  --format xcode \
+  --strict \
+  --disable-update-check \
+  --relative-results \
+  -- \
+  -destination 'generic/platform=iOS Simulator' \
+  CODE_SIGNING_ALLOWED=NO
+"""
+
+[tasks.lint]
+description = "Run all non-test app checks"
+depends = [":fmt-check", ":periphery"]

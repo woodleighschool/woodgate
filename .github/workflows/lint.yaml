@@ -41,10 +41,28 @@ jobs:
         uses: jdx/mise-action@9e7f7633ff6f6d6048a9418a68d48f288f50eb14 # v4.2.3
         with:
           experimental: true
-          install_args: --locked go node pnpm oxfmt
+          install_args: --locked go node pnpm oxfmt swiftformat
 
       - name: Check formatting
         run: mise run fmt-check
+
+  app-lint:
+    name: App Lint
+    runs-on: macos-26
+    steps:
+      - name: Checkout
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+
+      - name: Setup Mise
+        uses: jdx/mise-action@9e7f7633ff6f6d6048a9418a68d48f288f50eb14 # v4.2.3
+        with:
+          experimental: true
+          install_args: --locked periphery swiftformat
+
+      - name: Run app lint
+        run: mise run //app:lint
 
   go-lint:
     name: Go Lint

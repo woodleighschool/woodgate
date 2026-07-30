@@ -39,12 +39,39 @@ web/dist/*
 # Editor / IDE
 .vscode/
 
-# Xcode and Swift Package Manager
+# Linked worktrees
+.worktrees/
+
+# Xcode
 xcuserdata/
+*.xcuserstate
+*.xccheckout
+*.xcscmblueprint
+*.moved-aside
+*.hmap
+*.ipa
+*.dSYM.zip
+*.dSYM
+timeline.xctimeline
+playground.xcworkspace
+
+# Swift Package Manager
 Packages/
 Package.pins
 Package.resolved
 .build/
+DerivedData/
+*.xcarchive
+*.pkg
+
+# Carthage
+Carthage/Build/
+
+# fastlane
+fastlane/report.xml
+fastlane/Preview.html
+fastlane/screenshots/**/*.png
+fastlane/test_output
 
 # macOS
 .DS_Store

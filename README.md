@@ -89,6 +89,13 @@ Vite proxies `/api` and `/auth` to `localhost:8080`. The backend serves the buil
 **App:**
 
 Open `app/WoodGate.xcodeproj` in Xcode and run on a connected iPad or simulator.
+Repository-level app checks are available through mise:
+
+```bash
+mise run //app:fmt-check
+mise run //app:lint
+mise run //app:build
+```
 
 ## ⚠️ Limitations
 

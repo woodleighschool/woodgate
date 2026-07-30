@@ -8,43 +8,43 @@
 import SwiftUI
 
 struct LocationSelectionSheet: View {
-  // MARK: - Properties
+    // MARK: - Properties
 
-  let selection: LocationSelectionState
-  let isBusy: Bool
-  let onSelect: (SessionLocation) -> Void
+    let selection: LocationSelectionState
+    let isBusy: Bool
+    let onSelect: (SessionLocation) -> Void
 
-  // MARK: - Body
+    // MARK: - Body
 
-  var body: some View {
-    Form {
-      Section("Available Locations") {
-        ForEach(selection.options) { option in
-          Button {
-            onSelect(option)
-          } label: {
-            HStack {
-              Label(option.name, systemImage: "building.2")
-                .foregroundStyle(.primary)
+    var body: some View {
+        Form {
+            Section("Available Locations") {
+                ForEach(selection.options) { option in
+                    Button {
+                        onSelect(option)
+                    } label: {
+                        HStack {
+                            Label(option.name, systemImage: "building.2")
+                                .foregroundStyle(.primary)
 
-              Spacer()
+                            Spacer()
 
-              if isBusy {
-                ProgressView()
-              } else {
-                Image(systemName: "chevron.right")
-                  .font(.caption.weight(.bold))
-                  .foregroundStyle(.tertiary)
-              }
+                            if isBusy {
+                                ProgressView()
+                            } else {
+                                Image(systemName: "chevron.right")
+                                    .font(.caption.weight(.bold))
+                                    .foregroundStyle(.tertiary)
+                            }
+                        }
+                        .contentShape(Rectangle())
+                    }
+                    .disabled(isBusy)
+                }
             }
-            .contentShape(Rectangle())
-          }
-          .disabled(isBusy)
         }
-      }
+        .navigationTitle("Select Location")
+        .navigationBarTitleDisplayMode(.inline)
+        .interactiveDismissDisabled(isBusy)
     }
-    .navigationTitle("Select Location")
-    .navigationBarTitleDisplayMode(.inline)
-    .interactiveDismissDisabled(isBusy)
-  }
 }

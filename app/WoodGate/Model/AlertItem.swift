@@ -8,9 +8,9 @@
 import Foundation
 
 struct AlertItem: Identifiable {
-  // MARK: - Properties
+    // MARK: - Properties
 
-  let id = UUID()
-  let title: String
-  let message: String
+    let id = UUID()
+    let title: String
+    let message: String
 }

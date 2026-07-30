@@ -10,28 +10,28 @@ import SwiftUI
 
 @main
 struct WoodGateApp: App {
-  private let modelTypes: [any PersistentModel.Type] = [
-    CachedPersonRecord.self,
-  ]
+    private let modelTypes: [any PersistentModel.Type] = [
+        CachedPersonRecord.self,
+    ]
 
-  private let container: ModelContainer
-  private let modelData: ModelData
+    private let container: ModelContainer
+    private let modelData: ModelData
 
-  // MARK: - Init
+    // MARK: - Init
 
-  init() {
-    let schema = Schema(modelTypes)
-    container = try! ModelContainer(for: schema)
-    modelData = ModelData(modelContext: container.mainContext)
-  }
-
-  // MARK: - Body
-
-  var body: some Scene {
-    WindowGroup {
-      ContentView()
-        .environment(modelData)
+    init() {
+        let schema = Schema(modelTypes)
+        container = try! ModelContainer(for: schema)
+        modelData = ModelData(modelContext: container.mainContext)
     }
-    .modelContainer(container)
-  }
+
+    // MARK: - Body
+
+    var body: some Scene {
+        WindowGroup {
+            ContentView()
+                .environment(modelData)
+        }
+        .modelContainer(container)
+    }
 }
