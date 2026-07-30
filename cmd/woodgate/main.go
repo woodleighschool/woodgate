@@ -194,7 +194,11 @@ func maybeStartEntraSync(
 
 	entraSyncService := appentrasync.New(
 		logger,
-		graphsync.NewClient(graphClient, graphsync.WithTransitiveMemberships()),
+		graphsync.NewClient(
+			graphClient,
+			graphsync.WithUserFields(graphsync.FieldDepartment),
+			graphsync.WithTransitiveMemberships(),
+		),
 		entrasyncpostgres.New(store),
 		cfg.Entra.Interval,
 	)
