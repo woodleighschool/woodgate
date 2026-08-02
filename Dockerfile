@@ -1,9 +1,9 @@
 # syntax=docker/dockerfile:1
 
-# ARGs used in a FROM must live in the global scope (before the first FROM).
-# Both versions are supplied by the release workflow from Mise.
-ARG NODE_VERSION
-ARG GO_VERSION
+# Defaults keep local and Compose builds self-contained. Renovate updates these
+# alongside the matching Mise, module, and package pins.
+ARG NODE_VERSION=26.5.1
+ARG GO_VERSION=1.26.5
 
 # ---- Web build ------------------------------------------------------------
 # Build the frontend bundle so the Go stage can embed it. The runtime image
@@ -22,10 +22,11 @@ RUN pnpm openapi:types
 RUN pnpm build
 
 # ---- Go build -------------------------------------------------------------
-FROM --platform=$BUILDPLATFORM golang:${GO_VERSION} AS builder
+FROM --platform=$BUILDPLATFORM golang:${GO_VERSION}-alpine AS builder
 ARG TARGETOS
 ARG TARGETARCH
 
+RUN apk add --no-cache upx
 WORKDIR /workspace
 
 # Cache module downloads before copying source.
@@ -41,6 +42,7 @@ COPY --from=web /workspace/web/dist web/dist
 
 RUN CGO_ENABLED=0 GOOS=${TARGETOS:-linux} GOARCH=${TARGETARCH} \
     go build -trimpath -ldflags "-s -w" -o woodgate ./cmd/woodgate
+RUN upx --best --lzma woodgate
 
 # ---- Runtime --------------------------------------------------------------
 FROM gcr.io/distroless/static:nonroot

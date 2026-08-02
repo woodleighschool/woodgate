@@ -32,5 +32,5 @@ periphery scan \
 """
 
 [tasks.lint]
-description = "Run all non-test app checks"
-depends = [":fmt-check", ":periphery"]
+description = "Run app lint"
+depends = [":periphery"]

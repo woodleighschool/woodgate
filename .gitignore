@@ -39,8 +39,6 @@ web/dist/*
 # Editor / IDE
 .vscode/
 
-# Linked worktrees
-.worktrees/
 
 # Xcode
 xcuserdata/

@@ -75,6 +75,10 @@ run = "golangci-lint run"
 description = "Run Go linters and apply fixes"
 run = "golangci-lint run --fix"
 
+[tasks.lint-fix]
+description = "Run backend and web linters and apply fixes"
+depends = ["go-lint-fix", "//web:lint-fix"]
+
 [tasks.lint]
 description = "Run backend, web, and app linters"
 depends = ["go-lint", "//app:lint", "//web:lint"]
