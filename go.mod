@@ -11,7 +11,7 @@ require (
 	github.com/gabriel-vasile/mimetype v1.4.15
 	github.com/go-chi/chi/v5 v5.3.1
 	github.com/go-pkgz/auth/v2 v2.1.6
-	github.com/go-pkgz/rest v1.23.1
+	github.com/go-pkgz/rest v1.23.2
 	github.com/google/uuid v1.6.0
 	github.com/jackc/pgerrcode v0.0.0-20250907135507-afb5586c32a6
 	github.com/jackc/pgx/v5 v5.10.0
