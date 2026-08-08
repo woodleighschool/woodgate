@@ -1,5 +1,18 @@
 # Changelog
 
+## [1.3.0](https://github.com/woodleighschool/woodgate/compare/1.2.1...1.3.0) (2026-08-08)
+
+
+### Features
+
+* **deps:** update dependency vite (8.1.5 → 8.2.0) ([#79](https://github.com/woodleighschool/woodgate/issues/79)) ([5dcb47f](https://github.com/woodleighschool/woodgate/commit/5dcb47fe1f052b2e47bcc27723d41867075c3f82))
+
+
+### Bug Fixes
+
+* **ci:** disable automatic mise installs ([e381fe2](https://github.com/woodleighschool/woodgate/commit/e381fe292bc92aefb47351e65d296a1dcf635c09))
+* **renovate:** wait for complete toolchain groups ([6d1f7ec](https://github.com/woodleighschool/woodgate/commit/6d1f7ec2a16b5942a0891db5847e1b054cf069c0))
+
 ## [1.2.1](https://github.com/woodleighschool/woodgate/compare/1.2.0...1.2.1) (2026-07-30)
 
 
