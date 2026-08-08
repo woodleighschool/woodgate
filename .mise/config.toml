@@ -8,7 +8,7 @@ golangci-lint = "2.12.2"
 lefthook = "2.1.10"
 periphery = { version = "3.8.0", os = ["macos"] }
 swiftformat = "0.62.1"
-zizmor = "1.28.0"
+zizmor = "1.29.0"
 oxfmt = "0.61.0"
 oxlint = "1.75.0"
 "npm:@commitlint/cli" = "21.2.1"
