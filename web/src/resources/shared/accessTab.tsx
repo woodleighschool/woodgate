@@ -191,18 +191,16 @@ const AccessRow = ({
     <TableCell component="th" scope="row">
       {label}
     </TableCell>
-    {actions.map(
-      (action): ReactElement => (
-        <TableCell key={action} align="center">
-          <Checkbox
-            checked={hasGrant(grants, resource, action, locationId, assetType)}
-            onChange={(_event, checked): void => {
-              onToggle(action, checked, locationId, assetType);
-            }}
-          />
-        </TableCell>
-      ),
-    )}
+    {actions.map((action): ReactElement => (
+      <TableCell key={action} align="center">
+        <Checkbox
+          checked={hasGrant(grants, resource, action, locationId, assetType)}
+          onChange={(_event, checked): void => {
+            onToggle(action, checked, locationId, assetType);
+          }}
+        />
+      </TableCell>
+    ))}
   </TableRow>
 );
 
@@ -266,44 +264,40 @@ const AccessEditor = ({
     ),
   );
 
-  const checkinRows = locations.map(
-    (location): ReactElement => (
-      <AccessRow
-        key={location.id}
-        label={location.name}
-        locationId={location.id}
-        resource="checkins"
-        grants={access}
-        onToggle={(action: PermissionAction, enabled: boolean, nextLocationId?: string): void => {
-          setAccess((current): PermissionGrant[] =>
-            toggleGrant(current, "checkins", action, enabled, nextLocationId),
-          );
-        }}
-      />
-    ),
-  );
+  const checkinRows = locations.map((location): ReactElement => (
+    <AccessRow
+      key={location.id}
+      label={location.name}
+      locationId={location.id}
+      resource="checkins"
+      grants={access}
+      onToggle={(action: PermissionAction, enabled: boolean, nextLocationId?: string): void => {
+        setAccess((current): PermissionGrant[] =>
+          toggleGrant(current, "checkins", action, enabled, nextLocationId),
+        );
+      }}
+    />
+  ));
 
-  const assetRows = assetTypeRows.map(
-    ({ label, assetType }): ReactElement => (
-      <AccessRow
-        key={assetType}
-        label={label}
-        assetType={assetType}
-        resource="assets"
-        grants={access}
-        onToggle={(
-          action: PermissionAction,
-          enabled: boolean,
-          _locationId?: string,
-          nextAssetType?: AssetType,
-        ): void => {
-          setAccess((current): PermissionGrant[] =>
-            toggleGrant(current, "assets", action, enabled, undefined, nextAssetType),
-          );
-        }}
-      />
-    ),
-  );
+  const assetRows = assetTypeRows.map(({ label, assetType }): ReactElement => (
+    <AccessRow
+      key={assetType}
+      label={label}
+      assetType={assetType}
+      resource="assets"
+      grants={access}
+      onToggle={(
+        action: PermissionAction,
+        enabled: boolean,
+        _locationId?: string,
+        nextAssetType?: AssetType,
+      ): void => {
+        setAccess((current): PermissionGrant[] =>
+          toggleGrant(current, "assets", action, enabled, undefined, nextAssetType),
+        );
+      }}
+    />
+  ));
 
   return (
     <Stack spacing={2.5} sx={{ pt: 1 }}>

@@ -164,13 +164,11 @@ const PairingQRButton = ({
                   setLocationId(event.target.value);
                 }}
               >
-                {locations.map(
-                  (loc): ReactElement => (
-                    <MenuItem key={loc.id} value={loc.id}>
-                      {loc.name}
-                    </MenuItem>
-                  ),
-                )}
+                {locations.map((loc): ReactElement => (
+                  <MenuItem key={loc.id} value={loc.id}>
+                    {loc.name}
+                  </MenuItem>
+                ))}
               </Select>
             </FormControl>
           </Stack>

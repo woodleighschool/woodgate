@@ -5,12 +5,14 @@ export interface AuthProviders {
   local: boolean;
 }
 
-export const isAuthError = (error: unknown): boolean => {
+const hasStatus = (error: unknown, status: number): boolean => {
   if (typeof error !== "object" || error === null) {
     return false;
   }
-  return Reflect.get(error, "status") === 401;
+  return Reflect.get(error, "status") === status;
 };
+
+export const isAuthError = (error: unknown): boolean => hasStatus(error, 401);
 
 export async function getCurrentUser(signal?: AbortSignal): Promise<AuthUser | undefined> {
   try {
@@ -31,7 +33,8 @@ export async function logout(): Promise<void> {
   try {
     await authApi.logout();
   } catch (error) {
-    if (isAuthError(error)) {
+    // React-admin also calls logout to route an anonymous user to the login page.
+    if (isAuthError(error) || hasStatus(error, 403)) {
       return;
     }
     throw error;

@@ -411,8 +411,8 @@ export const dataProvider: DataProvider = {
   async getMany(resource: string, parameters: GetManyParams) {
     const resourceName = assertResourceName("GetMany", resource);
     const data = await Promise.all(
-      parameters.ids.map(
-        (id): Promise<any> => getOneHandlers[resourceName](toIdentifier(id), parameters.signal),
+      parameters.ids.map((id): Promise<any> =>
+        getOneHandlers[resourceName](toIdentifier(id), parameters.signal),
       ),
     );
     return { data };

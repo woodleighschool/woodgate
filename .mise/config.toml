@@ -3,14 +3,14 @@ monorepo_root = true
 [tools]
 go = "1.26.5"
 node = "26.7.0"
-pnpm = "11.18.0"
+pnpm = "11.21.0"
 golangci-lint = "2.12.2"
 lefthook = "2.1.10"
 periphery = { version = "3.8.0", os = ["macos"] }
 swiftformat = "0.62.1"
-zizmor = "1.28.0"
-oxfmt = "0.61.0"
-oxlint = "1.75.0"
+zizmor = "1.29.0"
+oxfmt = "0.63.0"
+oxlint = "1.78.0"
 "npm:@commitlint/cli" = "21.2.1"
 
 [settings]
