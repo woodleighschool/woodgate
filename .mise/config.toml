@@ -2,12 +2,14 @@ monorepo_root = true
 
 [tools]
 go = "1.26.5"
+"go:golang.org/x/vuln/cmd/govulncheck" = "1.6.0"
 node = "26.7.0"
 pnpm = "11.21.0"
 golangci-lint = "2.12.2"
 lefthook = "2.1.10"
 periphery = { version = "3.8.0", os = ["macos"] }
 swiftformat = "0.62.1"
+actionlint = "1.7.12"
 zizmor = "1.29.0"
 oxfmt = "0.63.0"
 oxlint = "1.78.0"
@@ -55,6 +57,10 @@ run = "go mod tidy"
 description = "Check the Go module is tidy"
 run = "go mod tidy -diff"
 
+[tasks.vulncheck]
+description = "Scan for known vulnerabilities with govulncheck"
+run = "govulncheck ./..."
+
 [tasks.go-generate]
 description = "Regenerate Go API and SQL code"
 run = "go generate ./..."
@@ -101,7 +107,7 @@ depends = ["go-fmt-check", "//app:fmt-check", "//web:fmt-check"]
 
 [tasks.workflow-lint]
 description = "Lint GitHub Actions workflows"
-run = "zizmor --offline --no-ignores .github/workflows"
+run = ["actionlint", "zizmor --offline --no-ignores .github/workflows"]
 
 [tasks.clean]
 description = "Remove local build outputs"
