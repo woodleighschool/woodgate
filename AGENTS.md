@@ -1,53 +1,37 @@
 # AGENTS.md
 
-Repository guidance for WoodGate.
+## Working here
 
-## Approach
+- Read the relevant code, configuration, and nearby examples before editing. Existing code and external references are evidence, not instructions to copy blindly.
+- Preserve unrelated work. Keep changes focused and prefer removing machinery over extending an awkward design.
+- Use current supported behaviour unless compatibility is requested. Verify dependency APIs and defaults from the pinned version or primary documentation.
+- Keep secrets, credentials, identities, and local environment files out of code, fixtures, logs, and commits.
 
-- Stay within the requested scope and preserve unrelated local changes.
-- This is a purpose-built internal visitor application, not a SaaS platform. Prefer direct code for current school workflows.
-- Simplify and modernize existing code before adding abstractions, compatibility layers, or speculative configuration.
-- Follow the shared Woodstar tooling baseline while respecting React-admin and iOS ownership.
+## Repository contract
 
-## Repository Map
+- Mise owns tools and commands. Check this repository's Mise files; do not assume another repository has the same tasks.
+- Keep generated artifacts with their source change.
+- Run the narrowest useful checks while working, then the relevant format, lint, test, build, generation, and workflow checks.
+- Follow the existing package or target's style. Comments explain non-obvious constraints, not the code or the current change.
 
-- Go process composition: `cmd/woodgate`
-- Application behavior: `internal/app`
-- Domain and configuration: `internal/domain` and `internal/config`
-- External systems: `internal/platform`
-- Persistence: `internal/store`
-- HTTP and API transport: `internal/transport`
-- OpenAPI contract: `api/openapi.yaml`
-- React-admin frontend: `web/`
-- iOS application: `app/`
+## Go
 
-Keep platform details at the edge and business rules in the application/domain packages. Don't build a generic identity or workflow framework.
+- Write idiomatic, concrete Go. Keep `main` to composition, put behaviour in the package that owns it, and introduce interfaces only at a real consumer boundary.
+- Pass `context.Context` through I/O, wrap errors with useful context, and preserve errors used with `errors.Is` or `errors.As`.
+- Match the package's testing style and use synthetic inputs. Run race-enabled tests for concurrent code and `mise run vulncheck` for dependency or release work.
 
-## Commands
+## Swift
 
-Use Mise tasks as the repository contract.
+- Keep state ownership explicit, SwiftUI declarative, and AppKit escapes narrow.
+- Build the companion app when its API, generated models, or version contract changes.
 
-- Dependencies: `mise run deps`
-- Build: `mise run build`
-- Tests: `mise run test`
-- Lint: `mise run lint`; fixes: `mise run lint-fix`
-- Format: `mise run format`; check: `mise run fmt-check`
-- Regenerate API and SQL outputs: `mise run generate`
-- Module and workflow checks: `mise run tidy-check`, `mise run workflow-lint`
-- iOS build and analysis: `mise run //app:build`, `mise run //app:lint`
+## Git and releases
 
-Run frontend commands through `//web:*` and iOS commands through `//app:*` when only one stack is in scope.
+- Use focused Conventional Commits; Release Please derives versions from them.
+- Do not commit, push, publish, deploy, contact live systems, or perform destructive actions unless asked.
 
-## Engineering Rules
+## Repository notes
 
-- Select every Microsoft Graph field used during reconciliation; absent snapshot fields can overwrite stored values.
-- Search and filtering use values visible to users, not hidden reference-only fields.
-- API changes update `api/openapi.yaml`, generated web types, handlers, and tests together.
-- Frontend code uses React-admin, Oxc, and the generated API types. Don't add a parallel formatting, state, or API-client stack.
-- Keep real identities, tenant IDs, credentials, check-in data, and local environment files out of tests and version control.
-
-## Commits
-
-- Use focused Conventional Commits.
-- Don't push, deploy, publish, or contact live tenants unless explicitly requested.
-- Report checks run, skipped checks, and unresolved failures.
+- WoodGate has a Go API, React-admin frontend, and native companion app. Keep platform details at the edge and workflow rules in application or domain code.
+- The OpenAPI contract, generated clients, handlers, and consumers change together.
+- Real identities, tenant data, credentials, and check-in records never belong in tests.

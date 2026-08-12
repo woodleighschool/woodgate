@@ -7,9 +7,15 @@
 
 # Build and tool outputs
 /woodgate
+/.air/
 /bin/
+/dist/
 /tmp/
 /.gocache/
+/.local/
+/media/
+coverage.out
+__pycache__/
 
 # Go workspace overrides
 go.work
@@ -27,20 +33,19 @@ dist/
 web/dist/*
 !web/dist/.gitkeep
 
-# Local mise overrides
+# Local Mise overrides
 .mise.local.toml
 .mise.local.lock
 
-# Env files
+# Local configuration
 .env
 .env.*
 !.env.example
 
-# Editor / IDE
+# Editor and IDE
 .vscode/
 
-
-# Xcode
+# Xcode and Swift Package Manager
 xcuserdata/
 *.xcuserstate
 *.xccheckout
@@ -52,8 +57,6 @@ xcuserdata/
 *.dSYM
 timeline.xctimeline
 playground.xcworkspace
-
-# Swift Package Manager
 Packages/
 Package.pins
 Package.resolved
@@ -61,15 +64,7 @@ Package.resolved
 DerivedData/
 *.xcarchive
 *.pkg
-
-# Carthage
 Carthage/Build/
-
-# fastlane
-fastlane/report.xml
-fastlane/Preview.html
-fastlane/screenshots/**/*.png
-fastlane/test_output
 
 # macOS
 .DS_Store

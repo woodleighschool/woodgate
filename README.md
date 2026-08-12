@@ -1,95 +1,62 @@
-# WoodGate
+# woodgate
 
-WoodGate is a check-in/check-out system. It syncs users and groups from Entra ID, provides an frontend to manage locations and access.
+Internal check-in system with a Go API, a React admin console, and a native companion app for dedicated terminals.
+
+Users and groups sync from Microsoft Entra. Administrators manage locations, permissions, check-ins, assets, and API keys from the web interface.
 
 > [!WARNING]
-> This project may be unstable or have bugs, use with caution.
-> Also expect breaking changes between releases for now.
+> The API and configuration may change between releases.
 
-## ✨ Overview
+## 🚀 Usage
 
-Three components:
-
-- **Backend** — Go REST API (`/api/v1`), auth endpoints (`/auth`), and static frontend serving.
-- **Frontend** — React Admin UI for managing users, groups, locations, check-ins, assets, and API keys.
-- **App** — Native Swift app. Configured once via QR code (base URL, location ID, API key) and used as a dedicated check-in terminal.
-
-Users and groups are sync-owned and come from Entra ID. Locations define whether check-ins require notes or photos, and which reusable assets provide background and logo. The app authenticates with an API key, pairs to a location on-device, and submits check-ins against the REST API.
-
-## 🚀 Deploy (Docker)
-
-1. Create a `.env` file with the required values (see Configuration below).
-2. Start the stack:
+Copy the example configuration and start the published image with PostgreSQL:
 
 ```bash
-docker compose up --build
+cp .env.example .env
+docker compose up -d
 ```
 
-The backend listens on `http://localhost:8080`. The Docker image builds the frontend and serves it from the backend.
+The web interface listens on [http://localhost:8080](http://localhost:8080). The container serves it from the Go backend.
 
-### Production
+The companion app is configured once by QR code with the server URL and an API key. It pairs to one location and runs as a dedicated check-in terminal.
 
-- Put it behind HTTPS (Caddy, Nginx, Traefik, etc.).
-- Set `WOODGATE_BASE_URL` to the public URL. Used for auth callbacks and cookie security.
-- Set a strong `JWT_SECRET`.
-- Keep Postgres data on a named volume.
-- Keep `WOODGATE_MEDIA_ROOT` on persistent disk if storing asset files locally.
+## ⚙️ Configuration
 
-## 🧰 Configuration
+| Variable               | Required          | Default or purpose                                  |
+| ---------------------- | ----------------- | --------------------------------------------------- |
+| `WOODGATE_PORT`        | No                | `8080`                                              |
+| `WOODGATE_BASE_URL`    | Yes               | Public URL used for cookies and auth callbacks      |
+| `WOODGATE_MEDIA_ROOT`  | No                | `media`; keep it on persistent storage              |
+| `LOG_LEVEL`            | No                | `info`; accepts `debug`, `info`, `warn`, or `error` |
+| `DATABASE_HOST`        | Yes               | PostgreSQL host                                     |
+| `DATABASE_PORT`        | No                | `5432`                                              |
+| `DATABASE_USER`        | Yes               | PostgreSQL user                                     |
+| `DATABASE_PASSWORD`    | Yes               | PostgreSQL password                                 |
+| `DATABASE_NAME`        | Yes               | PostgreSQL database                                 |
+| `DATABASE_SSLMODE`     | No                | `disable`                                           |
+| `JWT_SECRET`           | Yes               | Session signing secret                              |
+| `LOCAL_ADMIN_PASSWORD` | One auth provider | Enables the local `admin` login                     |
+| `ENTRA_TENANT_ID`      | One auth provider | Microsoft Entra tenant                              |
+| `ENTRA_CLIENT_ID`      | With Entra        | Microsoft Entra client ID                           |
+| `ENTRA_CLIENT_SECRET`  | With Entra        | Microsoft Entra client secret                       |
+| `ENTRA_SYNC_ENABLED`   | No                | `false`                                             |
+| `ENTRA_SYNC_INTERVAL`  | No                | `1h`                                                |
 
-| Name                   | What it does                     | Required                  | Notes                                                      |
-| ---------------------- | -------------------------------- | ------------------------- | ---------------------------------------------------------- |
-| `WOODGATE_PORT`        | HTTP listen port                 | No                        | Defaults to `8080`.                                        |
-| `WOODGATE_BASE_URL`    | Public URL for cookies and OAuth | Yes, when auth is enabled | Must be the externally reachable URL.                      |
-| `WOODGATE_MEDIA_ROOT`  | Local media storage root         | No                        | Defaults to `media`.                                       |
-| `LOG_LEVEL`            | Log verbosity                    | No                        | `debug`, `info`, `warn`, `error`.                          |
-| `DATABASE_HOST`        | Postgres host                    | Yes                       |                                                            |
-| `DATABASE_PORT`        | Postgres port                    | No                        | Defaults to `5432`.                                        |
-| `DATABASE_USER`        | Postgres user                    | Yes                       |                                                            |
-| `DATABASE_PASSWORD`    | Postgres password                | Yes                       |                                                            |
-| `DATABASE_NAME`        | Postgres database name           | Yes                       |                                                            |
-| `DATABASE_SSLMODE`     | Postgres SSL mode                | No                        | Defaults to `disable`.                                     |
-| `JWT_SECRET`           | Signing secret for auth          | Yes, when auth is enabled | Keep it dedicated to JWT signing.                          |
-| `LOCAL_ADMIN_PASSWORD` | Enable local admin login         | No                        | Username is always `admin`.                                |
-| `ENTRA_TENANT_ID`      | Entra tenant ID                  | No                        | Set with the other `ENTRA_*` vars for Entra auth and sync. |
-| `ENTRA_CLIENT_ID`      | Entra client ID                  | No                        | Set with the other `ENTRA_*` vars for Entra auth and sync. |
-| `ENTRA_CLIENT_SECRET`  | Entra client secret              | No                        | Set with the other `ENTRA_*` vars for Entra auth and sync. |
-| `ENTRA_SYNC_ENABLED`   | Enable periodic Entra sync       | No                        | Defaults to `false`.                                       |
-| `ENTRA_SYNC_INTERVAL`  | Entra sync interval              | No                        | Defaults to `1h` when enabled.                             |
+Use HTTPS in production, set a strong `JWT_SECRET`, and persist both PostgreSQL and `WOODGATE_MEDIA_ROOT`.
 
-## 🖥️ App setup
+## 🔐 Permissions
 
-The app is configured once via QR code, which encodes the base URL, and API key. After scanning, the app pairs to the location and operates as a dedicated check-in terminal.
+Permissions grant a subject—user or API key—an action on a resource. Check-in permissions can be scoped to one location, and API keys should receive only the access their paired terminal needs.
 
-API keys are created in the admin UI. Each key should have check-in permission scoped to the relevant location.
-
-## Permissions
-
-- A permission is a grant for a subject (`user` or `api_key`) with a resource and an action (`read`, `create`, `write`, `delete`).
-- Check-in permissions are scoped per location.
-- API keys and signed-in users only see or mutate resources their permissions allow.
-
-## 🧪 Local development
-
-Install the pinned toolchain and dependencies:
+## 🧑‍💻 Development
 
 ```bash
 mise install
 mise run deps
-```
-
-Run the backend and web development servers together:
-
-```bash
 mise run dev
 ```
 
-Vite proxies `/api` and `/auth` to `localhost:8080`. The backend serves the built frontend in container deployments.
-
-**App:**
-
-Open `app/WoodGate.xcodeproj` in Xcode and run on a connected iPad or simulator.
-Repository-level app checks are available through mise:
+The root tasks cover the Go backend and web frontend. Companion-app checks live under `//app:`:
 
 ```bash
 mise run //app:fmt-check
@@ -97,11 +64,6 @@ mise run //app:lint
 mise run //app:build
 ```
 
-## ⚠️ Limitations
+## 📄 License
 
-- Entra is the only supported directory sync source.
-
-## 🤝 Contributing / PRs
-
-We are happy to take PRs. Fork this repo, make your changes, and open a PR.
-Feel free to open an [issue](https://github.com/woodleighschool/grinch) if you find any bugs or to request a feature.
+Licensed under the [Apache License 2.0](LICENSE).
