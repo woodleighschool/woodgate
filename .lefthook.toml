@@ -6,16 +6,13 @@ configs = ["lefthook.common.toml"]
 [pre-commit.commands.format-web]
 glob = ["web/**/*.{ts,tsx,js,jsx,css}"]
 root = "web/"
-run = "oxfmt {staged_files}"
+run = "oxfmt --no-error-on-unmatched-pattern {staged_files}"
 stage_fixed = true
 
 [pre-commit.commands.format-swift]
 glob = ["*.swift"]
 run = "swiftformat {staged_files}"
 stage_fixed = true
-
-[pre-commit.commands.format-yaml]
-exclude = ["**/pnpm-lock.yaml", "api/openapi.yaml"]
 
 [commit-msg.commands.commitlint]
 run = "commitlint --default-config --edit {1}"
