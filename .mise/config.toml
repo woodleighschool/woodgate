@@ -12,7 +12,7 @@ periphery = { version = "3.8.0", os = ["macos"] }
 swiftformat = "0.62.1"
 actionlint = "1.7.12"
 zizmor = "1.29.0"
-oxfmt = "0.63.0"
+oxfmt = "0.64.0"
 oxlint = "1.78.0"
 "npm:@commitlint/cli" = "21.2.2"
 
