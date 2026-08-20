@@ -5,7 +5,8 @@ Internal check-in system with a Go API, a React admin console, and a native comp
 Users and groups sync from Microsoft Entra. Administrators manage locations, permissions, check-ins, assets, and API keys from the web interface.
 
 > [!WARNING]
-> The API and configuration may change between releases.
+> This project may be unstable or have bugs, use with caution.
+> Also expect breaking changes between releases for now.
 
 ## 🚀 Usage
 
