@@ -292,8 +292,7 @@ func writeClassifiedError(writer http.ResponseWriter, err error, options apiErro
 		return
 	}
 
-	var pgErr *pgconn.PgError
-	if errors.As(err, &pgErr) {
+	if pgErr, ok := errors.AsType[*pgconn.PgError](err); ok {
 		switch pgErr.Code {
 		case pgerrcode.UniqueViolation:
 			writeProblem(writer, http.StatusConflict, problemSpec{

@@ -86,7 +86,7 @@ VALUES
 
 	checkinStore := adminpostgres.New(store)
 	items, total, err := checkinStore.ListCheckins(ctx, domain.CheckinListOptions{
-		ListOptions: domain.ListOptions{Search: "Matching"},
+		Search: "Matching",
 	}, nil)
 	if err != nil {
 		t.Fatalf("list checkins: %v", err)
@@ -130,10 +130,8 @@ VALUES
 	} {
 		t.Run("created_at_"+test.order, func(t *testing.T) {
 			sortedItems, _, listErr := checkinStore.ListCheckins(ctx, domain.CheckinListOptions{
-				ListOptions: domain.ListOptions{
-					Sort:  "created_at",
-					Order: test.order,
-				},
+				Sort:  "created_at",
+				Order: test.order,
 			}, nil)
 			if listErr != nil {
 				t.Fatalf("sort checkins: %v", listErr)
