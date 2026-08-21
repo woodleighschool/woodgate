@@ -11,10 +11,7 @@ import (
 	"syscall"
 	"time"
 
-	"github.com/Azure/azure-sdk-for-go/sdk/azidentity"
 	"github.com/go-chi/chi/v5"
-	msgraphsdk "github.com/microsoftgraph/msgraph-sdk-go"
-	graphsync "github.com/woodleighschool/go-entrasync"
 
 	appadmin "github.com/woodleighschool/woodgate/internal/app/admin"
 	appauth "github.com/woodleighschool/woodgate/internal/app/auth"
@@ -174,31 +171,18 @@ func maybeStartEntraSync(
 		return nil
 	}
 
-	credential, err := azidentity.NewClientSecretCredential(
-		cfg.Auth.EntraTenantID,
-		cfg.Auth.EntraClientID,
-		cfg.Auth.EntraClientSecret,
-		nil,
-	)
+	graphClient, err := appentrasync.NewClient(appentrasync.Config{
+		TenantID:     cfg.Auth.EntraTenantID,
+		ClientID:     cfg.Auth.EntraClientID,
+		ClientSecret: cfg.Auth.EntraClientSecret,
+	})
 	if err != nil {
-		return fmt.Errorf("configure entra credential: %w", err)
-	}
-
-	graphClient, err := msgraphsdk.NewGraphServiceClientWithCredentials(
-		credential,
-		[]string{"https://graph.microsoft.com/.default"},
-	)
-	if err != nil {
-		return fmt.Errorf("configure entra graph client: %w", err)
+		return fmt.Errorf("configure entra sync: %w", err)
 	}
 
 	entraSyncService := appentrasync.New(
 		logger,
-		graphsync.NewClient(
-			graphClient,
-			graphsync.WithUserFields(graphsync.FieldDepartment),
-			graphsync.WithTransitiveMemberships(),
-		),
+		graphClient,
 		entrasyncpostgres.New(store),
 		cfg.Entra.Interval,
 	)

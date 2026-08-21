@@ -5,7 +5,6 @@ import (
 	"fmt"
 
 	"github.com/google/uuid"
-	graphsync "github.com/woodleighschool/go-entrasync"
 
 	appentrasync "github.com/woodleighschool/woodgate/internal/app/entrasync"
 	"github.com/woodleighschool/woodgate/internal/domain"
@@ -24,12 +23,12 @@ func New(store *postgres.Store) *Store {
 // ReconcileSnapshot upserts current Entra objects and removes missing Entra groups.
 func (dataStore *Store) ReconcileSnapshot(
 	ctx context.Context,
-	snapshot *graphsync.Snapshot,
+	snapshot *appentrasync.Snapshot,
 ) (appentrasync.Result, error) {
 	if snapshot == nil {
-		snapshot = &graphsync.Snapshot{
-			Users:   []graphsync.User{},
-			Groups:  []graphsync.Group{},
+		snapshot = &appentrasync.Snapshot{
+			Users:   []appentrasync.User{},
+			Groups:  []appentrasync.Group{},
 			Members: map[uuid.UUID][]uuid.UUID{},
 		}
 	}
@@ -75,7 +74,7 @@ func (dataStore *Store) ReconcileSnapshot(
 	}, nil
 }
 
-func upsertEntraUsers(ctx context.Context, queries *db.Queries, users []graphsync.User) error {
+func upsertEntraUsers(ctx context.Context, queries *db.Queries, users []appentrasync.User) error {
 	for _, user := range users {
 		_, err := queries.UpsertUser(ctx, db.UpsertUserParams{
 			ID:          user.ID,
@@ -92,7 +91,7 @@ func upsertEntraUsers(ctx context.Context, queries *db.Queries, users []graphsyn
 	return nil
 }
 
-func upsertEntraGroups(ctx context.Context, queries *db.Queries, groups []graphsync.Group) error {
+func upsertEntraGroups(ctx context.Context, queries *db.Queries, groups []appentrasync.Group) error {
 	for _, group := range groups {
 		_, err := queries.UpsertGroup(ctx, db.UpsertGroupParams{
 			ID:          group.ID,
@@ -129,7 +128,7 @@ func addUserMembers(ctx context.Context, queries *db.Queries, membersByGroup map
 	return nil
 }
 
-func collectUserIDs(users []graphsync.User) []uuid.UUID {
+func collectUserIDs(users []appentrasync.User) []uuid.UUID {
 	ids := make([]uuid.UUID, 0, len(users))
 	for _, user := range users {
 		ids = append(ids, user.ID)
@@ -137,7 +136,7 @@ func collectUserIDs(users []graphsync.User) []uuid.UUID {
 	return ids
 }
 
-func collectGroupIDs(groups []graphsync.Group) []uuid.UUID {
+func collectGroupIDs(groups []appentrasync.Group) []uuid.UUID {
 	ids := make([]uuid.UUID, 0, len(groups))
 	for _, group := range groups {
 		ids = append(ids, group.ID)
