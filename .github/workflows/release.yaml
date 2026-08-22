@@ -1,6 +1,6 @@
 ---
 # yaml-language-server: $schema=https://json.schemastore.org/github-workflow.json
-name: Release
+name: Server Release
 
 on:
   push:
@@ -8,6 +8,7 @@ on:
       - main
     paths-ignore:
       - "**.md"
+      - "app/**"
   release:
     types:
       - published
@@ -18,7 +19,10 @@ concurrency:
 
 jobs:
   release:
-    name: Release
+    if: >-
+      github.event_name == 'push' ||
+      !startsWith(github.event.release.tag_name, 'app-')
+    name: Server
     permissions:
       contents: read
       id-token: write
