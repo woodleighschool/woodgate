@@ -1,5 +1,17 @@
 # Changelog
 
+## [1.3.2](https://github.com/woodleighschool/woodgate/compare/app-1.3.1...app-1.3.2) (2026-08-22)
+
+
+### Bug Fixes
+
+* **app:** declare exempt encryption ([220192a](https://github.com/woodleighschool/woodgate/commit/220192a55bf091f7fadf7930505f219529a3f8df))
+
+
+### Miscellaneous Chores
+
+* normalise icon ([5b98e62](https://github.com/woodleighschool/woodgate/commit/5b98e62f567ccc04df69518754f5f460d6c0d652))
+
 ## [1.3.1](https://github.com/woodleighschool/woodgate/compare/app-1.3.0...app-1.3.1) (2026-08-22)
 
 
