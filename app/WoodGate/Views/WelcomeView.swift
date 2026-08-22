@@ -31,7 +31,7 @@ struct WelcomeView: View {
                 .font(.system(size: 22, weight: .bold, design: .rounded))
 
             Text(
-                "Use the API key pairing QR to connect this device to WoodGate and then choose the location it should stay on."
+                "Use the API key pairing QR to connect this device, then choose its location."
             )
             .foregroundStyle(.secondary)
             .fixedSize(horizontal: false, vertical: true)

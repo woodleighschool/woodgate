@@ -20,7 +20,7 @@ type statusResponse struct {
 
 const readinessTimeout = 2 * time.Second
 
-// New creates the root HTTP router for WoodGate.
+// New creates the root HTTP router.
 func New(
 	logger *slog.Logger,
 	readinessCheck func(context.Context) error,

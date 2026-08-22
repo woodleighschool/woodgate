@@ -15,7 +15,7 @@ struct SecretMenuSheet: View {
     private var appVersion: String {
         let version = Bundle.main.infoDictionary?["CFBundleShortVersionString"] as? String ?? "Unknown"
         let build = Bundle.main.infoDictionary?["CFBundleVersion"] as? String ?? "Unknown"
-        return "WoodGate v\(version) (\(build))"
+        return "Version \(version) (\(build))"
     }
 
     // MARK: - Body

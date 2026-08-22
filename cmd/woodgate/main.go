@@ -39,7 +39,7 @@ const (
 
 func main() {
 	if err := run(); err != nil {
-		_, _ = fmt.Fprintf(os.Stderr, "woodgate exited with error: %v\n", err)
+		_, _ = fmt.Fprintf(os.Stderr, "exited with error: %v\n", err)
 		os.Exit(1)
 	}
 }

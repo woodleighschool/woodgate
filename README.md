@@ -19,7 +19,7 @@ docker compose up -d
 
 The web interface listens on [http://localhost:8080](http://localhost:8080). The container serves it from the Go backend.
 
-The companion app is configured once by QR code with the server URL and an API key. It pairs to one location and runs as a dedicated check-in terminal.
+The companion app is configured once by QR code with the server URL and an API key. It pairs to one location and runs as a dedicated check-in terminal. We distribute it as a private Custom App through Apple School Manager and our MDM.
 
 ## ⚙️ Configuration
 
