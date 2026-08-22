@@ -65,6 +65,15 @@ mise run //app:lint
 mise run //app:build
 ```
 
+## 📦 Releases
+
+The server and companion app have independent releases:
+
+- Numeric releases such as `1.4.0` publish the server container through GitHub Actions.
+- App releases such as `app-1.3.1` update `app/Config/Version.xcconfig` for distribution through App Store Connect.
+
+See [`app/README.md`](app/README.md) for app development and release details.
+
 ## 📄 License
 
 Licensed under the [Apache License 2.0](LICENSE).
