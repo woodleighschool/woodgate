@@ -177,6 +177,9 @@ jobs:
           experimental: true
           install_args: --locked periphery swiftformat
 
+      - name: Show Xcode version
+        run: xcodebuild -version
+
       - name: Check app formatting
         run: mise run //app:fmt-check
 
