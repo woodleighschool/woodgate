@@ -8,21 +8,8 @@ import (
 )
 
 func TestLoadFromEnv_RequiresEntraCredentialsWhenSyncEnabled(t *testing.T) {
-	t.Setenv("WOODGATE_PORT", "18080")
-	t.Setenv("WOODGATE_BASE_URL", "https://woodgate.example.com")
-	t.Setenv("LOG_LEVEL", "info")
-	t.Setenv("LOCAL_ADMIN_PASSWORD", "admin")
-	t.Setenv("JWT_SECRET", "jwt-secret")
-	t.Setenv("DATABASE_HOST", "db")
-	t.Setenv("DATABASE_PORT", "5432")
-	t.Setenv("DATABASE_USER", "postgres")
-	t.Setenv("DATABASE_PASSWORD", "postgres")
-	t.Setenv("DATABASE_NAME", "woodgate")
-	t.Setenv("DATABASE_SSLMODE", "disable")
+	setValidEnv(t)
 	t.Setenv("ENTRA_SYNC_ENABLED", "true")
-	t.Setenv("ENTRA_TENANT_ID", "")
-	t.Setenv("ENTRA_CLIENT_ID", "")
-	t.Setenv("ENTRA_CLIENT_SECRET", "")
 
 	_, err := config.LoadFromEnv()
 	if err == nil {
@@ -38,16 +25,8 @@ func TestLoadFromEnv_RequiresEntraCredentialsWhenSyncEnabled(t *testing.T) {
 }
 
 func TestLoadFromEnv_RequiresAuthProvider(t *testing.T) {
-	t.Setenv("WOODGATE_PORT", "18080")
-	t.Setenv("WOODGATE_BASE_URL", "https://woodgate.example.com")
-	t.Setenv("LOG_LEVEL", "info")
-	t.Setenv("DATABASE_HOST", "db")
-	t.Setenv("DATABASE_PORT", "5432")
-	t.Setenv("DATABASE_USER", "postgres")
-	t.Setenv("DATABASE_PASSWORD", "postgres")
-	t.Setenv("DATABASE_NAME", "woodgate")
-	t.Setenv("DATABASE_SSLMODE", "disable")
-	t.Setenv("ENTRA_SYNC_ENABLED", "false")
+	setValidEnv(t)
+	t.Setenv("LOCAL_ADMIN_PASSWORD", "")
 
 	_, err := config.LoadFromEnv()
 	if err == nil {
@@ -63,17 +42,8 @@ func TestLoadFromEnv_RequiresAuthProvider(t *testing.T) {
 }
 
 func TestLoadFromEnv_RequiresJWTSecretWhenAuthEnabled(t *testing.T) {
-	t.Setenv("WOODGATE_PORT", "18080")
-	t.Setenv("WOODGATE_BASE_URL", "https://woodgate.example.com")
-	t.Setenv("LOG_LEVEL", "info")
-	t.Setenv("DATABASE_HOST", "db")
-	t.Setenv("DATABASE_PORT", "5432")
-	t.Setenv("DATABASE_USER", "postgres")
-	t.Setenv("DATABASE_PASSWORD", "postgres")
-	t.Setenv("DATABASE_NAME", "woodgate")
-	t.Setenv("DATABASE_SSLMODE", "disable")
-	t.Setenv("ENTRA_SYNC_ENABLED", "false")
-	t.Setenv("LOCAL_ADMIN_PASSWORD", "admin")
+	setValidEnv(t)
+	t.Setenv("JWT_SECRET", "")
 
 	_, err := config.LoadFromEnv()
 	if err == nil {
@@ -86,17 +56,8 @@ func TestLoadFromEnv_RequiresJWTSecretWhenAuthEnabled(t *testing.T) {
 }
 
 func TestLoadFromEnv_RequiresBaseURLWhenAuthEnabled(t *testing.T) {
-	t.Setenv("WOODGATE_PORT", "18080")
-	t.Setenv("LOG_LEVEL", "info")
-	t.Setenv("DATABASE_HOST", "db")
-	t.Setenv("DATABASE_PORT", "5432")
-	t.Setenv("DATABASE_USER", "postgres")
-	t.Setenv("DATABASE_PASSWORD", "postgres")
-	t.Setenv("DATABASE_NAME", "woodgate")
-	t.Setenv("DATABASE_SSLMODE", "disable")
-	t.Setenv("ENTRA_SYNC_ENABLED", "false")
-	t.Setenv("LOCAL_ADMIN_PASSWORD", "admin")
-	t.Setenv("JWT_SECRET", "jwt-secret")
+	setValidEnv(t)
+	t.Setenv("WOODGATE_BASE_URL", "")
 
 	_, err := config.LoadFromEnv()
 	if err == nil {
@@ -106,4 +67,23 @@ func TestLoadFromEnv_RequiresBaseURLWhenAuthEnabled(t *testing.T) {
 	if !strings.Contains(err.Error(), "missing required env vars: WOODGATE_BASE_URL") {
 		t.Fatalf("expected missing WOODGATE_BASE_URL error, got: %v", err)
 	}
+}
+
+func setValidEnv(t *testing.T) {
+	t.Helper()
+	t.Setenv("WOODGATE_PORT", "18080")
+	t.Setenv("WOODGATE_BASE_URL", "https://woodgate.example.com")
+	t.Setenv("LOG_LEVEL", "info")
+	t.Setenv("DATABASE_HOST", "db")
+	t.Setenv("DATABASE_PORT", "5432")
+	t.Setenv("DATABASE_USER", "postgres")
+	t.Setenv("DATABASE_PASSWORD", "postgres")
+	t.Setenv("DATABASE_NAME", "woodgate")
+	t.Setenv("DATABASE_SSLMODE", "disable")
+	t.Setenv("LOCAL_ADMIN_PASSWORD", "admin")
+	t.Setenv("JWT_SECRET", "jwt-secret")
+	t.Setenv("ENTRA_TENANT_ID", "")
+	t.Setenv("ENTRA_CLIENT_ID", "")
+	t.Setenv("ENTRA_CLIENT_SECRET", "")
+	t.Setenv("ENTRA_SYNC_ENABLED", "false")
 }
