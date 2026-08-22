@@ -13,6 +13,10 @@
 - Keep generated artifacts with their source change.
 - Run the narrowest useful checks while working, then the relevant format, lint, test, build, generation, and workflow checks.
 - Follow the existing package or target's style. Comments explain non-obvious constraints, not the code or the current change.
+- Do not add file banners, author or date headers, or comment-based change logs. Git owns provenance and history.
+- Write prose from the repository's point of view. Use `we` and `our` for the organisation, and `the app`, `the service`, `the command`, or direct wording for this repository. Omit organisation and product names when context already identifies them; keep names that are identifiers or distinguish an external system.
+- Keep tracked documentation durable and present-tense. READMEs use a terse introduction and the relevant established emoji-led sections; omit migration history, temporary setup state, and inventories of absent features.
+- Keep one-time local and external-service setup notes out of tracked files. If asked to preserve them locally, leave them untracked without adding ignore or exclude rules.
 
 ## Go
 
@@ -22,7 +26,9 @@
 
 ## Swift
 
-- Keep state ownership explicit, SwiftUI declarative, and AppKit escapes narrow.
+- Use Swift 6 language mode and strict concurrency. Prefer structured concurrency, isolate UI state to the main actor, keep cross-actor values `Sendable`, and propagate cancellation.
+- Build the companion interface with SwiftUI. Prefer Observation for new model state and use UIKit only through narrow, documented bridges when current SwiftUI APIs do not provide the required iOS behaviour.
+- Use the runner's default Xcode selection. Select another toolchain only when the repository has a verified version requirement.
 - Build the companion app when its API, generated models, or version contract changes.
 
 ## Git and releases
@@ -32,6 +38,6 @@
 
 ## Repository notes
 
-- WoodGate has a Go API, React-admin frontend, and native companion app. Keep platform details at the edge and workflow rules in application or domain code.
+- The repository contains a Go API, React-admin frontend, and native companion app. Keep platform details at the edge and workflow rules in application or domain code.
 - The OpenAPI contract, generated clients, handlers, and consumers change together.
 - Real identities, tenant data, credentials, and check-in records never belong in tests.
