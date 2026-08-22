@@ -1,10 +1,3 @@
-//
-//  AppSettings.swift
-//  WoodGate
-//
-//  Created by Alexander Hyde on 16/2/2026.
-//
-
 import Foundation
 import SwiftData
 import SwiftUI

@@ -1,10 +1,3 @@
-//
-//  WoodGateApp.swift
-//  WoodGate
-//
-//  Created by Alexander Hyde on 13/3/2026.
-//
-
 import SwiftData
 import SwiftUI
 

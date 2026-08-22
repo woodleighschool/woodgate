@@ -1,10 +1,3 @@
-//
-//  ContentView.swift
-//  WoodGate
-//
-//  Created by Alexander Hyde on 13/3/2026.
-//
-
 import SwiftUI
 
 struct ContentView: View {

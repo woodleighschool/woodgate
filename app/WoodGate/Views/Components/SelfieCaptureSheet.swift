@@ -1,10 +1,3 @@
-//
-//  SelfieCaptureSheet.swift
-//  WoodGate
-//
-//  Created by Alexander Hyde on 15/3/2026.
-//
-
 @preconcurrency import AVFoundation
 import Observation
 import SwiftUI

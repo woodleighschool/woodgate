@@ -1,10 +1,3 @@
-//
-//  SecretMenuSheet.swift
-//  WoodGate
-//
-//  Created by Alexander Hyde on 15/3/2026.
-//
-
 import SwiftUI
 
 struct SecretMenuSheet: View {
