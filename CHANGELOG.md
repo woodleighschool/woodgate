@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.4.1](https://github.com/woodleighschool/woodgate/compare/1.4.0...1.4.1) (2026-08-22)
+
+
+### Miscellaneous Chores
+
+* **npm:** lock file maintenance dependency (npm) ([#110](https://github.com/woodleighschool/woodgate/issues/110)) ([4116c45](https://github.com/woodleighschool/woodgate/commit/4116c45483a99d6f3f0413bc502a172234a97372))
+
 ## [1.4.0](https://github.com/woodleighschool/woodgate/compare/1.3.0...1.4.0) (2026-08-22)
 
 
