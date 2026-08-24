@@ -1,82 +1,56 @@
-import Foundation
 import Security
+import SimpleKeychain
 
 struct KeychainHelper {
-    // MARK: - Properties
-
     static let shared = KeychainHelper()
 
-    private let serviceName = "au.edu.woodleigh.WoodGate"
-
-    // MARK: - Public Methods
-
-    func save(_ data: Data, service: String, account: String) {
-        let query =
-            [
-                kSecValueData: data,
-                kSecClass: kSecClassGenericPassword,
-                kSecAttrService: service,
-                kSecAttrAccount: account,
-            ] as [CFString: Any]
-
-        let status = SecItemAdd(query as CFDictionary, nil)
-
-        if status == errSecDuplicateItem {
-            let query =
-                [
-                    kSecAttrService: service,
-                    kSecAttrAccount: account,
-                    kSecClass: kSecClassGenericPassword,
-                ] as [CFString: Any]
-
-            let attributesToUpdate = [kSecValueData: data] as [CFString: Any]
-
-            SecItemUpdate(query as CFDictionary, attributesToUpdate as CFDictionary)
-        }
-    }
-
-    func read(service: String, account: String) -> Data? {
-        let query =
-            [
-                kSecAttrService: service,
-                kSecAttrAccount: account,
-                kSecClass: kSecClassGenericPassword,
-                kSecReturnData: true,
-            ] as [CFString: Any]
-
-        var result: AnyObject?
-        SecItemCopyMatching(query as CFDictionary, &result)
-
-        return result as? Data
-    }
-
-    func delete(service: String, account: String) {
-        let query =
-            [
-                kSecAttrService: service,
-                kSecAttrAccount: account,
-                kSecClass: kSecClassGenericPassword,
-            ] as [CFString: Any]
-
-        SecItemDelete(query as CFDictionary)
-    }
-
-    // MARK: - String wrappers
+    private let keychain = SimpleKeychain(
+        service: "au.edu.vic.woodleigh.WoodGateApp",
+        accessibility: .whenUnlockedThisDeviceOnly,
+        attributes: [kSecUseDataProtectionKeychain as String: true]
+    )
+    private let legacyKeychain = SimpleKeychain(service: "au.edu.woodleigh.WoodGate")
 
     func save(_ value: String, key: String) {
         if value.isEmpty {
-            delete(service: serviceName, account: key)
-        } else {
-            if let data = value.data(using: .utf8) {
-                save(data, service: serviceName, account: key)
-            }
+            try? keychain.deleteItem(forKey: key)
+            try? legacyKeychain.deleteItem(forKey: key)
+            return
         }
+
+        do {
+            try keychain.set(value, forKey: key)
+        } catch {
+            return
+        }
+
+        try? legacyKeychain.deleteItem(forKey: key)
     }
 
     func read(key: String) -> String? {
-        if let data = read(service: serviceName, account: key) {
-            return String(data: data, encoding: .utf8)
+        do {
+            let value = try keychain.string(forKey: key)
+            try? legacyKeychain.deleteItem(forKey: key)
+            return value
+        } catch SimpleKeychainError.itemNotFound {
+            return migrateLegacyValue(forKey: key)
+        } catch {
+            return nil
         }
-        return nil
+    }
+
+    private func migrateLegacyValue(forKey key: String) -> String? {
+        guard let value = try? legacyKeychain.string(forKey: key) else {
+            return nil
+        }
+
+        do {
+            try keychain.set(value, forKey: key)
+        } catch {
+            return value
+        }
+
+        try? legacyKeychain.deleteItem(forKey: key)
+        return value
     }
 }

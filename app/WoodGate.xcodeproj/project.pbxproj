@@ -6,6 +6,10 @@
 	objectVersion = 77;
 	objects = {
 
+/* Begin PBXBuildFile section */
+		E10000012F641BFF0013E5A4 /* SimpleKeychain in Frameworks */ = {isa = PBXBuildFile; productRef = E10000022F641BFF0013E5A4 /* SimpleKeychain */; };
+/* End PBXBuildFile section */
+
 /* Begin PBXFileReference section */
 		4110F7082F641BFF0013E5A4 /* WoodGate.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = WoodGate.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		D10000012F641BFF0013E5A4 /* Version.xcconfig */ = {isa = PBXFileReference; lastKnownFileType = text.xcconfig; path = Version.xcconfig; sourceTree = "<group>"; };
@@ -24,6 +28,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				E10000012F641BFF0013E5A4 /* SimpleKeychain in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -75,6 +80,7 @@
 			);
 			name = WoodGate;
 			packageProductDependencies = (
+				E10000022F641BFF0013E5A4 /* SimpleKeychain */,
 			);
 			productName = WoodGate;
 			productReference = 4110F7082F641BFF0013E5A4 /* WoodGate.app */;
@@ -104,6 +110,9 @@
 			);
 			mainGroup = 4110F6FF2F641BFF0013E5A4;
 			minimizedProjectReferenceProxies = 1;
+			packageReferences = (
+				E10000032F641BFF0013E5A4 /* XCRemoteSwiftPackageReference "SimpleKeychain" */,
+			);
 			preferredProjectObjectVersion = 77;
 			productRefGroup = 4110F7092F641BFF0013E5A4 /* Products */;
 			projectDirPath = "";
@@ -358,6 +367,25 @@
 			defaultConfigurationName = Release;
 		};
 /* End XCConfigurationList section */
+
+/* Begin XCRemoteSwiftPackageReference section */
+		E10000032F641BFF0013E5A4 /* XCRemoteSwiftPackageReference "SimpleKeychain" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/auth0/SimpleKeychain";
+			requirement = {
+				kind = exactVersion;
+				version = 1.3.0;
+			};
+		};
+/* End XCRemoteSwiftPackageReference section */
+
+/* Begin XCSwiftPackageProductDependency section */
+		E10000022F641BFF0013E5A4 /* SimpleKeychain */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = E10000032F641BFF0013E5A4 /* XCRemoteSwiftPackageReference "SimpleKeychain" */;
+			productName = SimpleKeychain;
+		};
+/* End XCSwiftPackageProductDependency section */
 	};
 	rootObject = 4110F7002F641BFF0013E5A4 /* Project object */;
 }
