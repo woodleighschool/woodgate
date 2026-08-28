@@ -3,7 +3,7 @@
 	archiveVersion = 1;
 	classes = {
 	};
-	objectVersion = 77;
+	objectVersion = 100;
 	objects = {
 
 /* Begin PBXBuildFile section */
@@ -26,11 +26,9 @@
 /* Begin PBXFrameworksBuildPhase section */
 		4110F7052F641BFF0013E5A4 /* Frameworks */ = {
 			isa = PBXFrameworksBuildPhase;
-			buildActionMask = 2147483647;
 			files = (
 				E10000012F641BFF0013E5A4 /* SimpleKeychain in Frameworks */,
 			);
-			runOnlyForDeploymentPostprocessing = 0;
 		};
 /* End PBXFrameworksBuildPhase section */
 
@@ -73,8 +71,6 @@
 			);
 			buildRules = (
 			);
-			dependencies = (
-			);
 			fileSystemSynchronizedGroups = (
 				4110F70A2F641BFF0013E5A4 /* WoodGate */,
 			);
@@ -113,7 +109,7 @@
 			packageReferences = (
 				E10000032F641BFF0013E5A4 /* XCRemoteSwiftPackageReference "SimpleKeychain" */,
 			);
-			preferredProjectObjectVersion = 77;
+			preferredProjectObjectVersion = 100;
 			productRefGroup = 4110F7092F641BFF0013E5A4 /* Products */;
 			projectDirPath = "";
 			projectRoot = "";
@@ -126,25 +122,21 @@
 /* Begin PBXResourcesBuildPhase section */
 		4110F7062F641BFF0013E5A4 /* Resources */ = {
 			isa = PBXResourcesBuildPhase;
-			buildActionMask = 2147483647;
 			files = (
 			);
-			runOnlyForDeploymentPostprocessing = 0;
 		};
 /* End PBXResourcesBuildPhase section */
 
 /* Begin PBXSourcesBuildPhase section */
 		4110F7042F641BFF0013E5A4 /* Sources */ = {
 			isa = PBXSourcesBuildPhase;
-			buildActionMask = 2147483647;
 			files = (
 			);
-			runOnlyForDeploymentPostprocessing = 0;
 		};
 /* End PBXSourcesBuildPhase section */
 
 /* Begin XCBuildConfiguration section */
-		4110F7132F641C000013E5A4 /* Debug */ = {
+		4110F7132F641C000013E5A4 /* Debug configuration for PBXProject "WoodGate" */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = NO;
@@ -209,7 +201,7 @@
 			};
 			name = Debug;
 		};
-		4110F7142F641C000013E5A4 /* Release */ = {
+		4110F7142F641C000013E5A4 /* Release configuration for PBXProject "WoodGate" */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = NO;
@@ -267,7 +259,7 @@
 			};
 			name = Release;
 		};
-		4110F7162F641C000013E5A4 /* Debug */ = {
+		4110F7162F641C000013E5A4 /* Debug configuration for PBXNativeTarget "WoodGate" */ = {
 			isa = XCBuildConfiguration;
 			baseConfigurationReference = D10000012F641BFF0013E5A4 /* Version.xcconfig */;
 			buildSettings = {
@@ -306,7 +298,7 @@
 			};
 			name = Debug;
 		};
-		4110F7172F641C000013E5A4 /* Release */ = {
+		4110F7172F641C000013E5A4 /* Release configuration for PBXNativeTarget "WoodGate" */ = {
 			isa = XCBuildConfiguration;
 			baseConfigurationReference = D10000012F641BFF0013E5A4 /* Version.xcconfig */;
 			buildSettings = {
@@ -351,19 +343,17 @@
 		4110F7032F641BFF0013E5A4 /* Build configuration list for PBXProject "WoodGate" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
-				4110F7132F641C000013E5A4 /* Debug */,
-				4110F7142F641C000013E5A4 /* Release */,
+				4110F7132F641C000013E5A4 /* Debug configuration for PBXProject "WoodGate" */,
+				4110F7142F641C000013E5A4 /* Release configuration for PBXProject "WoodGate" */,
 			);
-			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
 		};
 		4110F7152F641C000013E5A4 /* Build configuration list for PBXNativeTarget "WoodGate" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
-				4110F7162F641C000013E5A4 /* Debug */,
-				4110F7172F641C000013E5A4 /* Release */,
+				4110F7162F641C000013E5A4 /* Debug configuration for PBXNativeTarget "WoodGate" */,
+				4110F7172F641C000013E5A4 /* Release configuration for PBXNativeTarget "WoodGate" */,
 			);
-			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
 		};
 /* End XCConfigurationList section */
@@ -388,4 +378,5 @@
 /* End XCSwiftPackageProductDependency section */
 	};
 	rootObject = 4110F7002F641BFF0013E5A4 /* Project object */;
+	validationLevel = 1;
 }
