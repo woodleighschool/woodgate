@@ -1,5 +1,38 @@
 # Changelog
 
+## [1.5.0](https://github.com/woodleighschool/woodgate/compare/1.4.0...1.5.0) (2026-08-28)
+
+
+### Features
+
+* **container:** update image node (26.7.0 → 26.8.1) ([#122](https://github.com/woodleighschool/woodgate/issues/122)) ([e055f3c](https://github.com/woodleighschool/woodgate/commit/e055f3c9a533f8d9b626d67ae7cd4e9297adf094))
+* **go:** update module github.com/getkin/kin-openapi (v0.135.0 → v0.144.0) [security] ([#124](https://github.com/woodleighschool/woodgate/issues/124)) ([5986ddd](https://github.com/woodleighschool/woodgate/commit/5986ddd13fe185d4aee779de042df109cae42d75))
+* **go:** update module github.com/google/cel-go (v0.28.0 → v0.29.0) [security] ([#125](https://github.com/woodleighschool/woodgate/issues/125)) ([002ac7a](https://github.com/woodleighschool/woodgate/commit/002ac7a71f5c31a740c073943c54ff55329aaa8d))
+* **npm:** update dependency @types/node (26.2.0 → 26.3.0) ([#119](https://github.com/woodleighschool/woodgate/issues/119)) ([7603c04](https://github.com/woodleighschool/woodgate/commit/7603c042dd4fab9254441ca3c0cd295856918c7e))
+* **npm:** update dependency pnpm (11.22.0 → 11.23.0) ([#115](https://github.com/woodleighschool/woodgate/issues/115)) ([43873cd](https://github.com/woodleighschool/woodgate/commit/43873cde5bbc4c7ed6e109f1a0f4353c78dc7d06))
+* **npm:** update dependency pnpm (11.23.0 → 11.24.0) ([#118](https://github.com/woodleighschool/woodgate/issues/118)) ([b0a49d8](https://github.com/woodleighschool/woodgate/commit/b0a49d8a285ffe75241920b118745bb6872d6c34))
+
+
+### Bug Fixes
+
+* **deps:** bump all deps ([28904a5](https://github.com/woodleighschool/woodgate/commit/28904a5a5c709f6f267f38b10b6edcb14019721e))
+* **npm:** update dependency @types/react-dom (19.2.4 → 19.2.5) ([#116](https://github.com/woodleighschool/woodgate/issues/116)) ([c9019f6](https://github.com/woodleighschool/woodgate/commit/c9019f6c3432bec6a05007f4394b29b7abeda355))
+
+
+### Continuous Integration
+
+* **github-action:** update action docker/github-builder (v1.16.0 → v1.17.0) ([#113](https://github.com/woodleighschool/woodgate/issues/113)) ([86d000b](https://github.com/woodleighschool/woodgate/commit/86d000b7d069628281dbdfba1b9f98507ccf3748))
+
+
+### Miscellaneous Chores
+
+* **mise:** update tool node (26.7.0 → v26.8.0) ([#120](https://github.com/woodleighschool/woodgate/issues/120)) ([4332c74](https://github.com/woodleighschool/woodgate/commit/4332c749362e1a0492a1a1cc9b2aaff9a1a89d0b))
+* **mise:** update tool node (26.8.0 → v26.8.1) ([#121](https://github.com/woodleighschool/woodgate/issues/121)) ([f228208](https://github.com/woodleighschool/woodgate/commit/f228208622d005d4d52aecda614d9c3d908b63cf))
+* **mise:** update tool pnpm (11.22.0 → 11.23.0) ([#112](https://github.com/woodleighschool/woodgate/issues/112)) ([bbdb01b](https://github.com/woodleighschool/woodgate/commit/bbdb01bd991f3bcb949fdbc5f8f25dca4e33a750))
+* **mise:** update tool pnpm (11.23.0 → 11.24.0) ([#117](https://github.com/woodleighschool/woodgate/issues/117)) ([bd4aeaa](https://github.com/woodleighschool/woodgate/commit/bd4aeaa3b548daf3af0806c041fa418d870abb23))
+* **npm:** lock file maintenance dependency (npm) ([#110](https://github.com/woodleighschool/woodgate/issues/110)) ([4116c45](https://github.com/woodleighschool/woodgate/commit/4116c45483a99d6f3f0413bc502a172234a97372))
+* **release:** app 1.3.2 ([#109](https://github.com/woodleighschool/woodgate/issues/109)) ([6004dfa](https://github.com/woodleighschool/woodgate/commit/6004dfaa0db1983980190e33e53f84b86900e46d))
+
 ## [1.4.0](https://github.com/woodleighschool/woodgate/compare/1.3.0...1.4.0) (2026-08-22)
 
 
