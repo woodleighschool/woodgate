@@ -10,7 +10,7 @@ struct CheckinHomeView: View {
 
     private struct FormState {
         var query = ""
-        var selectedPersonID: UUID?
+        var selectedPersonID: Int64?
         var notes = ""
         var selfie: CapturedSelfie?
     }
@@ -129,47 +129,11 @@ struct CheckinHomeView: View {
     }
 
     private var headerSection: some View {
-        HStack(alignment: .center, spacing: 12) {
-            Text(session.location.name)
-                .font(.system(size: 34, weight: .bold, design: .rounded))
-                .lineLimit(1)
-                .minimumScaleFactor(0.55)
-                .allowsTightening(true)
-
-            Spacer(minLength: 0)
-
-            if session.isDemo {
-                HStack(spacing: 16) {
-                    Toggle(
-                        "Notes",
-                        isOn: Binding(
-                            get: { session.location.notes },
-                            set: { _ in
-                                modelData.toggleDemoNotes()
-                                if !session.location.notes {
-                                    form.notes = ""
-                                }
-                            }
-                        )
-                    )
-
-                    Toggle(
-                        "Selfie",
-                        isOn: Binding(
-                            get: { session.location.photo },
-                            set: { _ in
-                                modelData.toggleDemoPhoto()
-                                if !session.location.photo {
-                                    form.selfie = nil
-                                }
-                            }
-                        )
-                    )
-                }
-                .font(.system(size: 13, weight: .medium, design: .rounded))
-                .fixedSize()
-            }
-        }
+        Text(session.location.name)
+            .font(.system(size: 34, weight: .bold, design: .rounded))
+            .lineLimit(1)
+            .minimumScaleFactor(0.55)
+            .allowsTightening(true)
     }
 
     private var personSelectionSection: some View {

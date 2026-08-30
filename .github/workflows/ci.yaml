@@ -59,7 +59,21 @@ jobs:
   backend:
     name: Backend
     runs-on: ubuntu-24.04
-    timeout-minutes: 20
+    timeout-minutes: 30
+    services:
+      postgres:
+        image: postgres:18
+        env:
+          POSTGRES_USER: woodgate
+          POSTGRES_PASSWORD: woodgate
+          POSTGRES_DB: postgres
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd "pg_isready -U woodgate -d postgres"
+          --health-interval 2s
+          --health-timeout 3s
+          --health-retries 30
     steps:
       - name: Checkout
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
@@ -98,6 +112,11 @@ jobs:
 
       - name: Run dependency-free Go checks
         run: mise run test
+
+      - name: Run PostgreSQL component tests
+        env:
+          WOODGATE_TEST_DATABASE_URL: postgres://woodgate:woodgate@127.0.0.1:5432/postgres?sslmode=disable
+        run: mise run test-postgres
 
   frontend:
     name: Frontend
@@ -141,19 +160,15 @@ jobs:
       - name: Lint frontend
         run: mise run //web:lint
 
-      - name: Regenerate API and SQL code
+      - name: Regenerate API contracts
         run: mise run generate
 
       - name: Check generated code is committed
         run: |
-          generated_status=$(git status --short --untracked-files=all -- \
-            api \
-            internal/store \
-            internal/transport/http/httpapi/openapi.go \
-            web/src/api/openapi.ts)
+          generated_status=$(git status --short --untracked-files=all -- web/openapi.yaml web/src/lib/api-client)
           test -z "$generated_status" || {
             printf '%s\n' "$generated_status"
-            git diff -- api internal/store internal/transport/http/httpapi/openapi.go web/src/api/openapi.ts
+            git diff -- web/openapi.yaml web/src/lib/api-client
             exit 1
           }
 

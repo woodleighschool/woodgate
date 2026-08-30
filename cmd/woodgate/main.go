@@ -2,225 +2,308 @@ package main
 
 import (
 	"context"
-	"errors"
 	"fmt"
 	"log/slog"
+	"net"
 	"net/http"
 	"os"
 	"os/signal"
+	"slices"
 	"syscall"
 	"time"
 
-	"github.com/Azure/azure-sdk-for-go/sdk/azidentity"
-	"github.com/go-chi/chi/v5"
-	msgraphsdk "github.com/microsoftgraph/msgraph-sdk-go"
-	graphsync "github.com/woodleighschool/go-entrasync"
+	"github.com/alexedwards/scs/pgxstore"
+	"github.com/alexedwards/scs/v2"
+	"github.com/jackc/pgx/v5/pgxpool"
+	"github.com/riverqueue/river"
+	"github.com/spf13/cobra"
 
-	appadmin "github.com/woodleighschool/woodgate/internal/app/admin"
-	appauth "github.com/woodleighschool/woodgate/internal/app/auth"
-	"github.com/woodleighschool/woodgate/internal/app/authz"
-	appentrasync "github.com/woodleighschool/woodgate/internal/app/entrasync"
+	"github.com/woodleighschool/woodgate/internal/api"
+	"github.com/woodleighschool/woodgate/internal/auth"
+	authapi "github.com/woodleighschool/woodgate/internal/auth/httpapi"
+	"github.com/woodleighschool/woodgate/internal/authorization"
+	authorizationapi "github.com/woodleighschool/woodgate/internal/authorization/httpapi"
+	"github.com/woodleighschool/woodgate/internal/backgroundjobs"
+	"github.com/woodleighschool/woodgate/internal/buildinfo"
+	"github.com/woodleighschool/woodgate/internal/checkin"
+	checkinapi "github.com/woodleighschool/woodgate/internal/checkin/httpapi"
 	"github.com/woodleighschool/woodgate/internal/config"
-	"github.com/woodleighschool/woodgate/internal/platform/logging"
-	"github.com/woodleighschool/woodgate/internal/store/postgres"
-	adminpostgres "github.com/woodleighschool/woodgate/internal/store/postgres/admin"
-	entrasyncpostgres "github.com/woodleighschool/woodgate/internal/store/postgres/entrasync"
-	authhttp "github.com/woodleighschool/woodgate/internal/transport/http/auth"
-	httpapi "github.com/woodleighschool/woodgate/internal/transport/http/httpapi"
-	httprouter "github.com/woodleighschool/woodgate/internal/transport/http/router"
+	"github.com/woodleighschool/woodgate/internal/directory"
+	"github.com/woodleighschool/woodgate/internal/directory/entra"
+	directoryapi "github.com/woodleighschool/woodgate/internal/directory/httpapi"
+	"github.com/woodleighschool/woodgate/internal/logging"
+	"github.com/woodleighschool/woodgate/internal/postgres"
+	"github.com/woodleighschool/woodgate/internal/station"
+	stationapi "github.com/woodleighschool/woodgate/internal/station/httpapi"
+	stationv0 "github.com/woodleighschool/woodgate/internal/station/v0"
+	"github.com/woodleighschool/woodgate/internal/storage"
+	"github.com/woodleighschool/woodgate/internal/webui"
 	webdist "github.com/woodleighschool/woodgate/web"
 )
 
-const (
-	shutdownTimeout   = 10 * time.Second
-	readHeaderTimeout = 5 * time.Second
-	idleTimeout       = 2 * time.Minute
-)
+const gracefulShutdownTimeout = 15 * time.Second
 
 func main() {
-	if err := run(); err != nil {
-		_, _ = fmt.Fprintf(os.Stderr, "exited with error: %v\n", err)
+	if err := rootCommand().ExecuteContext(context.Background()); err != nil {
+		fmt.Fprintln(os.Stderr, err)
 		os.Exit(1)
 	}
 }
 
-func run() error {
-	cfg, err := config.LoadFromEnv()
-	if err != nil {
-		return fmt.Errorf("load config: %w", err)
+func rootCommand() *cobra.Command {
+	root := &cobra.Command{
+		Use: "woodgate", Short: "check-in service", Version: buildinfo.Version,
+		SilenceUsage: true, SilenceErrors: true, Args: cobra.NoArgs,
+		RunE: func(cmd *cobra.Command, _ []string) error { return run(cmd.Context()) },
 	}
+	root.AddCommand(userCommand(), openAPICommand())
+	return root
+}
 
-	logger, err := logging.New(cfg.Logging.Level)
-	if err != nil {
-		return fmt.Errorf("configure logger: %w", err)
-	}
-	slog.SetDefault(logger)
-
-	store, err := postgres.New(context.Background(), cfg.Database)
-	if err != nil {
-		return fmt.Errorf("create store: %w", err)
-	}
-	defer store.Close()
-
-	server, err := buildServer(logger, cfg, store)
+func run(parent context.Context) error {
+	ctx, stop := signal.NotifyContext(parent, os.Interrupt, syscall.SIGTERM)
+	defer stop()
+	cfg, err := config.Load()
 	if err != nil {
 		return err
 	}
-
-	stopContext, stop := signal.NotifyContext(context.Background(), syscall.SIGINT, syscall.SIGTERM)
-	defer stop()
-
-	syncErr := maybeStartEntraSync(stopContext, logger, cfg, store)
-	if syncErr != nil {
-		return syncErr
+	level, err := logging.ParseLevel(cfg.LogLevel)
+	if err != nil {
+		return fmt.Errorf("parse log level: %w", err)
 	}
+	logger := logging.New(os.Stdout, level)
+	slog.SetDefault(logger)
+	pool, err := postgres.Open(ctx, cfg.DatabaseURL)
+	if err != nil {
+		return fmt.Errorf("open database: %w", err)
+	}
+	defer pool.Close()
+	sessions, sessionStore := newSessions(pool, cfg)
+	defer sessionStore.StopCleanup()
+	storageBackend, err := storage.New(ctx, storageConfig(cfg))
+	if err != nil {
+		return fmt.Errorf("init storage: %w", err)
+	}
+	app, err := buildApplication(ctx, cfg, pool, sessions, logger, storageBackend)
+	if err != nil {
+		return fmt.Errorf("build services: %w", err)
+	}
+	defer app.close()
+	listener, err := new(net.ListenConfig).Listen(ctx, "tcp", app.server.Addr())
+	if err != nil {
+		return fmt.Errorf("listen %s: %w", app.server.Addr(), err)
+	}
+	stopJobs, err := start(ctx, app.starters...)
+	if err != nil {
+		return fmt.Errorf("start background services: %w", err)
+	}
+	defer stopJobs()
+	return runServer(ctx, app, listener)
+}
 
-	serverErr := make(chan error, 1)
-	go func() {
-		logger.Info("starting server", "port", cfg.HTTP.Port)
-		if serveErr := server.ListenAndServe(); serveErr != nil && !errors.Is(serveErr, http.ErrServerClosed) {
-			serverErr <- serveErr
-			return
-		}
-		serverErr <- nil
-	}()
+type application struct {
+	server   *api.Server
+	station  *station.Server
+	starters []starter
+}
 
+func (app *application) close() { app.station.Close() }
+func (app *application) shutdown(ctx context.Context) error {
+	app.close()
+	return app.server.Shutdown(ctx)
+}
+
+func runServer(ctx context.Context, app *application, listener net.Listener) error {
+	errCh := make(chan error, 1)
+	go func() { errCh <- app.server.Serve(listener) }()
 	select {
-	case serveErr := <-serverErr:
-		if serveErr != nil {
-			return fmt.Errorf("serve: %w", serveErr)
+	case err := <-errCh:
+		if err != nil {
+			return fmt.Errorf("serve: %w", err)
 		}
 		return nil
-	case <-stopContext.Done():
-		logger.Info("shutdown signal received")
-	}
-
-	shutdownContext, cancel := context.WithTimeout(context.Background(), shutdownTimeout)
-	defer cancel()
-
-	shutdownErr := server.Shutdown(shutdownContext)
-	if shutdownErr != nil {
-		return fmt.Errorf("shutdown: %w", shutdownErr)
-	}
-
-	if serveErr := <-serverErr; serveErr != nil {
-		return fmt.Errorf("serve after shutdown: %w", serveErr)
-	}
-
-	logger.Info("server stopped")
-	return nil
-}
-
-func buildServer(logger *slog.Logger, cfg config.Config, store *postgres.Store) (*http.Server, error) {
-	adminStore := adminpostgres.New(store)
-	authorizer, err := authz.NewCasbinAuthorizer(context.Background(), adminStore)
-	if err != nil {
-		return nil, fmt.Errorf("configure authorizer: %w", err)
-	}
-	adminService, err := appadmin.New(adminStore, authorizer, cfg.Media.RootDir)
-	if err != nil {
-		return nil, fmt.Errorf("configure admin service: %w", err)
-	}
-
-	authService, err := appauth.New(appauth.Config{
-		RootURL:            cfg.HTTP.BaseURL,
-		EntraTenantID:      cfg.Auth.EntraTenantID,
-		EntraClientID:      cfg.Auth.EntraClientID,
-		EntraClientSecret:  cfg.Auth.EntraClientSecret,
-		JWTSecret:          cfg.Auth.JWTSecret,
-		LocalAdminPassword: cfg.Auth.LocalAdminPass,
-	})
-	if err != nil {
-		return nil, fmt.Errorf("configure auth: %w", err)
-	}
-
-	apiAuthMiddleware := authhttp.NewAPIMiddleware(
-		authService.SessionAuthMiddleware(),
-		adminStore,
-		adminStore,
-		authorizer,
-	)
-	principalMiddleware := authhttp.NewPrincipalMiddleware(
-		authService.SessionAuthMiddleware(),
-		adminStore,
-		adminStore,
-	)
-	apiHandler := httpapi.New(adminService, authorizer)
-	meHandler := authhttp.NewMeHandler(adminService, authorizer)
-
-	server := &http.Server{
-		Handler: httprouter.New(
-			logger,
-			store.Ping,
-			newAuthRouteRegistrar(authService.RegisterRoutes, principalMiddleware, meHandler),
-			newAPIRouteRegistrar(apiAuthMiddleware, apiHandler),
-			webdist.DistDirFS,
-		),
-		ReadHeaderTimeout: readHeaderTimeout,
-		IdleTimeout:       idleTimeout,
-		Addr:              cfg.HTTP.Addr(),
-	}
-
-	return server, nil
-}
-
-func maybeStartEntraSync(
-	ctx context.Context,
-	logger *slog.Logger,
-	cfg config.Config,
-	store *postgres.Store,
-) error {
-	if !cfg.Entra.Enabled {
+	case <-ctx.Done():
+		shutdownCtx, cancel := context.WithTimeout(context.WithoutCancel(ctx), gracefulShutdownTimeout)
+		defer cancel()
+		if err := app.shutdown(shutdownCtx); err != nil {
+			return fmt.Errorf("shutdown server: %w", err)
+		}
+		if err := <-errCh; err != nil {
+			return fmt.Errorf("serve: %w", err)
+		}
 		return nil
 	}
-
-	credential, err := azidentity.NewClientSecretCredential(
-		cfg.Auth.EntraTenantID,
-		cfg.Auth.EntraClientID,
-		cfg.Auth.EntraClientSecret,
-		nil,
-	)
-	if err != nil {
-		return fmt.Errorf("configure entra credential: %w", err)
-	}
-
-	graphClient, err := msgraphsdk.NewGraphServiceClientWithCredentials(
-		credential,
-		[]string{"https://graph.microsoft.com/.default"},
-	)
-	if err != nil {
-		return fmt.Errorf("configure entra graph client: %w", err)
-	}
-
-	entraSyncService := appentrasync.New(
-		logger,
-		graphsync.NewClient(
-			graphClient,
-			graphsync.WithUserFields(graphsync.FieldDepartment),
-			graphsync.WithTransitiveMemberships(),
-		),
-		entrasyncpostgres.New(store),
-		cfg.Entra.Interval,
-	)
-
-	go entraSyncService.Run(ctx)
-	return nil
 }
 
-func newAPIRouteRegistrar(middleware func(http.Handler) http.Handler, handler *httpapi.Server) func(chi.Router) {
-	return func(router chi.Router) {
-		router.Use(middleware)
-		handler.RegisterRoutes(router)
+func buildApplication(ctx context.Context, cfg config.Config, pool *pgxpool.Pool, sessions *scs.SessionManager, logger *slog.Logger, storageBackend storage.Backend) (*application, error) {
+	storageLogger := logger.With("component", "storage")
+	objects := storage.NewObjectStore(pool, storageBackend, storageLogger)
+	ingestor := storage.NewIngestor(objects, storageBackend)
+	delivery := storage.NewDelivery(storageBackend)
+	directoryStore := directory.NewStore(pool)
+	users := directory.NewUserService(directoryStore)
+	authService, err := newAuth(ctx, cfg, users, sessions)
+	if err != nil {
+		return nil, err
+	}
+	authorizationService := authorization.NewService(authorization.NewStore(pool))
+	checkinService := checkin.NewService(checkin.NewStore(pool, objects), objects, ingestor, delivery)
+	stationStore := station.NewStore(pool)
+	stationServer, err := station.NewServer(stationStore, station.Dependencies{Locations: checkinService, People: checkinService, Checkins: checkinService, Branding: checkinService}, buildinfo.Version, logger.With("component", "station"))
+	if err != nil {
+		return nil, fmt.Errorf("configure Station protocol: %w", err)
+	}
+	stationService := station.NewService(stationStore, checkinService, stationServer)
+	legacyStationServer := stationv0.NewServer(pool, stationv0.Dependencies{
+		Locations: checkinService,
+		People:    checkinService,
+		Checkins:  checkinService,
+		Assets:    checkinService,
+	}, logger.With("component", "station_v0"))
+	checkinService.SetLocationNotifier(stationService)
+	jobs, directorySync, err := newBackgroundJobs(cfg, pool, directoryStore, logger)
+	if err != nil {
+		stationServer.Close()
+		return nil, err
+	}
+	apiLogger := logger.With("component", "api")
+	server := api.NewServer(api.ServerOptions{
+		Config: cfg, Ready: pool.Ping, Version: buildinfo.Version, Logger: logger,
+		SessionManager: sessions, AuthService: authService, TransferOrigin: storageBackend.TransferOrigin(),
+		WebHandler: webui.NewHandler(webui.HandlerOptions{FS: webdist.DistDirFS, Version: buildinfo.Version, ServerURL: cfg.ServerURL, Logger: logger.With("component", "web")}),
+		RegisterRoutes: func(routes api.Routes) {
+			storage.RegisterTransferRoutes(routes.StorageTransfers, storageBackend, storageLogger)
+			authapi.RegisterAPI(routes.App, authapi.Dependencies{AuthService: authService, Users: users, Permissions: authorizationService, Logger: apiLogger})
+			directoryapi.RegisterAPI(routes.App, users, directoryStore, directorySync, authorizationService, apiLogger)
+			authorizationapi.RegisterAPI(routes.App, authorizationService, apiLogger)
+			checkinapi.RegisterAPI(routes.App, checkinapi.Dependencies{Service: checkinService, Authorizer: authorizationService, Authenticator: authService, Logger: apiLogger})
+			stationapi.RegisterAPI(routes.App, stationService, authorizationService, apiLogger)
+			stationServer.RegisterRoutes(routes.Protocols.Ordinary, routes.Protocols.WebSockets)
+			legacyStationServer.RegisterRoutes(routes.Protocols.Ordinary)
+		},
+	})
+	starters := []starter{storageUploadCleanupStarter(ingestor, cfg.StorageTransferTTL, storageLogger)}
+	if jobs != nil {
+		starters = append(starters, backgroundJobsStarter(jobs, logger.With("component", "background_jobs")))
+	}
+	return &application{server: server, station: stationServer, starters: starters}, nil
+}
+
+func newBackgroundJobs(cfg config.Config, pool *pgxpool.Pool, store *directory.Store, logger *slog.Logger) (*backgroundjobs.Runtime, *entra.SyncJobs, error) {
+	workers := river.NewWorkers()
+	var periodic []*river.PeriodicJob
+	service, err := newEntraSyncService(cfg, store, logger)
+	if err != nil {
+		return nil, nil, err
+	}
+	if service == nil {
+		return nil, entra.NewSyncJobs(false, nil), nil
+	}
+	if err := river.AddWorkerSafely(workers, entra.NewSyncWorker(service, postgres.NewSessionLocker(pool, entra.SyncAdvisoryLockID))); err != nil {
+		return nil, nil, fmt.Errorf("register Entra sync worker: %w", err)
+	}
+	periodic = append(periodic, periodicJob(entra.SyncJobKind, cfg.EntraSyncInterval, func() river.JobArgs { return entra.SyncJobArgs{Trigger: backgroundjobs.TriggerScheduled} }))
+	jobs, err := backgroundjobs.New(pool, workers, periodic, logger.With("component", "background_jobs"))
+	if err != nil {
+		return nil, nil, err
+	}
+	return jobs, entra.NewSyncJobs(true, jobs), nil
+}
+
+func newEntraSyncService(cfg config.Config, store *directory.Store, logger *slog.Logger) (*entra.Service, error) {
+	if !cfg.EntraEnabled() {
+		return nil, nil
+	}
+	client, err := entra.NewClient(entra.Config{TenantID: cfg.EntraTenantID, ClientID: cfg.EntraClientID, ClientSecret: cfg.EntraClientSecret, TransitiveGroups: cfg.EntraTransitiveGroups})
+	if err != nil {
+		return nil, fmt.Errorf("configure Entra sync: %w", err)
+	}
+	return entra.NewService(store, client, logger.With("component", "entra")), nil
+}
+
+func newAuth(ctx context.Context, cfg config.Config, users *directory.UserService, sessions *scs.SessionManager) (*auth.Service, error) {
+	service, err := auth.NewService(users, sessions)
+	if err != nil {
+		return nil, fmt.Errorf("configure authentication: %w", err)
+	}
+	if !cfg.OIDCEnabled() {
+		return service, nil
+	}
+	if err := service.ConfigureOIDC(ctx, auth.OIDCConfig{IssuerURL: cfg.OIDCIssuerURL, ClientID: cfg.OIDCClientID, ClientSecret: cfg.OIDCClientSecret, RedirectURL: cfg.OIDCRedirectURL, Scopes: cfg.OIDCScopes, EmailClaim: cfg.OIDCEmailClaim}); err != nil {
+		return nil, fmt.Errorf("configure OIDC: %w", err)
+	}
+	return service, nil
+}
+
+func newSessions(pool *pgxpool.Pool, cfg config.Config) (*scs.SessionManager, *pgxstore.PostgresStore) {
+	store := pgxstore.New(pool)
+	sessions := scs.New()
+	sessions.Store = store
+	sessions.HashTokenInStore = true
+	sessions.Lifetime = config.SessionLifetime
+	sessions.Cookie.Name = "woodgate_session"
+	sessions.Cookie.Path = "/"
+	sessions.Cookie.HttpOnly = true
+	sessions.Cookie.Secure = cfg.SessionCookieSecure
+	sessions.Cookie.SameSite = http.SameSiteLaxMode
+	sessions.Cookie.Persist = true
+	return sessions, store
+}
+
+func storageConfig(cfg config.Config) storage.Config {
+	return storage.Config{Kind: storage.Kind(cfg.StorageKind), TransferTTL: cfg.StorageTransferTTL,
+		File: storage.FileConfig{Root: cfg.StorageFileRoot, BaseURL: cfg.ServerURL, CapabilityKeyHex: cfg.StorageCapabilityKey},
+		S3:   storage.S3Config{Bucket: cfg.StorageS3Bucket, Region: cfg.StorageS3Region, Endpoint: cfg.StorageS3Endpoint, AccessKey: cfg.StorageS3AccessKey, SecretKey: cfg.StorageS3SecretKey, PathStyle: cfg.StorageS3PathStyle}}
+}
+
+type starter func(context.Context) (func(), error)
+
+func start(ctx context.Context, starters ...starter) (func(), error) {
+	var stops []func()
+	for _, start := range starters {
+		if start == nil {
+			continue
+		}
+		stop, err := start(ctx)
+		if err != nil {
+			for _, stop := range slices.Backward(stops) {
+				stop()
+			}
+			return nil, err
+		}
+		if stop != nil {
+			stops = append(stops, stop)
+		}
+	}
+	return func() {
+		for _, stop := range slices.Backward(stops) {
+			stop()
+		}
+	}, nil
+}
+
+func storageUploadCleanupStarter(ingestor *storage.Ingestor, ttl time.Duration, logger *slog.Logger) starter {
+	return func(ctx context.Context) (func(), error) {
+		cleanup := storage.StartUploadCleanup(ctx, ingestor, ttl, logger)
+		return cleanup.Stop, nil
 	}
 }
 
-func newAuthRouteRegistrar(
-	register func(chi.Router),
-	principalMiddleware func(http.Handler) http.Handler,
-	meHandler http.Handler,
-) func(chi.Router) {
-	return func(router chi.Router) {
-		router.With(principalMiddleware).Handle("/me", meHandler)
-		register(router)
+func periodicJob(id string, interval time.Duration, args func() river.JobArgs) *river.PeriodicJob {
+	return river.NewPeriodicJob(river.PeriodicInterval(interval), func() (river.JobArgs, *river.InsertOpts) { return args(), nil }, &river.PeriodicJobOpts{ID: id, RunOnStart: true})
+}
+
+func backgroundJobsStarter(jobs *backgroundjobs.Runtime, logger *slog.Logger) starter {
+	return func(ctx context.Context) (func(), error) {
+		if err := jobs.Start(ctx); err != nil {
+			return nil, err
+		}
+		return func() {
+			stopCtx, cancel := context.WithTimeout(context.Background(), gracefulShutdownTimeout)
+			defer cancel()
+			if err := jobs.Stop(stopCtx); err != nil {
+				logger.WarnContext(stopCtx, "stop background jobs", "err", err)
+			}
+		}, nil
 	}
 }

@@ -1,11 +1,6 @@
 import Foundation
 import UIKit
 
-enum SessionMode: String {
-    case paired
-    case demo
-}
-
 enum CheckinDirectionChoice: String, CaseIterable, Identifiable, Codable {
     case checkIn = "check_in"
     case checkOut = "check_out"
@@ -17,11 +12,11 @@ enum CheckinDirectionChoice: String, CaseIterable, Identifiable, Codable {
 
 struct PairingPayload: Codable, Hashable {
     let baseURL: String
-    let apiKey: String
+    let stationSecret: String
 
     enum CodingKeys: String, CodingKey {
         case baseURL = "base_url"
-        case apiKey = "api_key"
+        case stationSecret = "station_secret"
     }
 
     static func parse(json: String) throws -> PairingPayload {
@@ -29,44 +24,31 @@ struct PairingPayload: Codable, Hashable {
     }
 }
 
-struct SessionLocation: Identifiable, Hashable {
-    let id: UUID
-    let name: String
-}
-
 struct ActiveLocation: Identifiable, Hashable {
-    let id: UUID
+    let id: Int64
     let name: String
+    let enabled: Bool
     let notes: Bool
     let photo: Bool
-    let backgroundAssetID: UUID?
-    let logoAssetID: UUID?
+    let backgroundObjectID: Int64?
+    let logoObjectID: Int64?
 }
 
 struct PersonSummary: Identifiable, Hashable {
-    let id: UUID
+    let id: Int64
     let displayName: String
     let email: String
 }
 
 struct ActiveSession {
-    let mode: SessionMode
     let baseURLString: String
-    var location: ActiveLocation
-    var people: [PersonSummary]
-    var backgroundImage: UIImage?
-    var logoImage: UIImage?
+    let stationID: Int64
+    let stationName: String
+    let location: ActiveLocation
+    let people: [PersonSummary]
+    let backgroundImage: UIImage?
+    let logoImage: UIImage?
     var lastSyncedAt: Date
-
-    var isDemo: Bool {
-        mode == .demo
-    }
-}
-
-struct LocationSelectionState: Identifiable {
-    let id = UUID()
-    let options: [SessionLocation]
-    let payload: PairingPayload
 }
 
 struct WoodGateError: LocalizedError {

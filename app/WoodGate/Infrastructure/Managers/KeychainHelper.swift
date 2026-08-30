@@ -39,6 +39,31 @@ struct KeychainHelper {
         }
     }
 
+    func delete(key: String) {
+        try? keychain.deleteItem(forKey: key)
+        try? legacyKeychain.deleteItem(forKey: key)
+    }
+
+    func migrate(from oldKey: String, to newKey: String) -> String? {
+        if let current = read(key: newKey) {
+            delete(key: oldKey)
+            return current
+        }
+
+        guard let value = read(key: oldKey) else {
+            return nil
+        }
+
+        do {
+            try keychain.set(value, forKey: newKey)
+        } catch {
+            return value
+        }
+
+        delete(key: oldKey)
+        return value
+    }
+
     private func migrateLegacyValue(forKey key: String) -> String? {
         guard let value = try? legacyKeychain.string(forKey: key) else {
             return nil

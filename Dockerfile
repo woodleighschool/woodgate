@@ -14,8 +14,6 @@ RUN npm install --global "$(node --print 'require("./package.json").packageManag
 RUN pnpm install --frozen-lockfile
 
 COPY web/ ./
-COPY api/openapi.yaml ../api/openapi.yaml
-RUN pnpm openapi:types
 RUN pnpm build
 
 # ---- Go build -------------------------------------------------------------
@@ -40,12 +38,14 @@ COPY --from=web /workspace/web/dist web/dist
 RUN CGO_ENABLED=0 GOOS=${TARGETOS:-linux} GOARCH=${TARGETARCH} \
     go build -trimpath -ldflags "-s -w" -o woodgate ./cmd/woodgate
 RUN upx --best --lzma woodgate
+RUN mkdir /data
 
 # ---- Runtime --------------------------------------------------------------
 FROM gcr.io/distroless/static:nonroot
 
 WORKDIR /
 COPY --from=builder /workspace/woodgate /woodgate
+COPY --from=builder --chown=65532:65532 /data /data
 EXPOSE 8080
 USER 65532:65532
 ENTRYPOINT ["/woodgate"]

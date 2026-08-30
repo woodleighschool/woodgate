@@ -62,16 +62,35 @@ description = "Scan for known vulnerabilities with govulncheck"
 run = "govulncheck ./..."
 
 [tasks.go-generate]
-description = "Regenerate Go API and SQL code"
+description = "Run Go generators"
 run = "go generate ./..."
 
 [tasks.generate]
-description = "Regenerate checked-in API and SQL code"
-depends = ["go-generate", "//web:openapi-types"]
+description = "Regenerate checked-in API contracts"
+run = { task = "openapi-types" }
+
+[tasks.openapi]
+description = "Generate the OpenAPI schema"
+run = "go run ./cmd/woodgate openapi --output web/openapi.yaml"
+
+[tasks.openapi-types]
+description = "Generate the OpenAPI schema and web client"
+run = [{ task = "openapi" }, { task = "//web:openapi-types" }]
 
 [tasks.test]
 description = "Run dependency-free Go checks"
 run = ["go vet ./...", "go test -race -count=1 ./..."]
+
+[tasks.test-postgres]
+description = "Run PostgreSQL component tests"
+run = """
+WOODGATE_TEST_DATABASE_URL="${WOODGATE_TEST_DATABASE_URL:-postgres://woodgate:woodgate@127.0.0.1:5432/postgres?sslmode=disable}" \
+  go test -race -count=1 -tags=postgres ./internal/...
+"""
+
+[tasks.test-all]
+description = "Run dependency-free and PostgreSQL tests"
+run = [{ task = "test" }, { task = "test-postgres" }]
 
 [tasks.go-lint]
 description = "Run Go linters"

@@ -1,7 +1,13 @@
 {
   "printWidth": 100,
   "sortImports": {
-    "internalPattern": ["@/"],
+    "internalPattern": ["@components/", "@features/", "@hooks/", "@lib/", "@schema/"],
   },
-  "ignorePatterns": ["dist/**", "pnpm-lock.yaml", "src/api/openapi.ts"],
+  "ignorePatterns": [
+    "dist/**",
+    "pnpm-lock.yaml",
+    "openapi.yaml",
+    "src/lib/api-client/**",
+    "src/routeTree.gen.ts",
+  ],
 }

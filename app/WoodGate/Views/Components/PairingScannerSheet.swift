@@ -38,7 +38,7 @@ struct PairingScannerSheet: View {
                 .font(.title2.weight(.bold))
 
             Text(
-                "This screen is only used to pair the app with a location. The app will return to the check-in screen automatically once configured."
+                "Scan the Station QR code. Its server and location configuration will be applied automatically."
             )
             .font(.callout)
             .foregroundStyle(.secondary)

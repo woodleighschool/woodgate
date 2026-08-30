@@ -1,6 +1,6 @@
 # Companion app
 
-Native iOS client for dedicated check-in terminals. A pairing QR provides the server URL and API key, then the operator selects the terminal's location.
+Native iOS client for dedicated check-in Stations. A pairing QR provides the server URL and Station secret; the server owns the Station's location.
 
 ## 🧑‍💻 Development
 

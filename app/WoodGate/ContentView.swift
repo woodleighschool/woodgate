@@ -11,17 +11,6 @@ struct ContentView: View {
 
     // MARK: - Computed Properties
 
-    private var locationSelectionBinding: Binding<LocationSelectionState?> {
-        Binding(
-            get: { modelData.locationSelection },
-            set: { newValue in
-                if newValue == nil {
-                    modelData.cancelLocationSelection()
-                }
-            }
-        )
-    }
-
     private var alertBinding: Binding<AlertItem?> {
         Binding(
             get: { modelData.alert },
@@ -61,9 +50,6 @@ struct ContentView: View {
         .sheet(isPresented: $isSecretMenuPresented) {
             SecretMenuSheet(session: modelData.currentSession)
         }
-        .sheet(item: locationSelectionBinding) { selection in
-            locationSelectionSheet(selection: selection)
-        }
         .alert(item: alertBinding) { alert in
             Alert(
                 title: Text(alert.title),
@@ -84,7 +70,7 @@ struct ContentView: View {
     @ViewBuilder
     private var rootView: some View {
         if let session = modelData.currentSession {
-            if let unavailableState = modelData.unavailableState, !session.isDemo {
+            if let unavailableState = modelData.unavailableState {
                 switch unavailableState {
                 case .connectivity:
                     UnavailableCardView(
@@ -110,15 +96,16 @@ struct ContentView: View {
                 CheckinHomeView(session: session)
             }
         } else if AppSettings.shared.hasPairing {
-            Color.clear
+            UnavailableCardView(
+                title: "Can't Connect Right Now",
+                systemImage: "wifi.exclamationmark",
+                message: "The saved Station configuration is unavailable. This device will keep trying in the background."
+            )
         } else {
             WelcomeView(
                 isBusy: modelData.isBusy,
                 onScan: {
                     isScannerPresented = true
-                },
-                onDemo: {
-                    modelData.beginDemoMode()
                 }
             )
         }
@@ -135,31 +122,6 @@ struct ContentView: View {
                     }
                 }
             )
-        }
-        .presentationDetents([.large])
-        .presentationDragIndicator(.visible)
-    }
-
-    // MARK: - Private Helpers
-
-    private func locationSelectionSheet(selection: LocationSelectionState) -> some View {
-        NavigationStack {
-            LocationSelectionSheet(
-                selection: selection,
-                isBusy: modelData.isBusy,
-                onSelect: { option in
-                    Task {
-                        await modelData.selectLocation(option)
-                    }
-                }
-            )
-            .alert(item: alertBinding) { alert in
-                Alert(
-                    title: Text(alert.title),
-                    message: Text(alert.message),
-                    dismissButton: .default(Text("OK"))
-                )
-            }
         }
         .presentationDetents([.large])
         .presentationDragIndicator(.visible)

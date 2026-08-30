@@ -1,89 +1,68 @@
-package config_test
+package config
 
 import (
 	"strings"
 	"testing"
-
-	"github.com/woodleighschool/woodgate/internal/config"
+	"time"
 )
 
-func TestLoadFromEnv_RequiresEntraCredentialsWhenSyncEnabled(t *testing.T) {
-	setValidEnv(t)
-	t.Setenv("ENTRA_SYNC_ENABLED", "true")
-
-	_, err := config.LoadFromEnv()
-	if err == nil {
-		t.Fatalf("LoadFromEnv() expected error, got nil")
-	}
-
-	if !strings.Contains(
-		err.Error(),
-		"missing required env vars for ENTRA_SYNC_ENABLED=true: ENTRA_TENANT_ID, ENTRA_CLIENT_ID, ENTRA_CLIENT_SECRET",
-	) {
-		t.Fatalf("expected missing Entra sync env vars error, got: %v", err)
-	}
-}
-
-func TestLoadFromEnv_RequiresAuthProvider(t *testing.T) {
-	setValidEnv(t)
-	t.Setenv("LOCAL_ADMIN_PASSWORD", "")
-
-	_, err := config.LoadFromEnv()
-	if err == nil {
-		t.Fatalf("LoadFromEnv() expected error, got nil")
-	}
-
-	if !strings.Contains(
-		err.Error(),
-		"set one auth provider: LOCAL_ADMIN_PASSWORD or ENTRA_TENANT_ID, ENTRA_CLIENT_ID, ENTRA_CLIENT_SECRET",
-	) {
-		t.Fatalf("expected auth provider error, got: %v", err)
+func validConfig() Config {
+	return Config{ //nolint:gosec // Fixed test-only values.
+		Listen:               ":8080",
+		ServerURL:            "http://localhost:8080",
+		SessionCookieSecure:  true,
+		DatabaseURL:          "postgres://woodgate:woodgate@localhost:5432/woodgate",
+		LogLevel:             "info",
+		OIDCScopes:           []string{"openid", "email", "profile"},
+		OIDCEmailClaim:       "email",
+		OIDCRedirectURL:      "http://localhost:8080/api/auth/sso/callback",
+		EntraSyncInterval:    time.Hour,
+		StorageKind:          "file",
+		StorageFileRoot:      "data/storage",
+		StorageCapabilityKey: strings.Repeat("a", 64),
+		StorageTransferTTL:   15 * time.Minute,
+		ClientIPSource:       ClientIPSourceRemoteAddr,
 	}
 }
 
-func TestLoadFromEnv_RequiresJWTSecretWhenAuthEnabled(t *testing.T) {
-	setValidEnv(t)
-	t.Setenv("JWT_SECRET", "")
+func TestConfigDefaultsAndPrefix(t *testing.T) {
+	t.Setenv("WOODGATE_URL", "http://localhost:8080")
+	t.Setenv("WOODGATE_DATABASE_URL", "postgres://woodgate:woodgate@localhost:5432/woodgate")
+	t.Setenv("WOODGATE_STORAGE_CAPABILITY_KEY", strings.Repeat("a", 64))
 
-	_, err := config.LoadFromEnv()
-	if err == nil {
-		t.Fatalf("LoadFromEnv() expected error, got nil")
+	cfg, err := Load()
+	if err != nil {
+		t.Fatalf("Load: %v", err)
 	}
-
-	if !strings.Contains(err.Error(), "missing required env vars: JWT_SECRET") {
-		t.Fatalf("expected missing JWT_SECRET error, got: %v", err)
+	if cfg.Listen != ":8080" || cfg.LogLevel != "info" {
+		t.Fatalf("defaults = listen %q log %q", cfg.Listen, cfg.LogLevel)
 	}
-}
-
-func TestLoadFromEnv_RequiresBaseURLWhenAuthEnabled(t *testing.T) {
-	setValidEnv(t)
-	t.Setenv("WOODGATE_BASE_URL", "")
-
-	_, err := config.LoadFromEnv()
-	if err == nil {
-		t.Fatalf("LoadFromEnv() expected error, got nil")
+	if cfg.OIDCRedirectURL != "http://localhost:8080/api/auth/sso/callback" {
+		t.Fatalf("redirect URL = %q", cfg.OIDCRedirectURL)
 	}
-
-	if !strings.Contains(err.Error(), "missing required env vars: WOODGATE_BASE_URL") {
-		t.Fatalf("expected missing WOODGATE_BASE_URL error, got: %v", err)
+	if !cfg.SessionCookieSecure {
+		t.Fatal("session cookie is not Secure by default")
 	}
 }
 
-func setValidEnv(t *testing.T) {
-	t.Helper()
-	t.Setenv("WOODGATE_PORT", "18080")
-	t.Setenv("WOODGATE_BASE_URL", "https://woodgate.example.com")
-	t.Setenv("LOG_LEVEL", "info")
-	t.Setenv("DATABASE_HOST", "db")
-	t.Setenv("DATABASE_PORT", "5432")
-	t.Setenv("DATABASE_USER", "postgres")
-	t.Setenv("DATABASE_PASSWORD", "postgres")
-	t.Setenv("DATABASE_NAME", "woodgate")
-	t.Setenv("DATABASE_SSLMODE", "disable")
-	t.Setenv("LOCAL_ADMIN_PASSWORD", "admin")
-	t.Setenv("JWT_SECRET", "jwt-secret")
-	t.Setenv("ENTRA_TENANT_ID", "")
-	t.Setenv("ENTRA_CLIENT_ID", "")
-	t.Setenv("ENTRA_CLIENT_SECRET", "")
-	t.Setenv("ENTRA_SYNC_ENABLED", "false")
+func TestConfigNormalizesOrigins(t *testing.T) {
+	cfg := validConfig()
+	cfg.ServerURL = " http://example.com/ "
+	cfg.CORSAllowedOrigins = []string{"https://panel.example/", "https://panel.example"}
+	cfg.Normalize()
+
+	if cfg.ServerURL != "http://example.com" {
+		t.Fatalf("ServerURL = %q", cfg.ServerURL)
+	}
+	if len(cfg.CORSAllowedOrigins) != 1 || cfg.CORSAllowedOrigins[0] != "https://panel.example" {
+		t.Fatalf("CORSAllowedOrigins = %#v", cfg.CORSAllowedOrigins)
+	}
+}
+
+func TestConfigRejectsPartialOIDC(t *testing.T) {
+	cfg := validConfig()
+	cfg.OIDCIssuerURL = "https://login.example/tenant"
+	if err := cfg.Validate(); err == nil {
+		t.Fatal("Validate accepted partial OIDC configuration")
+	}
 }
