@@ -1,5 +1,24 @@
 # Changelog
 
+## [1.6.0](https://github.com/woodleighschool/woodgate/compare/1.5.0...1.6.0) (2026-08-31)
+
+
+### Features
+
+* **mock:** add station development worker ([cbdaa41](https://github.com/woodleighschool/woodgate/commit/cbdaa4113e74563bd9e61ed824de5ac952443faa))
+
+
+### Continuous Integration
+
+* **github-action:** update action jdx/mise-action (v4.2.5 → v4.3.0) ([#128](https://github.com/woodleighschool/woodgate/issues/128)) ([6d9f162](https://github.com/woodleighschool/woodgate/commit/6d9f162ea649fe2c35572e5c7492c9bef4f2ac58))
+* **mock:** deploy with GitHub Actions ([b9114c5](https://github.com/woodleighschool/woodgate/commit/b9114c51416eba16835d6a39f148c0949dbaf7f7))
+
+
+### Miscellaneous Chores
+
+* **mise:** update tool lefthook (2.1.11 → 2.1.12) ([#141](https://github.com/woodleighschool/woodgate/issues/141)) ([c3c3fba](https://github.com/woodleighschool/woodgate/commit/c3c3fbae4c8af17832432c2437676851f89cbb3f))
+* **npm:** lock file maintenance dependency (npm) ([#127](https://github.com/woodleighschool/woodgate/issues/127)) ([526905e](https://github.com/woodleighschool/woodgate/commit/526905e738f632d75f74a1958ad076679df4beab))
+
 ## [1.5.0](https://github.com/woodleighschool/woodgate/compare/1.4.0...1.5.0) (2026-08-28)
 
 
