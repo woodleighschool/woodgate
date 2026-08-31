@@ -35,7 +35,6 @@ import (
 	"github.com/woodleighschool/woodgate/internal/postgres"
 	"github.com/woodleighschool/woodgate/internal/station"
 	stationapi "github.com/woodleighschool/woodgate/internal/station/httpapi"
-	stationv0 "github.com/woodleighschool/woodgate/internal/station/v0"
 	"github.com/woodleighschool/woodgate/internal/storage"
 	"github.com/woodleighschool/woodgate/internal/webui"
 	webdist "github.com/woodleighschool/woodgate/web"
@@ -154,12 +153,6 @@ func buildApplication(ctx context.Context, cfg config.Config, pool *pgxpool.Pool
 		return nil, fmt.Errorf("configure Station protocol: %w", err)
 	}
 	stationService := station.NewService(stationStore, checkinService, stationServer)
-	legacyStationServer := stationv0.NewServer(pool, stationv0.Dependencies{
-		Locations: checkinService,
-		People:    checkinService,
-		Checkins:  checkinService,
-		Assets:    checkinService,
-	}, logger.With("component", "station_v0"))
 	checkinService.SetLocationNotifier(stationService)
 	jobs, directorySync, err := newBackgroundJobs(cfg, pool, directoryStore, logger)
 	if err != nil {
@@ -179,7 +172,6 @@ func buildApplication(ctx context.Context, cfg config.Config, pool *pgxpool.Pool
 			checkinapi.RegisterAPI(routes.App, checkinapi.Dependencies{Service: checkinService, Authorizer: authorizationService, Authenticator: authService, Logger: apiLogger})
 			stationapi.RegisterAPI(routes.App, stationService, authorizationService, apiLogger)
 			stationServer.RegisterRoutes(routes.Protocols.Ordinary, routes.Protocols.WebSockets)
-			legacyStationServer.RegisterRoutes(routes.Protocols.Ordinary)
 		},
 	})
 	starters := []starter{storageUploadCleanupStarter(ingestor, cfg.StorageTransferTTL, storageLogger)}

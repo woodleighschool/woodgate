@@ -378,12 +378,6 @@ AND (NOT EXISTS (SELECT 1 FROM location_directory_groups WHERE location_id=$1)
  OR EXISTS (SELECT 1 FROM location_directory_groups lg JOIN directory_group_memberships gm ON gm.group_id=lg.group_id WHERE lg.location_id=$1 AND gm.user_id=u.id)) ORDER BY lower(u.name),u.id`, locationID)
 }
 
-func (s *Store) LocationUsesObject(ctx context.Context, locationID, objectID int64) (bool, error) {
-	var ok bool
-	err := s.pool.QueryRow(ctx, `SELECT EXISTS (SELECT 1 FROM locations WHERE id=$1 AND (background_object_id=$2 OR logo_object_id=$2))`, locationID, objectID).Scan(&ok)
-	return ok, err
-}
-
 func attachmentFile(filename, contentType *string, sizeBytes *int64, sha256 *string) *AttachmentFile {
 	if filename == nil || contentType == nil {
 		return nil

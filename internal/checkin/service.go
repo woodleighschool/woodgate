@@ -304,25 +304,6 @@ func (s *Service) DeliverStationLogo(w http.ResponseWriter, r *http.Request, loc
 	return s.deliverObject(w, r, *location.LogoObjectID, LogoObjectPrefix)
 }
 
-// DeliverLegacyStationAsset keeps the deployed v0 asset URL at the adapter boundary.
-func (s *Service) DeliverLegacyStationAsset(w http.ResponseWriter, r *http.Request, locationID, objectID int64) error {
-	used, err := s.store.LocationUsesObject(r.Context(), locationID, objectID)
-	if err != nil {
-		return err
-	}
-	if !used {
-		return fault.ErrNotFound
-	}
-	object, err := s.objects.GetByID(r.Context(), objectID)
-	if err != nil {
-		return err
-	}
-	if object.Prefix != BackgroundObjectPrefix && object.Prefix != LogoObjectPrefix {
-		return fault.ErrNotFound
-	}
-	return s.delivery.Deliver(w, r, *object, storage.DeliveryOptions{CacheControl: "private, max-age=3600"})
-}
-
 func (s *Service) deliverObject(w http.ResponseWriter, r *http.Request, objectID int64, prefix string) error {
 	object, err := s.objects.GetByID(r.Context(), objectID)
 	if err != nil {

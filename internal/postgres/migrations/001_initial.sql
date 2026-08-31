@@ -1,7 +1,5 @@
 -- +goose Up
 
-CREATE EXTENSION IF NOT EXISTS pgcrypto;
-
 CREATE TYPE directory_source AS ENUM ('local', 'entra');
 CREATE TYPE checkin_direction AS ENUM ('check_in', 'check_out');
 
@@ -213,13 +211,3 @@ CROSS JOIN unnest(ARRAY[
     'authz.assignments'
 ]) AS resource
 WHERE key = 'owner';
-
--- Temporary protocol-v0 UUID bridge. The prepared v0-removal change drops
--- this table with the legacy routes after every enabled station reports v1.
-CREATE TABLE station_v0_mappings (
-    kind TEXT NOT NULL CHECK (kind IN ('user', 'location', 'asset', 'checkin', 'api_key')),
-    legacy_id UUID NOT NULL,
-    object_id BIGINT NOT NULL,
-    PRIMARY KEY (kind, legacy_id),
-    UNIQUE (kind, object_id)
-);

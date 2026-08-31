@@ -108,7 +108,7 @@ final class AppSettings {
 
     private init() {
         baseURLString = defaults.string(forKey: Key.baseURLString) ?? ""
-        stationSecret = KeychainHelper.shared.migrate(from: "apiKey", to: Key.stationSecret) ?? ""
+        stationSecret = KeychainHelper.shared.read(key: Key.stationSecret) ?? ""
         stationID = Self.int64(forKey: Key.stationID, defaults: defaults)
         stationName = defaults.string(forKey: Key.stationName) ?? ""
         locationID = Self.int64(forKey: Key.locationID, defaults: defaults)
