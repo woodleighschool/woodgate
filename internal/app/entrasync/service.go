@@ -5,18 +5,16 @@ import (
 	"fmt"
 	"log/slog"
 	"time"
-
-	graphsync "github.com/woodleighschool/go-entrasync"
 )
 
 // GraphClient reads Entra objects from Microsoft Graph.
 type GraphClient interface {
-	Snapshot(ctx context.Context) (*graphsync.Snapshot, error)
+	Fetch(ctx context.Context) (*Snapshot, error)
 }
 
 // DataStore persists a full Entra snapshot.
 type DataStore interface {
-	ReconcileSnapshot(ctx context.Context, snapshot *graphsync.Snapshot) (Result, error)
+	ReconcileSnapshot(ctx context.Context, snapshot *Snapshot) (Result, error)
 }
 
 // Result reports reconciled object counts.
@@ -64,7 +62,7 @@ func (service *Service) Run(ctx context.Context) {
 
 // SyncOnce fetches a snapshot from Graph and reconciles it into storage.
 func (service *Service) SyncOnce(ctx context.Context) (Result, error) {
-	snapshot, err := service.client.Snapshot(ctx)
+	snapshot, err := service.client.Fetch(ctx)
 	if err != nil {
 		return Result{}, fmt.Errorf("fetch graph snapshot: %w", err)
 	}
