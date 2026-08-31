@@ -58,7 +58,6 @@ export function LoginPage() {
                         {...control}
                         type="email"
                         autoComplete="email"
-                        placeholder="admin@example.invalid"
                         required
                         value={field.state.value}
                         onBlur={field.handleBlur}
