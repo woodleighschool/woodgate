@@ -9,6 +9,8 @@ go.work.sum
 node_modules/
 /web/dist/*
 !/web/dist/.gitkeep
+/mock/dist/
+/mock/.wrangler/
 
 # Xcode
 xcuserdata/

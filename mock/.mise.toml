@@ -1,0 +1,50 @@
+[tasks.deps]
+description = "Install mock dependencies"
+run = "pnpm install --frozen-lockfile"
+
+[tasks.dev]
+description = "Run the development mock"
+depends = [":deps"]
+run = "pnpm run dev"
+
+[tasks.build]
+description = "Build the development mock"
+depends = [":deps"]
+run = "pnpm run build"
+
+[tasks.test]
+description = "Test the development mock"
+depends = [":deps"]
+run = "pnpm run test"
+
+[tasks.typecheck]
+description = "Type-check the development mock"
+depends = [":deps"]
+run = "pnpm run typecheck"
+
+[tasks.lint]
+description = "Lint the development mock"
+depends = [":deps"]
+run = "pnpm run lint"
+
+[tasks.lint-fix]
+description = "Fix mock lint issues"
+depends = [":deps"]
+run = "pnpm run lint:fix"
+
+[tasks.format]
+description = "Format mock code"
+run = "pnpm run format"
+
+[tasks.fmt-check]
+description = "Check mock formatting"
+run = "pnpm run format:check"
+
+[tasks.deploy]
+description = "Deploy the development mock"
+depends = [":deps"]
+run = "pnpm run deploy"
+
+[tasks.clean]
+description = "Remove mock build output"
+run = "rm -rf dist .wrangler"

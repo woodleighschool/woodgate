@@ -1,0 +1,27 @@
+{
+  "name": "woodgate-mock",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "build": "wrangler deploy --dry-run --outdir dist",
+    "deploy": "wrangler deploy",
+    "dev": "wrangler dev",
+    "format": "oxfmt .",
+    "format:check": "oxfmt --check .",
+    "lint": "oxlint src test vitest.config.ts && pnpm run types:check && pnpm run typecheck",
+    "lint:fix": "oxlint --fix src test vitest.config.ts && pnpm run types:check && pnpm run typecheck",
+    "test": "vitest run",
+    "types": "wrangler types --include-runtime false",
+    "types:check": "wrangler types --check --include-runtime false",
+    "typecheck": "tsc --noEmit && tsc --noEmit -p test/tsconfig.json"
+  },
+  "devDependencies": {
+    "@cloudflare/vitest-plugin": "1.1.2",
+    "@cloudflare/workers-types": "5.20260830.1",
+    "typescript": "7.0.2",
+    "vitest": "4.1.11",
+    "wrangler": "4.127.1"
+  },
+  "packageManager": "pnpm@11.24.0"
+}

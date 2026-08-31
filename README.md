@@ -57,7 +57,7 @@ mise run deps
 mise run dev
 ```
 
-The root tasks cover the Go backend and web frontend. Companion-app checks live under `//app:`:
+The root tasks cover the Go backend, web frontend, and development mock. Companion-app checks live under `//app:`:
 
 ```bash
 mise run //app:fmt-check

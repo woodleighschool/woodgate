@@ -22,15 +22,15 @@ pin = true
 lockfile = true
 
 [monorepo]
-config_roots = ["app", "web"]
+config_roots = ["app", "mock", "web"]
 
 [tasks.go-deps]
 description = "Download Go dependencies"
 run = "go mod download"
 
 [tasks.deps]
-description = "Install backend and web dependencies"
-depends = ["go-deps", "//web:deps"]
+description = "Install backend, mock, and web dependencies"
+depends = ["go-deps", "//mock:deps", "//web:deps"]
 
 [tasks.dev]
 description = "Run backend and web development servers"
@@ -41,8 +41,8 @@ description = "Run backend development server"
 run = "air"
 
 [tasks.build]
-description = "Build web bundle and backend binary"
-depends = ["//web:build"]
+description = "Build mock, web bundle, and backend binary"
+depends = ["//mock:build", "//web:build"]
 run = { task = "backend" }
 
 [tasks.backend]
@@ -82,12 +82,12 @@ description = "Run Go linters and apply fixes"
 run = "golangci-lint run --fix"
 
 [tasks.lint-fix]
-description = "Run backend and web linters and apply fixes"
-depends = ["go-lint-fix", "//web:lint-fix"]
+description = "Run backend, mock, and web linters and apply fixes"
+depends = ["go-lint-fix", "//mock:lint-fix", "//web:lint-fix"]
 
 [tasks.lint]
-description = "Run backend, web, and app linters"
-depends = ["go-lint", "//app:lint", "//web:lint"]
+description = "Run backend, mock, web, and app linters"
+depends = ["go-lint", "//app:lint", "//mock:lint", "//web:lint"]
 
 [tasks.go-format]
 description = "Format Go code"
@@ -98,12 +98,17 @@ description = "Check Go formatting"
 run = "test -z \"$(gofmt -l .)\" || { gofmt -l .; exit 1; }"
 
 [tasks.format]
-description = "Format backend, web, and app code"
-depends = ["go-format", "//app:format", "//web:format"]
+description = "Format backend, mock, web, and app code"
+depends = ["go-format", "//app:format", "//mock:format", "//web:format"]
 
 [tasks.fmt-check]
-description = "Check backend, web, and app formatting"
-depends = ["go-fmt-check", "//app:fmt-check", "//web:fmt-check"]
+description = "Check backend, mock, web, and app formatting"
+depends = [
+  "go-fmt-check",
+  "//app:fmt-check",
+  "//mock:fmt-check",
+  "//web:fmt-check",
+]
 
 [tasks.workflow-lint]
 description = "Lint GitHub Actions workflows"
