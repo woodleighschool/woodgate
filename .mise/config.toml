@@ -7,7 +7,7 @@ node = "26.8.1"
 pnpm = "11.24.0"
 golangci-lint = "2.13.1"
 air = "1.67.4"
-lefthook = "2.1.11"
+lefthook = "2.1.12"
 periphery = { version = "3.8.0", os = ["macos"] }
 swiftformat = "0.62.1"
 actionlint = "1.7.12"
