@@ -18,14 +18,16 @@ struct LocationBackgroundView: View {
     }
 }
 
-struct LocationLogoView: View {
-    let image: UIImage?
+struct WallpaperCard<Content: View>: View {
+    let hasBackground: Bool
+    @ViewBuilder let content: Content
 
     var body: some View {
-        if let image {
-            Image(uiImage: image)
-                .resizable()
-                .scaledToFit()
+        if hasBackground {
+            content
+                .glassEffect(in: .rect(cornerRadius: 28))
+        } else {
+            content
         }
     }
 }

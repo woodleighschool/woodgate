@@ -64,6 +64,18 @@ struct CheckinHomeView: View {
         return nil
     }
 
+    private var hasBackground: Bool {
+        session.backgroundImage != nil
+    }
+
+    private var inputBackgroundStyle: AnyShapeStyle {
+        if hasBackground {
+            AnyShapeStyle(.thickMaterial)
+        } else {
+            AnyShapeStyle(Color(uiColor: .secondarySystemBackground))
+        }
+    }
+
     // MARK: - Body
 
     var body: some View {
@@ -110,22 +122,33 @@ struct CheckinHomeView: View {
     // MARK: - View Builders
 
     private var checkinCard: some View {
-        VStack(alignment: .leading, spacing: 20) {
-            headerSection
-            personSelectionSection
-            detailsSection
-            submissionHintSection
-            submitButtons
+        WallpaperCard(hasBackground: hasBackground) {
+            VStack(alignment: .leading, spacing: 20) {
+                headerSection
+                personSelectionSection
+                detailsSection
+                submissionHintSection
+                submitButtons
+            }
+            .padding(24)
+            .contentShape(Rectangle())
         }
-        .padding(24)
-        .glassEffect(in: .rect(cornerRadius: 28))
-        .contentShape(Rectangle())
     }
 
+    @ViewBuilder
     private var logoSection: some View {
-        LocationLogoView(image: session.logoImage)
-            .frame(maxWidth: 320, maxHeight: 120)
-            .shadow(color: .black.opacity(0.15), radius: 12, y: 4)
+        if let image = session.logoImage {
+            Image(uiImage: image)
+                .resizable()
+                .scaledToFit()
+                .frame(maxWidth: 320, maxHeight: 120)
+                .shadow(
+                    color: hasBackground ? .black.opacity(0.15) : .clear,
+                    radius: 12,
+                    y: 4
+                )
+                .accessibilityHidden(true)
+        }
     }
 
     private var headerSection: some View {
@@ -164,7 +187,7 @@ struct CheckinHomeView: View {
             .padding(.vertical, 12)
             .background(
                 RoundedRectangle(cornerRadius: 18, style: .continuous)
-                    .fill(.thickMaterial)
+                    .fill(inputBackgroundStyle)
             )
             .popover(
                 isPresented: $isSearchPopoverPresented,
@@ -216,7 +239,7 @@ struct CheckinHomeView: View {
                 .padding(12)
                 .background(
                     RoundedRectangle(cornerRadius: 18, style: .continuous)
-                        .fill(.thickMaterial)
+                        .fill(inputBackgroundStyle)
                 )
         }
     }
@@ -259,7 +282,7 @@ struct CheckinHomeView: View {
                     .frame(width: 88, height: 88)
                     .background(
                         RoundedRectangle(cornerRadius: 18, style: .continuous)
-                            .fill(.thickMaterial)
+                            .fill(inputBackgroundStyle)
                     )
                 }
             }
@@ -369,4 +392,31 @@ struct CheckinHomeView: View {
         let trimmedQuery = form.query.trimmingCharacters(in: .whitespacesAndNewlines)
         isSearchPopoverPresented = isSearchFocused && !trimmedQuery.isEmpty
     }
+}
+
+private struct CheckinHomePreview: View {
+    let session: ActiveSession
+
+    @State private var modelData: ModelData
+
+    init(session: ActiveSession) {
+        self.session = session
+        _modelData = State(initialValue: PreviewFixtures.modelData(session: session))
+    }
+
+    var body: some View {
+        ZStack {
+            LocationBackgroundView(image: session.backgroundImage)
+            CheckinHomeView(session: session)
+        }
+        .environment(modelData)
+    }
+}
+
+#Preview("Check-in — Plain") {
+    CheckinHomePreview(session: PreviewFixtures.plainSession)
+}
+
+#Preview("Check-in — Wallpaper and Logo") {
+    CheckinHomePreview(session: PreviewFixtures.brandedSession)
 }

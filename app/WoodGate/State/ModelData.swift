@@ -28,8 +28,10 @@ final class ModelData {
 
     // MARK: - Init
 
-    init(modelContext: ModelContext) {
+    init(modelContext: ModelContext, startsServices: Bool = true) {
         self.modelContext = modelContext
+        guard startsServices else { return }
+
         startBackgroundRefresh()
         Task { await bootstrap() }
     }
@@ -215,7 +217,7 @@ final class ModelData {
 
     func searchPeople(matching query: String) -> [PersonSummary] {
         let q = query.trimmingCharacters(in: .whitespacesAndNewlines)
-        guard !q.isEmpty, let currentSession else {
+        guard !q.isEmpty, currentSession != nil else {
             return []
         }
 

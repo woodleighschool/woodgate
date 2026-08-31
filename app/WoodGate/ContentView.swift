@@ -6,19 +6,8 @@ struct ContentView: View {
     @Environment(ModelData.self) private var modelData
     @Environment(\.scenePhase) private var scenePhase
 
-    @State private var isScannerPresented = false
+    @State private var isPairingPresented = false
     @State private var isSecretMenuPresented = false
-
-    // MARK: - Computed Properties
-
-    private var alertBinding: Binding<AlertItem?> {
-        Binding(
-            get: { modelData.alert },
-            set: { newValue in
-                modelData.alert = newValue
-            }
-        )
-    }
 
     // MARK: - Body
 
@@ -29,12 +18,14 @@ struct ContentView: View {
                 rootView
             }
             .overlay(alignment: .bottomTrailing) {
-                Color.clear
-                    .frame(width: 100, height: 100)
-                    .contentShape(Rectangle())
-                    .onTapGesture(count: 10) {
-                        isSecretMenuPresented = true
-                    }
+                if AppSettings.shared.hasPairing {
+                    Color.clear
+                        .frame(width: 100, height: 100)
+                        .contentShape(Rectangle())
+                        .onTapGesture(count: 10) {
+                            isSecretMenuPresented = true
+                        }
+                }
             }
         }
         .onChange(of: scenePhase, initial: true) { _, newValue in
@@ -44,19 +35,15 @@ struct ContentView: View {
                 await modelData.handleSceneActive()
             }
         }
-        .sheet(isPresented: $isScannerPresented) {
-            scannerSheet
+        .sheet(isPresented: $isPairingPresented) {
+            PairingSheet()
+                .presentationDetents([.large])
+                .presentationDragIndicator(.visible)
         }
         .sheet(isPresented: $isSecretMenuPresented) {
             SecretMenuSheet(session: modelData.currentSession)
         }
-        .alert(item: alertBinding) { alert in
-            Alert(
-                title: Text(alert.title),
-                message: Text(alert.message),
-                dismissButton: .default(Text("OK"))
-            )
-        }
+        .modelAlert(isEnabled: !isPairingPresented && !isSecretMenuPresented)
     }
 
     // MARK: - View Builders
@@ -77,19 +64,22 @@ struct ContentView: View {
                         title: "Can't Connect Right Now",
                         systemImage: "wifi.exclamationmark",
                         message:
-                        "The server can't be reached right now. You can try refreshing, and this device will keep trying in the background."
+                        "The server can't be reached right now. You can try refreshing, and this device will keep trying in the background.",
+                        hasBackground: session.backgroundImage != nil
                     )
                 case .authorization:
                     UnavailableCardView(
                         title: "This Device Is No Longer Authorized",
                         systemImage: "key.slash.fill",
-                        message: "This device can no longer accept check-ins with its current pairing."
+                        message: "This device can no longer accept check-ins with its current pairing.",
+                        hasBackground: session.backgroundImage != nil
                     )
                 case .locationDisabled:
                     UnavailableCardView(
                         title: "This Location Is Not Currently Accepting Check-Ins",
                         systemImage: "mappin.slash.circle.fill",
-                        message: "Please see a staff member if you need help."
+                        message: "Please see a staff member if you need help.",
+                        hasBackground: session.backgroundImage != nil
                     )
                 }
             } else {
@@ -99,31 +89,16 @@ struct ContentView: View {
             UnavailableCardView(
                 title: "Can't Connect Right Now",
                 systemImage: "wifi.exclamationmark",
-                message: "The saved Station configuration is unavailable. This device will keep trying in the background."
+                message: "The saved Station configuration is unavailable. This device will keep trying in the background.",
+                hasBackground: false
             )
         } else {
             WelcomeView(
                 isBusy: modelData.isBusy,
-                onScan: {
-                    isScannerPresented = true
+                onPair: {
+                    isPairingPresented = true
                 }
             )
         }
-    }
-
-    private var scannerSheet: some View {
-        NavigationStack {
-            PairingScannerSheet(
-                onPayload: { payload in
-                    isScannerPresented = false
-
-                    Task {
-                        await modelData.beginPairing(with: payload)
-                    }
-                }
-            )
-        }
-        .presentationDetents([.large])
-        .presentationDragIndicator(.visible)
     }
 }
