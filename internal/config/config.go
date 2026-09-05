@@ -1,243 +1,214 @@
 package config
 
 import (
+	"errors"
 	"fmt"
 	"net/url"
-	"slices"
 	"strings"
 	"time"
 
 	"github.com/caarlos0/env/v11"
+
+	"github.com/woodleighschool/woodgate/internal/validation"
 )
 
-// Config is the root application configuration.
+const oidcCallbackPath = "/api/auth/sso/callback"
+
+// SessionLifetime is the browser session lifetime.
+const SessionLifetime = 14 * 24 * time.Hour
+
+// ErrInvalidOIDCRedirectURL is returned when OIDCRedirectURL cannot reach the callback.
+var ErrInvalidOIDCRedirectURL = errors.New("invalid OIDC redirect URL")
+
+// Config contains runtime settings.
 type Config struct {
-	HTTP     HTTPConfig
-	Logging  LoggingConfig
-	Database DatabaseConfig
-	Auth     AuthConfig
-	Entra    EntraSyncConfig
-	Media    MediaConfig
+	Listen              string   `env:"LISTEN"                envDefault:":8080" validate:"required"`
+	ServerURL           string   `env:"URL"                                        validate:"required,web_origin"`
+	SessionCookieSecure bool     `env:"SESSION_COOKIE_SECURE" envDefault:"true"`
+	DatabaseURL         string   `env:"DATABASE_URL"                               validate:"required"`
+	LogLevel            string   `env:"LOG_LEVEL"             envDefault:"info"    validate:"required,oneof=debug info warn error"`
+	CORSAllowedOrigins  []string `env:"CORS_ALLOWED_ORIGINS"                       validate:"dive,web_origin"`
+
+	// OIDC is capability-gated: SSO endpoints only mount when IssuerURL,
+	// ClientID, and ClientSecret are all set.
+	OIDCIssuerURL    string   `env:"OIDC_ISSUER_URL"    validate:"required_with=OIDCClientID OIDCClientSecret,omitempty,https_url"`
+	OIDCClientID     string   `env:"OIDC_CLIENT_ID"     validate:"required_with=OIDCIssuerURL OIDCClientSecret"`
+	OIDCClientSecret string   `env:"OIDC_CLIENT_SECRET" validate:"required_with=OIDCIssuerURL OIDCClientID"`
+	OIDCRedirectURL  string   `env:"OIDC_REDIRECT_URL"`
+	OIDCScopes       []string `env:"OIDC_SCOPES"        envDefault:"openid,email,profile" validate:"min=1,dive,required"`
+	OIDCEmailClaim   string   `env:"OIDC_EMAIL_CLAIM"   envDefault:"email" validate:"required"`
+
+	// Entra sync is capability-gated: TenantID, ClientID, and ClientSecret
+	// must all be set for the sync loop to start.
+	EntraTenantID         string        `env:"ENTRA_TENANT_ID"         validate:"required_with=EntraClientID EntraClientSecret"`
+	EntraClientID         string        `env:"ENTRA_CLIENT_ID"         validate:"required_with=EntraTenantID EntraClientSecret"`
+	EntraClientSecret     string        `env:"ENTRA_CLIENT_SECRET"     validate:"required_with=EntraTenantID EntraClientID"`
+	EntraTransitiveGroups bool          `env:"ENTRA_TRANSITIVE_GROUPS"`
+	EntraSyncInterval     time.Duration `env:"ENTRA_SYNC_INTERVAL" envDefault:"1h" validate:"gt=0"`
+
+	StorageKind          string        `env:"STORAGE_KIND"           envDefault:"file" validate:"required,oneof=file s3"`
+	StorageFileRoot      string        `env:"STORAGE_FILE_ROOT"      envDefault:"data/storage" validate:"required_if=StorageKind file"`
+	StorageCapabilityKey string        `env:"STORAGE_CAPABILITY_KEY" validate:"required_if=StorageKind file"`
+	StorageTransferTTL   time.Duration `env:"STORAGE_TRANSFER_TTL"   envDefault:"15m" validate:"gt=0"`
+	StorageS3Bucket      string        `env:"STORAGE_S3_BUCKET"      validate:"required_if=StorageKind s3"`
+	StorageS3Region      string        `env:"STORAGE_S3_REGION"      validate:"required_if=StorageKind s3"`
+	StorageS3Endpoint    string        `env:"STORAGE_S3_ENDPOINT"    validate:"omitempty,url"`
+	StorageS3AccessKey   string        `env:"STORAGE_S3_ACCESS_KEY"  validate:"required_if=StorageKind s3"`
+	StorageS3SecretKey   string        `env:"STORAGE_S3_SECRET_KEY"  validate:"required_if=StorageKind s3"`
+	StorageS3PathStyle   bool          `env:"STORAGE_S3_PATH_STYLE"`
+
+	// ClientIPSource selects how the real client IP is derived behind proxies.
+	// The companion fields are required only for the matching source.
+	ClientIPSource         ClientIPSource `env:"HTTP_CLIENT_IP_SOURCE" envDefault:"remote_addr" validate:"required,oneof=remote_addr xff_trusted_cidrs xff_trusted_proxies header"`
+	ClientIPTrustedCIDRs   []string       `env:"HTTP_CLIENT_IP_TRUSTED_CIDRS" validate:"excluded_unless=ClientIPSource xff_trusted_cidrs,required_if=ClientIPSource xff_trusted_cidrs,dive,cidr"`
+	ClientIPTrustedProxies int            `env:"HTTP_CLIENT_IP_TRUSTED_PROXY_COUNT" validate:"excluded_unless=ClientIPSource xff_trusted_proxies,required_if=ClientIPSource xff_trusted_proxies,omitempty,gte=1"`
+	ClientIPHeader         string         `env:"HTTP_CLIENT_IP_HEADER" validate:"excluded_unless=ClientIPSource header,required_if=ClientIPSource header"`
 }
 
-// HTTPConfig contains HTTP server settings.
-type HTTPConfig struct {
-	Port    int    `env:"WOODGATE_PORT"     envDefault:"8080"`
-	BaseURL string `env:"WOODGATE_BASE_URL"`
+// ClientIPSource is how the server derives the real client IP behind proxies.
+type ClientIPSource string
+
+const (
+	// ClientIPSourceRemoteAddr trusts the connection's remote address.
+	ClientIPSourceRemoteAddr ClientIPSource = "remote_addr"
+	// ClientIPSourceXFFTrustedCIDRs walks X-Forwarded-For, skipping trusted prefixes.
+	ClientIPSourceXFFTrustedCIDRs ClientIPSource = "xff_trusted_cidrs"
+	// ClientIPSourceXFFTrustedProxies takes the IP a fixed proxy count from the right of X-Forwarded-For.
+	ClientIPSourceXFFTrustedProxies ClientIPSource = "xff_trusted_proxies"
+	// ClientIPSourceHeader reads a single trusted header set by the proxy.
+	ClientIPSourceHeader ClientIPSource = "header"
+)
+
+// OIDCEnabled reports whether the required OIDC settings are present.
+func (cfg *Config) OIDCEnabled() bool {
+	return cfg.OIDCIssuerURL != "" && cfg.OIDCClientID != "" && cfg.OIDCClientSecret != ""
 }
 
-func (cfg HTTPConfig) Addr() string {
-	return fmt.Sprintf(":%d", cfg.Port)
+// EntraEnabled reports whether the required Entra sync settings are present.
+func (cfg *Config) EntraEnabled() bool {
+	return cfg.EntraTenantID != "" && cfg.EntraClientID != "" && cfg.EntraClientSecret != ""
 }
 
-// LoggingConfig contains structured logger settings.
-type LoggingConfig struct {
-	Level string `env:"LOG_LEVEL" envDefault:"info"`
-}
-
-// DatabaseConfig contains Postgres connection settings.
-type DatabaseConfig struct {
-	Host     string `env:"DATABASE_HOST"`
-	Port     int    `env:"DATABASE_PORT"     envDefault:"5432"`
-	User     string `env:"DATABASE_USER"`
-	Password string `env:"DATABASE_PASSWORD"`
-	Name     string `env:"DATABASE_NAME"`
-	SSLMode  string `env:"DATABASE_SSLMODE"  envDefault:"disable"`
-}
-
-// AuthConfig contains operator auth settings.
-type AuthConfig struct {
-	EntraTenantID     string `env:"ENTRA_TENANT_ID"`
-	EntraClientID     string `env:"ENTRA_CLIENT_ID"`
-	EntraClientSecret string `env:"ENTRA_CLIENT_SECRET"`
-	JWTSecret         string `env:"JWT_SECRET"`
-	LocalAdminPass    string `env:"LOCAL_ADMIN_PASSWORD"`
-}
-
-// EntraSyncConfig contains Graph synchronization settings.
-type EntraSyncConfig struct {
-	Enabled  bool          `env:"ENTRA_SYNC_ENABLED"  envDefault:"false"`
-	Interval time.Duration `env:"ENTRA_SYNC_INTERVAL" envDefault:"1h"`
-}
-
-// MediaConfig contains media storage settings.
-type MediaConfig struct {
-	RootDir string `env:"WOODGATE_MEDIA_ROOT" envDefault:"media"`
-}
-
-// LoadFromEnv loads and validates all configuration from environment variables.
-func LoadFromEnv() (Config, error) {
+// Load resolves, normalizes, and validates the server's environment configuration.
+func Load() (Config, error) {
 	var cfg Config
-	if err := env.Parse(&cfg); err != nil {
-		return Config{}, fmt.Errorf("parse env: %w", err)
+	if err := parseEnvironment(&cfg); err != nil {
+		return Config{}, fmt.Errorf("parse environment: %w", err)
 	}
-
-	cfg.Logging.Level = strings.ToLower(cfg.Logging.Level)
-
-	validateErr := validateConfig(cfg)
-	if validateErr != nil {
-		return Config{}, validateErr
+	cfg.Normalize()
+	if err := cfg.Validate(); err != nil {
+		return Config{}, fmt.Errorf("validate config: %w", err)
 	}
-
 	return cfg, nil
 }
 
-func validateConfig(cfg Config) error {
-	problems := make([]string, 0)
-	problems = append(problems, validateHTTPAndLogging(cfg)...)
-	problems = append(problems, validateDatabase(cfg.Database)...)
-	problems = append(problems, validateAuth(cfg)...)
-	problems = append(problems, validateEntra(cfg)...)
-	problems = append(problems, validateMedia(cfg.Media)...)
-
-	if len(problems) == 0 {
-		return nil
-	}
-
-	return fmt.Errorf("invalid config: %s", strings.Join(problems, "; "))
+func parseEnvironment(cfg *Config) error {
+	return env.ParseWithOptions(cfg, env.Options{
+		Prefix:                       "WOODGATE_",
+		SetDefaultsForZeroValuesOnly: true,
+	})
 }
 
-func validateHTTPAndLogging(cfg Config) []string {
-	problems := make([]string, 0)
-
-	if cfg.HTTP.Port < 1 || cfg.HTTP.Port > 65535 {
-		problems = append(problems, "WOODGATE_PORT must be between 1 and 65535")
+// Normalize canonicalizes the resolved configuration without validating it.
+func (cfg *Config) Normalize() {
+	cfg.Listen = strings.TrimSpace(cfg.Listen)
+	cfg.ServerURL = normalizeOrigin(cfg.ServerURL)
+	cfg.OIDCRedirectURL = strings.TrimSpace(cfg.OIDCRedirectURL)
+	if cfg.OIDCRedirectURL == "" && cfg.ServerURL != "" {
+		cfg.OIDCRedirectURL = cfg.ServerURL + oidcCallbackPath
 	}
-	if cfg.HTTP.BaseURL != "" && !isValidBaseURL(cfg.HTTP.BaseURL) {
-		problems = append(problems, "WOODGATE_BASE_URL must be a valid http or https URL")
-	}
-	if !slices.Contains([]string{"debug", "info", "warn", "error"}, cfg.Logging.Level) {
-		problems = append(problems, "LOG_LEVEL must be one of: debug, info, warn, error")
-	}
-
-	return problems
+	cfg.LogLevel = strings.ToLower(strings.TrimSpace(cfg.LogLevel))
+	cfg.OIDCIssuerURL = strings.TrimSpace(cfg.OIDCIssuerURL)
+	cfg.OIDCClientID = strings.TrimSpace(cfg.OIDCClientID)
+	cfg.OIDCScopes = normalizeStrings(cfg.OIDCScopes)
+	cfg.OIDCEmailClaim = strings.TrimSpace(cfg.OIDCEmailClaim)
+	cfg.EntraTenantID = strings.TrimSpace(cfg.EntraTenantID)
+	cfg.EntraClientID = strings.TrimSpace(cfg.EntraClientID)
+	cfg.normalizeStorage()
+	cfg.normalizeCORSAllowedOrigins()
+	cfg.normalizeClientIP()
 }
 
-func validateDatabase(cfg DatabaseConfig) []string {
-	problems := make([]string, 0)
-	missingDatabaseEnvVars := missingEnvVars(
-		envVarValue("DATABASE_HOST", cfg.Host),
-		envVarValue("DATABASE_USER", cfg.User),
-		envVarValue("DATABASE_PASSWORD", cfg.Password),
-		envVarValue("DATABASE_NAME", cfg.Name),
-		envVarValue("DATABASE_SSLMODE", cfg.SSLMode),
-	)
-
-	if len(missingDatabaseEnvVars) > 0 {
-		problems = append(problems, "missing required env vars: "+strings.Join(missingDatabaseEnvVars, ", "))
-	}
-	if cfg.Port <= 0 {
-		problems = append(problems, "DATABASE_PORT must be greater than 0")
-	}
-
-	return problems
-}
-
-func validateAuth(cfg Config) []string {
-	problems := make([]string, 0)
-	hasLocalAdmin := cfg.Auth.LocalAdminPass != ""
-	hasEntraAuth := hasCompleteEntraCredentials(cfg.Auth)
-
-	if !hasLocalAdmin && !hasEntraAuth {
-		problems = append(
-			problems,
-			"set one auth provider: LOCAL_ADMIN_PASSWORD or ENTRA_TENANT_ID, ENTRA_CLIENT_ID, ENTRA_CLIENT_SECRET",
+// Validate checks the resolved configuration independently of its input sources.
+func (cfg *Config) Validate() error {
+	if !validOIDCRedirectURL(cfg.OIDCRedirectURL) {
+		return fmt.Errorf(
+			"%w: must be an HTTP or HTTPS URL ending in %s",
+			ErrInvalidOIDCRedirectURL,
+			oidcCallbackPath,
 		)
 	}
-	if hasAnyEntraCredential(cfg.Auth) {
-		missingEntraAuthEnvVars := missingEntraEnvVars(cfg.Auth)
-		if len(missingEntraAuthEnvVars) > 0 {
-			problems = append(
-				problems,
-				"missing required env vars for Entra auth: "+strings.Join(missingEntraAuthEnvVars, ", "),
-			)
-		}
+	if err := validation.Struct(cfg); err != nil {
+		return err
 	}
-	if hasLocalAdmin || hasEntraAuth {
-		if cfg.Auth.JWTSecret == "" {
-			problems = append(problems, "missing required env vars: JWT_SECRET")
-		}
-		if cfg.HTTP.BaseURL == "" {
-			problems = append(problems, "missing required env vars: WOODGATE_BASE_URL")
-		}
+	if cfg.StorageKind == "s3" && cfg.StorageS3Endpoint != "" &&
+		!validation.IsHTTPSOrigin(cfg.StorageS3Endpoint) {
+		return errors.New("StorageS3Endpoint must resolve to an HTTPS origin")
 	}
-
-	return problems
-}
-
-func validateEntra(cfg Config) []string {
-	if !cfg.Entra.Enabled {
-		return nil
-	}
-
-	problems := make([]string, 0)
-	missingEntraSyncEnvVars := missingEntraEnvVars(cfg.Auth)
-	if len(missingEntraSyncEnvVars) > 0 {
-		problems = append(
-			problems,
-			"missing required env vars for ENTRA_SYNC_ENABLED=true: "+strings.Join(missingEntraSyncEnvVars, ", "),
-		)
-	}
-	if cfg.Entra.Interval <= 0 {
-		problems = append(problems, "ENTRA_SYNC_INTERVAL must be greater than 0")
-	}
-
-	return problems
-}
-
-func validateMedia(cfg MediaConfig) []string {
-	if strings.TrimSpace(cfg.RootDir) == "" {
-		return []string{"WOODGATE_MEDIA_ROOT must not be empty"}
-	}
-
 	return nil
 }
 
-type envVar struct {
-	name  string
-	value string
-}
-
-func envVarValue(name string, value string) envVar {
-	return envVar{name: name, value: strings.TrimSpace(value)}
-}
-
-func missingEnvVars(vars ...envVar) []string {
-	missing := make([]string, 0)
-	for _, variable := range vars {
-		if variable.value == "" {
-			missing = append(missing, variable.name)
-		}
-	}
-
-	return missing
-}
-
-func hasAnyEntraCredential(cfg AuthConfig) bool {
-	return strings.TrimSpace(cfg.EntraTenantID) != "" ||
-		strings.TrimSpace(cfg.EntraClientID) != "" ||
-		strings.TrimSpace(cfg.EntraClientSecret) != ""
-}
-
-func hasCompleteEntraCredentials(cfg AuthConfig) bool {
-	return strings.TrimSpace(cfg.EntraTenantID) != "" &&
-		strings.TrimSpace(cfg.EntraClientID) != "" &&
-		strings.TrimSpace(cfg.EntraClientSecret) != ""
-}
-
-func missingEntraEnvVars(cfg AuthConfig) []string {
-	return missingEnvVars(
-		envVarValue("ENTRA_TENANT_ID", cfg.EntraTenantID),
-		envVarValue("ENTRA_CLIENT_ID", cfg.EntraClientID),
-		envVarValue("ENTRA_CLIENT_SECRET", cfg.EntraClientSecret),
-	)
-}
-
-func isValidBaseURL(raw string) bool {
-	parsed, err := url.Parse(strings.TrimSpace(raw))
-	if err != nil {
+func validOIDCRedirectURL(value string) bool {
+	parsed, err := url.Parse(value)
+	if err != nil || parsed.Host == "" || parsed.User != nil || parsed.RawQuery != "" ||
+		parsed.ForceQuery || parsed.Fragment != "" || parsed.Path != oidcCallbackPath {
 		return false
 	}
+	return parsed.Scheme == "http" || parsed.Scheme == "https"
+}
 
-	return (parsed.Scheme == "http" || parsed.Scheme == "https") && parsed.Host != ""
+func (cfg *Config) normalizeCORSAllowedOrigins() {
+	if len(cfg.CORSAllowedOrigins) == 0 {
+		return
+	}
+	normalized := make([]string, 0, len(cfg.CORSAllowedOrigins))
+	seen := make(map[string]struct{}, len(cfg.CORSAllowedOrigins))
+	for _, raw := range cfg.CORSAllowedOrigins {
+		origin := normalizeOrigin(raw)
+		if origin == "" {
+			continue
+		}
+		if _, ok := seen[origin]; ok {
+			continue
+		}
+		seen[origin] = struct{}{}
+		normalized = append(normalized, origin)
+	}
+	cfg.CORSAllowedOrigins = normalized
+}
+
+func (cfg *Config) normalizeClientIP() {
+	cfg.ClientIPSource = ClientIPSource(strings.TrimSpace(string(cfg.ClientIPSource)))
+	cfg.ClientIPHeader = strings.TrimSpace(cfg.ClientIPHeader)
+	for i := range cfg.ClientIPTrustedCIDRs {
+		cfg.ClientIPTrustedCIDRs[i] = strings.TrimSpace(cfg.ClientIPTrustedCIDRs[i])
+	}
+}
+
+func (cfg *Config) normalizeStorage() {
+	cfg.StorageKind = strings.ToLower(strings.TrimSpace(cfg.StorageKind))
+	cfg.StorageFileRoot = strings.TrimSpace(cfg.StorageFileRoot)
+	cfg.StorageS3Bucket = strings.TrimSpace(cfg.StorageS3Bucket)
+	cfg.StorageS3Region = strings.TrimSpace(cfg.StorageS3Region)
+	cfg.StorageS3Endpoint = normalizeOrigin(cfg.StorageS3Endpoint)
+	cfg.StorageS3AccessKey = strings.TrimSpace(cfg.StorageS3AccessKey)
+}
+
+func normalizeOrigin(value string) string {
+	value = strings.TrimSpace(value)
+	parsed, err := url.Parse(value)
+	if err != nil {
+		return value
+	}
+	if parsed.Path == "/" {
+		parsed.Path = ""
+	}
+	return parsed.String()
+}
+
+func normalizeStrings(values []string) []string {
+	for i := range values {
+		values[i] = strings.TrimSpace(values[i])
+	}
+	return values
 }

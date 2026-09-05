@@ -15,21 +15,39 @@ final class AppSettings {
         }
     }
 
-    var apiKey: String {
+    var stationSecret: String {
         didSet {
-            KeychainHelper.shared.save(apiKey, key: Key.apiKey)
+            KeychainHelper.shared.save(stationSecret, key: Key.stationSecret)
         }
     }
 
-    var locationID: UUID? {
+    var stationID: Int64? {
         didSet {
-            defaults.set(locationID?.uuidString.lowercased(), forKey: Key.locationID)
+            defaults.set(stationID, forKey: Key.stationID)
+        }
+    }
+
+    var stationName: String {
+        didSet {
+            defaults.set(stationName, forKey: Key.stationName)
+        }
+    }
+
+    var locationID: Int64? {
+        didSet {
+            defaults.set(locationID, forKey: Key.locationID)
         }
     }
 
     var locationName: String {
         didSet {
             defaults.set(locationName, forKey: Key.locationName)
+        }
+    }
+
+    var locationEnabled: Bool {
+        didSet {
+            defaults.set(locationEnabled, forKey: Key.locationEnabled)
         }
     }
 
@@ -45,15 +63,15 @@ final class AppSettings {
         }
     }
 
-    var backgroundAssetID: UUID? {
+    var backgroundObjectID: Int64? {
         didSet {
-            defaults.set(backgroundAssetID?.uuidString.lowercased(), forKey: Key.backgroundAssetID)
+            defaults.set(backgroundObjectID, forKey: Key.backgroundObjectID)
         }
     }
 
-    var logoAssetID: UUID? {
+    var logoObjectID: Int64? {
         didSet {
-            defaults.set(logoAssetID?.uuidString.lowercased(), forKey: Key.logoAssetID)
+            defaults.set(logoObjectID, forKey: Key.logoObjectID)
         }
     }
 
@@ -64,7 +82,7 @@ final class AppSettings {
     }
 
     var hasPairing: Bool {
-        locationID != nil && baseURLString.isEmpty == false && apiKey.isEmpty == false
+        baseURLString.isEmpty == false && stationSecret.isEmpty == false
     }
 
     // MARK: - Private
@@ -73,13 +91,16 @@ final class AppSettings {
 
     private enum Key {
         static let baseURLString = "baseURLString"
-        static let apiKey = "apiKey"
+        static let stationSecret = "stationSecret"
+        static let stationID = "stationID"
+        static let stationName = "stationName"
         static let locationID = "locationID"
         static let locationName = "locationName"
+        static let locationEnabled = "locationEnabled"
         static let notes = "notes"
         static let photo = "photo"
-        static let backgroundAssetID = "backgroundAssetID"
-        static let logoAssetID = "logoAssetID"
+        static let backgroundObjectID = "backgroundObjectID"
+        static let logoObjectID = "logoObjectID"
         static let lastSyncedAt = "lastSyncedAt"
     }
 
@@ -87,40 +108,45 @@ final class AppSettings {
 
     private init() {
         baseURLString = defaults.string(forKey: Key.baseURLString) ?? ""
-        apiKey = KeychainHelper.shared.read(key: Key.apiKey) ?? ""
-        locationID = Self.uuid(forKey: Key.locationID, defaults: defaults)
+        stationSecret = KeychainHelper.shared.read(key: Key.stationSecret) ?? ""
+        stationID = Self.int64(forKey: Key.stationID, defaults: defaults)
+        stationName = defaults.string(forKey: Key.stationName) ?? ""
+        locationID = Self.int64(forKey: Key.locationID, defaults: defaults)
         locationName = defaults.string(forKey: Key.locationName) ?? ""
+        locationEnabled = defaults.bool(forKey: Key.locationEnabled)
         notes = defaults.bool(forKey: Key.notes)
         photo = defaults.bool(forKey: Key.photo)
-        backgroundAssetID = Self.uuid(forKey: Key.backgroundAssetID, defaults: defaults)
-        logoAssetID = Self.uuid(forKey: Key.logoAssetID, defaults: defaults)
+        backgroundObjectID = Self.int64(forKey: Key.backgroundObjectID, defaults: defaults)
+        logoObjectID = Self.int64(forKey: Key.logoObjectID, defaults: defaults)
         lastSyncedAt = defaults.object(forKey: Key.lastSyncedAt) as? Date
     }
 
     // MARK: - Public Methods
 
-    func clear(removeAPIKey: Bool = true) {
+    func clear(removeStationSecret: Bool = true) {
         baseURLString = ""
+        stationID = nil
+        stationName = ""
         locationID = nil
         locationName = ""
+        locationEnabled = false
         notes = false
         photo = false
-        backgroundAssetID = nil
-        logoAssetID = nil
+        backgroundObjectID = nil
+        logoObjectID = nil
         lastSyncedAt = nil
-        if removeAPIKey {
-            apiKey = ""
+        if removeStationSecret {
+            stationSecret = ""
         }
     }
 
     // MARK: - Helpers
 
-    private static func uuid(forKey key: String, defaults: UserDefaults) -> UUID? {
-        guard let rawValue = defaults.string(forKey: key) else {
+    private static func int64(forKey key: String, defaults: UserDefaults) -> Int64? {
+        guard let number = defaults.object(forKey: key) as? NSNumber else {
             return nil
         }
-
-        return UUID(uuidString: rawValue)
+        return number.int64Value
     }
 }
 
@@ -128,22 +154,38 @@ final class AppSettings {
 
 extension AppSettings {
     func woodGateClient(session: URLSession = .shared) -> WoodGateAPIClient? {
-        guard let baseURL = URL(string: baseURLString), apiKey.isEmpty == false else {
+        guard let baseURL = validServerURL(baseURLString), stationSecret.isEmpty == false else {
             return nil
         }
 
-        return WoodGateAPIClient(baseURL: baseURL, apiKey: apiKey, session: session)
+        return WoodGateAPIClient(baseURL: baseURL, stationSecret: stationSecret, session: session)
     }
 
     func woodGateClient(
         baseURLString: String,
-        apiKey: String,
+        stationSecret: String,
         session: URLSession = .shared
     ) -> WoodGateAPIClient? {
-        guard let baseURL = URL(string: baseURLString), apiKey.isEmpty == false else {
+        guard let baseURL = validServerURL(baseURLString), stationSecret.isEmpty == false else {
             return nil
         }
 
-        return WoodGateAPIClient(baseURL: baseURL, apiKey: apiKey, session: session)
+        return WoodGateAPIClient(baseURL: baseURL, stationSecret: stationSecret, session: session)
     }
+}
+
+private func validServerURL(_ value: String) -> URL? {
+    guard
+        let url = URL(string: value.trimmingCharacters(in: .whitespacesAndNewlines)),
+        let scheme = url.scheme?.lowercased(),
+        scheme == "http" || scheme == "https",
+        url.host != nil,
+        url.user == nil,
+        url.password == nil,
+        url.query == nil,
+        url.fragment == nil
+    else {
+        return nil
+    }
+    return url
 }

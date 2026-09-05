@@ -11,11 +11,11 @@ describe("WoodGate development mock", () => {
     expect(response.status).toBe(200);
     await expect(response.json()).resolves.toEqual({
       service: "WoodGate development mock",
-      station_secret: "testing123",
+      station_key: "testing123",
     });
   });
 
-  it("requires the Station secret", async () => {
+  it("requires the Station key", async () => {
     const response = await exports.default.fetch(`${origin}/api/station/v1/configuration`);
 
     expect(response.status).toBe(401);

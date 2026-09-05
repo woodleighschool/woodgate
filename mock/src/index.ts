@@ -1,4 +1,4 @@
-const stationSecret = "testing123";
+const stationKey = "testing123";
 const stationSubprotocol = "woodgate-station.v1";
 
 const configuration = {
@@ -28,7 +28,7 @@ export default {
     if (request.method === "GET" && url.pathname === "/") {
       return Response.json({
         service: "WoodGate development mock",
-        station_secret: stationSecret,
+        station_key: stationKey,
       });
     }
 
@@ -36,8 +36,8 @@ export default {
       return problem(404, "Not found.", "not_found");
     }
 
-    if (request.headers.get("Authorization") !== `Bearer ${stationSecret}`) {
-      return problem(401, "The Station secret is invalid.", "unauthorized");
+    if (request.headers.get("Authorization") !== `Bearer ${stationKey}`) {
+      return problem(401, "The Station key is invalid.", "unauthorized");
     }
 
     if (request.method === "GET" && url.pathname === "/api/station/v1/configuration") {

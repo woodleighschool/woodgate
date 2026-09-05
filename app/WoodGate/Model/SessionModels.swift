@@ -1,11 +1,6 @@
 import Foundation
 import UIKit
 
-enum SessionMode: String {
-    case paired
-    case demo
-}
-
 enum CheckinDirectionChoice: String, CaseIterable, Identifiable, Codable {
     case checkIn = "check_in"
     case checkOut = "check_out"
@@ -15,58 +10,66 @@ enum CheckinDirectionChoice: String, CaseIterable, Identifiable, Codable {
     }
 }
 
-struct PairingPayload: Codable, Hashable {
+struct PairingPayload: Hashable {
     let baseURL: String
-    let apiKey: String
+    let stationKey: String
 
-    enum CodingKeys: String, CodingKey {
-        case baseURL = "base_url"
-        case apiKey = "api_key"
+    static func parse(urlString: String) throws -> PairingPayload {
+        guard let url = URL(string: urlString) else {
+            throw WoodGateError(message: "Scan a valid WoodGate configuration QR code.")
+        }
+        return try parse(url: url)
     }
 
-    static func parse(json: String) throws -> PairingPayload {
-        try JSONDecoder().decode(PairingPayload.self, from: Data(json.utf8))
+    static func parse(url: URL) throws -> PairingPayload {
+        guard
+            url.scheme?.lowercased() == "woodgate",
+            url.host?.lowercased() == "pair",
+            let components = URLComponents(url: url, resolvingAgainstBaseURL: false),
+            let server = queryValue(named: "server", in: components),
+            let key = queryValue(named: "key", in: components)
+        else {
+            throw WoodGateError(message: "Scan a valid WoodGate configuration QR code.")
+        }
+        return PairingPayload(baseURL: server, stationKey: key)
     }
-}
 
-struct SessionLocation: Identifiable, Hashable {
-    let id: UUID
-    let name: String
+    private static func queryValue(named name: String, in components: URLComponents) -> String? {
+        let values = components.queryItems?
+            .filter { $0.name == name }
+            .compactMap(\.value) ?? []
+        guard values.count == 1 else { return nil }
+
+        let value = values[0].trimmingCharacters(in: .whitespacesAndNewlines)
+        return value.isEmpty ? nil : value
+    }
 }
 
 struct ActiveLocation: Identifiable, Hashable {
-    let id: UUID
+    let id: Int64
     let name: String
+    let enabled: Bool
     let notes: Bool
     let photo: Bool
-    let backgroundAssetID: UUID?
-    let logoAssetID: UUID?
+    let backgroundObjectID: Int64?
+    let logoObjectID: Int64?
 }
 
 struct PersonSummary: Identifiable, Hashable {
-    let id: UUID
+    let id: Int64
     let displayName: String
     let email: String
 }
 
 struct ActiveSession {
-    let mode: SessionMode
     let baseURLString: String
-    var location: ActiveLocation
-    var people: [PersonSummary]
-    var backgroundImage: UIImage?
-    var logoImage: UIImage?
+    let stationID: Int64
+    let stationName: String
+    let location: ActiveLocation
+    let people: [PersonSummary]
+    let backgroundImage: UIImage?
+    let logoImage: UIImage?
     var lastSyncedAt: Date
-
-    var isDemo: Bool {
-        mode == .demo
-    }
-}
-
-struct LocationSelectionState: Identifiable {
-    let id = UUID()
-    let options: [SessionLocation]
-    let payload: PairingPayload
 }
 
 struct WoodGateError: LocalizedError {
