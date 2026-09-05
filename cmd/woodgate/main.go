@@ -21,6 +21,7 @@ import (
 	"github.com/woodleighschool/goodies/auth/authz"
 	"github.com/woodleighschool/goodies/bloby"
 	blobydb "github.com/woodleighschool/goodies/bloby/pgxstore"
+	"github.com/woodleighschool/goodies/pglock"
 
 	"github.com/woodleighschool/woodgate/internal/account"
 	"github.com/woodleighschool/woodgate/internal/api"
@@ -192,7 +193,7 @@ func newBackgroundJobs(cfg config.Config, pool *pgxpool.Pool, store *directory.S
 	if service == nil {
 		return nil, entra.NewSyncJobs(false, nil), nil
 	}
-	if err := river.AddWorkerSafely(workers, entra.NewSyncWorker(service, postgres.NewSessionLocker(pool, entra.SyncAdvisoryLockID))); err != nil {
+	if err := river.AddWorkerSafely(workers, entra.NewSyncWorker(service, pglock.New(pool, entra.SyncAdvisoryLockID))); err != nil {
 		return nil, nil, fmt.Errorf("register Entra sync worker: %w", err)
 	}
 	periodic = append(periodic, periodicJob(entra.SyncJobKind, cfg.EntraSyncInterval, func() river.JobArgs { return entra.SyncJobArgs{Trigger: backgroundjobs.TriggerScheduled} }))
