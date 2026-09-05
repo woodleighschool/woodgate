@@ -21,7 +21,7 @@ const (
 	ResourceDirectory authz.Resource = "directory"
 	ResourceLocations authz.Resource = "locations"
 	ResourceCheckins  authz.Resource = "checkins"
-	ResourceAppKeys   authz.Resource = "app_keys"
+	ResourceStations  authz.Resource = "stations"
 	ResourceRoles     authz.Resource = "authz.roles"
 )
 
@@ -31,7 +31,7 @@ var definitions = [...]Definition{
 	{Resource: ResourceDirectory, DisplayName: "Directory sync"},
 	{Resource: ResourceLocations, DisplayName: "Locations"},
 	{Resource: ResourceCheckins, DisplayName: "Check-ins"},
-	{Resource: ResourceAppKeys, DisplayName: "App keys"},
+	{Resource: ResourceStations, DisplayName: "Stations"},
 	{Resource: ResourceRoles, DisplayName: "Roles"},
 }
 

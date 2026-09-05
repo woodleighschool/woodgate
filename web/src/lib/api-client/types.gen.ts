@@ -18,50 +18,11 @@ export type AccountMutation = {
     password?: string;
 };
 
-export type AppKeyCreatedKey = {
-    all_locations: boolean;
-    api_key: string;
-    app_id: string;
-    created_at: string;
-    expires_at?: string;
-    id: number;
-    key_prefix: string;
-    last_used_at?: string;
-    locations: Array<AppKeyLocationSummary>;
-    name: string;
-    updated_at: string;
-};
-
-export type AppKeyKey = {
-    all_locations: boolean;
-    app_id: string;
-    created_at: string;
-    expires_at?: string;
-    id: number;
-    key_prefix: string;
-    last_used_at?: string;
-    locations: Array<AppKeyLocationSummary>;
-    name: string;
-    updated_at: string;
-};
-
-export type AppKeyLocationSummary = {
-    id: number;
-    name: string;
-};
-
-export type AppKeyMutation = {
-    all_locations: boolean;
-    expires_at?: string;
-    location_ids: Array<number>;
-    name: string;
-};
-
 export type AttachmentUploadInputBody = {
     filename: string;
 };
 
-export type AuthzResource = 'users' | 'groups' | 'directory' | 'locations' | 'checkins' | 'app_keys' | 'authz.roles';
+export type AuthzResource = 'users' | 'groups' | 'directory' | 'locations' | 'checkins' | 'stations' | 'authz.roles';
 
 export type Checkin = {
     actor_app_id: string;
@@ -77,6 +38,7 @@ export type Checkin = {
     photo_file?: CheckinAttachmentFile;
     photo_object_id?: number;
     photo_url?: string;
+    station?: CheckinStationSummary;
 };
 
 export type CheckinAttachmentFile = {
@@ -161,6 +123,11 @@ export type CheckinLocationSummary = {
 export type CheckinPersonSummary = {
     department?: string;
     email: string;
+    id: number;
+    name: string;
+};
+
+export type CheckinStationSummary = {
     id: number;
     name: string;
 };
@@ -255,19 +222,14 @@ export type PageGroupSummary = {
     items: Array<GroupSummary>;
 };
 
-export type PageKey = {
-    count: number;
-    items: Array<AppKeyKey>;
-};
-
 export type PageLocation = {
     count: number;
     items: Array<CheckinLocation>;
 };
 
-export type PageLocationSummary = {
+export type PageStation = {
     count: number;
-    items: Array<AppKeyLocationSummary>;
+    items: Array<Station>;
 };
 
 export type PageUser = {
@@ -325,6 +287,41 @@ export type SessionBody = {
 export type SessionCreateInputBody = {
     email: string;
     password: string;
+};
+
+export type Station = {
+    created_at: string;
+    enabled: boolean;
+    id: number;
+    location: StationLocation;
+    name: string;
+    protocol_version?: number;
+    state: 'online' | 'offline' | 'incompatible';
+    updated_at: string;
+    version?: string;
+};
+
+export type StationLocation = {
+    id: number;
+    name: string;
+};
+
+export type StationLocationPage = {
+    count: number;
+    items: Array<StationLocation>;
+};
+
+export type StationMutation = {
+    enabled: boolean;
+    location_id: number;
+    name: string;
+};
+
+export type StationPairing = {
+    key: string;
+    server_url: string;
+    station: Station;
+    url: string;
 };
 
 export type SyncRun = {
@@ -539,196 +536,6 @@ export type RotateAccountApiKeyResponses = {
 };
 
 export type RotateAccountApiKeyResponse = RotateAccountApiKeyResponses[keyof RotateAccountApiKeyResponses];
-
-export type ListAppKeysData = {
-    body?: never;
-    path?: never;
-    query?: {
-        q?: string;
-        page?: number;
-        per_page?: number;
-        sort?: string;
-    };
-    url: '/api/app-keys';
-};
-
-export type ListAppKeysErrors = {
-    /**
-     * Unauthorized
-     */
-    401: ErrorModel;
-    /**
-     * Forbidden
-     */
-    403: ErrorModel;
-};
-
-export type ListAppKeysError = ListAppKeysErrors[keyof ListAppKeysErrors];
-
-export type ListAppKeysResponses = {
-    /**
-     * OK
-     */
-    200: PageKey;
-};
-
-export type ListAppKeysResponse = ListAppKeysResponses[keyof ListAppKeysResponses];
-
-export type CreateAppKeyData = {
-    body: AppKeyMutation;
-    path?: never;
-    query?: never;
-    url: '/api/app-keys';
-};
-
-export type CreateAppKeyErrors = {
-    /**
-     * Unauthorized
-     */
-    401: ErrorModel;
-    /**
-     * Forbidden
-     */
-    403: ErrorModel;
-};
-
-export type CreateAppKeyError = CreateAppKeyErrors[keyof CreateAppKeyErrors];
-
-export type CreateAppKeyResponses = {
-    /**
-     * Created
-     */
-    201: AppKeyCreatedKey;
-};
-
-export type CreateAppKeyResponse = CreateAppKeyResponses[keyof CreateAppKeyResponses];
-
-export type ListAppKeyLocationsData = {
-    body?: never;
-    path?: never;
-    query?: {
-        q?: string;
-        page?: number;
-        per_page?: number;
-        sort?: string;
-    };
-    url: '/api/app-keys/locations';
-};
-
-export type ListAppKeyLocationsErrors = {
-    /**
-     * Unauthorized
-     */
-    401: ErrorModel;
-    /**
-     * Forbidden
-     */
-    403: ErrorModel;
-};
-
-export type ListAppKeyLocationsError = ListAppKeyLocationsErrors[keyof ListAppKeyLocationsErrors];
-
-export type ListAppKeyLocationsResponses = {
-    /**
-     * OK
-     */
-    200: PageLocationSummary;
-};
-
-export type ListAppKeyLocationsResponse = ListAppKeyLocationsResponses[keyof ListAppKeyLocationsResponses];
-
-export type DeleteAppKeyData = {
-    body?: never;
-    path: {
-        id: number;
-    };
-    query?: never;
-    url: '/api/app-keys/{id}';
-};
-
-export type DeleteAppKeyErrors = {
-    /**
-     * Unauthorized
-     */
-    401: ErrorModel;
-    /**
-     * Forbidden
-     */
-    403: ErrorModel;
-};
-
-export type DeleteAppKeyError = DeleteAppKeyErrors[keyof DeleteAppKeyErrors];
-
-export type DeleteAppKeyResponses = {
-    /**
-     * No Content
-     */
-    204: void;
-};
-
-export type DeleteAppKeyResponse = DeleteAppKeyResponses[keyof DeleteAppKeyResponses];
-
-export type GetAppKeyData = {
-    body?: never;
-    path: {
-        id: number;
-    };
-    query?: never;
-    url: '/api/app-keys/{id}';
-};
-
-export type GetAppKeyErrors = {
-    /**
-     * Unauthorized
-     */
-    401: ErrorModel;
-    /**
-     * Forbidden
-     */
-    403: ErrorModel;
-};
-
-export type GetAppKeyError = GetAppKeyErrors[keyof GetAppKeyErrors];
-
-export type GetAppKeyResponses = {
-    /**
-     * OK
-     */
-    200: AppKeyKey;
-};
-
-export type GetAppKeyResponse = GetAppKeyResponses[keyof GetAppKeyResponses];
-
-export type UpdateAppKeyData = {
-    body: AppKeyMutation;
-    path: {
-        id: number;
-    };
-    query?: never;
-    url: '/api/app-keys/{id}';
-};
-
-export type UpdateAppKeyErrors = {
-    /**
-     * Unauthorized
-     */
-    401: ErrorModel;
-    /**
-     * Forbidden
-     */
-    403: ErrorModel;
-};
-
-export type UpdateAppKeyError = UpdateAppKeyErrors[keyof UpdateAppKeyErrors];
-
-export type UpdateAppKeyResponses = {
-    /**
-     * OK
-     */
-    200: AppKeyKey;
-};
-
-export type UpdateAppKeyResponse = UpdateAppKeyResponses[keyof UpdateAppKeyResponses];
 
 export type ListAuthorizationResourcesData = {
     body?: never;
@@ -1827,6 +1634,229 @@ export type CreateSessionResponses = {
 };
 
 export type CreateSessionResponse = CreateSessionResponses[keyof CreateSessionResponses];
+
+export type ListStationsData = {
+    body?: never;
+    path?: never;
+    query?: {
+        q?: string;
+        page?: number;
+        per_page?: number;
+        sort?: string;
+        location_id?: number;
+        enabled?: boolean;
+    };
+    url: '/api/stations';
+};
+
+export type ListStationsErrors = {
+    /**
+     * Unauthorized
+     */
+    401: ErrorModel;
+    /**
+     * Forbidden
+     */
+    403: ErrorModel;
+};
+
+export type ListStationsError = ListStationsErrors[keyof ListStationsErrors];
+
+export type ListStationsResponses = {
+    /**
+     * OK
+     */
+    200: PageStation;
+};
+
+export type ListStationsResponse = ListStationsResponses[keyof ListStationsResponses];
+
+export type CreateStationData = {
+    body: StationMutation;
+    path?: never;
+    query?: never;
+    url: '/api/stations';
+};
+
+export type CreateStationErrors = {
+    /**
+     * Unauthorized
+     */
+    401: ErrorModel;
+    /**
+     * Forbidden
+     */
+    403: ErrorModel;
+};
+
+export type CreateStationError = CreateStationErrors[keyof CreateStationErrors];
+
+export type CreateStationResponses = {
+    /**
+     * Created
+     */
+    201: StationPairing;
+};
+
+export type CreateStationResponse = CreateStationResponses[keyof CreateStationResponses];
+
+export type ListStationLocationsData = {
+    body?: never;
+    path?: never;
+    query?: {
+        q?: string;
+        page?: number;
+        per_page?: number;
+        sort?: string;
+    };
+    url: '/api/stations/locations';
+};
+
+export type ListStationLocationsErrors = {
+    /**
+     * Unauthorized
+     */
+    401: ErrorModel;
+    /**
+     * Forbidden
+     */
+    403: ErrorModel;
+};
+
+export type ListStationLocationsError = ListStationLocationsErrors[keyof ListStationLocationsErrors];
+
+export type ListStationLocationsResponses = {
+    /**
+     * OK
+     */
+    200: StationLocationPage;
+};
+
+export type ListStationLocationsResponse = ListStationLocationsResponses[keyof ListStationLocationsResponses];
+
+export type DeleteStationData = {
+    body?: never;
+    path: {
+        id: number;
+    };
+    query?: never;
+    url: '/api/stations/{id}';
+};
+
+export type DeleteStationErrors = {
+    /**
+     * Unauthorized
+     */
+    401: ErrorModel;
+    /**
+     * Forbidden
+     */
+    403: ErrorModel;
+};
+
+export type DeleteStationError = DeleteStationErrors[keyof DeleteStationErrors];
+
+export type DeleteStationResponses = {
+    /**
+     * No Content
+     */
+    204: void;
+};
+
+export type DeleteStationResponse = DeleteStationResponses[keyof DeleteStationResponses];
+
+export type GetStationData = {
+    body?: never;
+    path: {
+        id: number;
+    };
+    query?: never;
+    url: '/api/stations/{id}';
+};
+
+export type GetStationErrors = {
+    /**
+     * Unauthorized
+     */
+    401: ErrorModel;
+    /**
+     * Forbidden
+     */
+    403: ErrorModel;
+};
+
+export type GetStationError = GetStationErrors[keyof GetStationErrors];
+
+export type GetStationResponses = {
+    /**
+     * OK
+     */
+    200: Station;
+};
+
+export type GetStationResponse = GetStationResponses[keyof GetStationResponses];
+
+export type UpdateStationData = {
+    body: StationMutation;
+    path: {
+        id: number;
+    };
+    query?: never;
+    url: '/api/stations/{id}';
+};
+
+export type UpdateStationErrors = {
+    /**
+     * Unauthorized
+     */
+    401: ErrorModel;
+    /**
+     * Forbidden
+     */
+    403: ErrorModel;
+};
+
+export type UpdateStationError = UpdateStationErrors[keyof UpdateStationErrors];
+
+export type UpdateStationResponses = {
+    /**
+     * OK
+     */
+    200: Station;
+};
+
+export type UpdateStationResponse = UpdateStationResponses[keyof UpdateStationResponses];
+
+export type RotateStationKeyData = {
+    body?: never;
+    path: {
+        id: number;
+    };
+    query?: never;
+    url: '/api/stations/{id}/key';
+};
+
+export type RotateStationKeyErrors = {
+    /**
+     * Unauthorized
+     */
+    401: ErrorModel;
+    /**
+     * Forbidden
+     */
+    403: ErrorModel;
+};
+
+export type RotateStationKeyError = RotateStationKeyErrors[keyof RotateStationKeyErrors];
+
+export type RotateStationKeyResponses = {
+    /**
+     * OK
+     */
+    200: StationPairing;
+};
+
+export type RotateStationKeyResponse = RotateStationKeyResponses[keyof RotateStationKeyResponses];
 
 export type ListUsersData = {
     body?: never;

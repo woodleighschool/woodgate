@@ -12,7 +12,7 @@
     "typecheck": "tsc -b",
     "format": "oxfmt",
     "openapi:types": "openapi-ts -i ./openapi.yaml -o ./src/lib/api-client -c @hey-api/client-fetch --plugins @hey-api/typescript @hey-api/sdk",
-    "test": "node --test src/components/layout/navigation.test.ts src/features/app-keys/pairing.test.ts src/lib/session.test.ts"
+    "test": "node --test src/components/layout/navigation.test.ts src/lib/session.test.ts"
   },
   "dependencies": {
     "@base-ui/react": "^1.8.0",

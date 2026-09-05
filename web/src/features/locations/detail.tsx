@@ -89,7 +89,7 @@ export function LocationDetailPage() {
         open={confirmOpen}
         onOpenChange={setConfirmOpen}
         title="Delete Location?"
-        description="The location can only be deleted when no check-ins reference it."
+        description="The location can only be deleted when no Stations or check-ins reference it."
         confirmLabel="Delete"
         pending={remove.isPending}
         onConfirm={() => {
