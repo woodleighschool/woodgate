@@ -143,25 +143,25 @@ url = "https://github.com/peripheryapp/periphery/releases/download/3.8.0/periphe
 url_api = "https://api.github.com/repos/peripheryapp/periphery/releases/assets/489291944"
 
 [[tools.pnpm]]
-version = "11.24.0"
+version = "12.3.0"
 backend = "aqua:pnpm/pnpm"
 
 [tools.pnpm."platforms.linux-arm64"]
-checksum = "sha256:52f9cd410ef3bbb1cdd79c399b27772fa6d929bc3cf7c80ff3923a81e1c93be3"
-url = "https://github.com/pnpm/pnpm/releases/download/v11.24.0/pnpm-linux-arm64.tar.gz"
-url_api = "https://api.github.com/repos/pnpm/pnpm/releases/assets/527747053"
+checksum = "sha256:f53c71bda2738b9b1c88345c067aa1b6197e2aa9af19ff75d5a02c31b1a2caac"
+url = "https://github.com/pnpm/pnpm/releases/download/v12.3.0/pnpm-linux-arm64.tar.gz"
+url_api = "https://api.github.com/repos/pnpm/pnpm/releases/assets/541441872"
 provenance = "github-attestations"
 
 [tools.pnpm."platforms.linux-x64"]
-checksum = "sha256:0a9b76dedb5fe8cc5e7f3a9fd70854181cfb08a487ebaf0c9cfb044dc860936c"
-url = "https://github.com/pnpm/pnpm/releases/download/v11.24.0/pnpm-linux-x64.tar.gz"
-url_api = "https://api.github.com/repos/pnpm/pnpm/releases/assets/527747059"
+checksum = "sha256:64dc4ce87f81ea614a4e4fecd5e6f81d8ef91fae37434602e6a5aebf6dd22939"
+url = "https://github.com/pnpm/pnpm/releases/download/v12.3.0/pnpm-linux-x64.tar.gz"
+url_api = "https://api.github.com/repos/pnpm/pnpm/releases/assets/541441882"
 provenance = "github-attestations"
 
 [tools.pnpm."platforms.macos-arm64"]
-checksum = "sha256:c4df428b6c348b3037ba851359215065ce070d711dc96a9750052fdbfbe240d3"
-url = "https://github.com/pnpm/pnpm/releases/download/v11.24.0/pnpm-darwin-arm64.tar.gz"
-url_api = "https://api.github.com/repos/pnpm/pnpm/releases/assets/527747061"
+checksum = "sha256:ce768febe07b239b14dbf19f4c05889970638293b5d061d20d526245ebbfedfc"
+url = "https://github.com/pnpm/pnpm/releases/download/v12.3.0/pnpm-darwin-arm64.tar.gz"
+url_api = "https://api.github.com/repos/pnpm/pnpm/releases/assets/541441881"
 provenance = "github-attestations"
 
 [[tools.swiftformat]]
