@@ -3,7 +3,7 @@ import SwiftUI
 import Vision
 import VisionKit
 
-struct PairingScannerSheet: View {
+struct PairingSheet: View {
     // MARK: - Properties
 
     let onPayload: (PairingPayload) async throws -> Void
@@ -75,9 +75,9 @@ struct PairingScannerSheet: View {
     private func scan(_ text: String) {
         guard !isBusy else { return }
         do {
-            try pair(PairingPayload.parse(json: text))
+            try pair(PairingPayload.parse(urlString: text))
         } catch {
-            pairingError = "This QR code does not contain valid server and app key details."
+            pairingError = "This QR code does not contain valid server and Station key details."
         }
     }
 
@@ -106,7 +106,7 @@ private struct ScanPairingView: View {
                     .font(.title2.weight(.bold))
 
                 Text(
-                    "Scan the app key’s QR code, then choose a location."
+                    "Scan the Station’s QR code to set up this device."
                 )
                 .font(.callout)
                 .foregroundStyle(.secondary)
@@ -128,7 +128,7 @@ private struct ManualPairingView: View {
     // MARK: - Properties
 
     @State private var baseURL = ""
-    @State private var apiKey = ""
+    @State private var stationKey = ""
 
     let isBusy: Bool
     let onPayload: (PairingPayload) -> Void
@@ -136,7 +136,7 @@ private struct ManualPairingView: View {
     private var isPairingDisabled: Bool {
         isBusy
             || AppSettings.serverURL(baseURL) == nil
-            || apiKey.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty
+            || stationKey.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty
     }
 
     // MARK: - Body
@@ -150,7 +150,7 @@ private struct ManualPairingView: View {
                     .textInputAutocapitalization(.never)
                     .autocorrectionDisabled()
 
-                TextField("App Key", text: $apiKey)
+                TextField("Station Key", text: $stationKey)
                     .textContentType(nil)
                     .textInputAutocapitalization(.never)
                     .autocorrectionDisabled()
@@ -180,7 +180,7 @@ private struct ManualPairingView: View {
             return
         }
 
-        onPayload(PairingPayload(baseURL: baseURL, apiKey: apiKey))
+        onPayload(PairingPayload(baseURL: baseURL, stationKey: stationKey))
     }
 }
 
