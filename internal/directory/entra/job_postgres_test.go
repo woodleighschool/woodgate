@@ -11,11 +11,11 @@ import (
 	"time"
 
 	"github.com/riverqueue/river"
+	"github.com/woodleighschool/goodies/pglock"
 
 	"github.com/woodleighschool/woodgate/internal/backgroundjobs"
 	"github.com/woodleighschool/woodgate/internal/directory"
 	"github.com/woodleighschool/woodgate/internal/directory/entra"
-	"github.com/woodleighschool/woodgate/internal/postgres"
 	"github.com/woodleighschool/woodgate/internal/testutil/testdb"
 )
 
@@ -34,7 +34,7 @@ func TestTwoSchedulersRunOneDueEntraSync(t *testing.T) {
 			workers,
 			entra.NewSyncWorker(
 				service,
-				postgres.NewSessionLocker(pool, entra.SyncAdvisoryLockID),
+				pglock.New(pool, entra.SyncAdvisoryLockID),
 			),
 		)
 		periodic := river.NewPeriodicJob(
