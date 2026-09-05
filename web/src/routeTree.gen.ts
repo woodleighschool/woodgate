@@ -13,14 +13,11 @@ import { Route as IndexRouteImport } from './routes/index'
 import { Route as AuthenticatedRouteImport } from './routes/_authenticated'
 import { Route as LoginRouteImport } from './routes/login'
 import { Route as AuthenticatedAccountRouteImport } from './routes/_authenticated/account'
-import { Route as AuthenticatedAppKeysRouteImport } from './routes/_authenticated/app-keys'
 import { Route as AuthenticatedCheckinsRouteImport } from './routes/_authenticated/checkins'
 import { Route as AuthenticatedDirectoryRouteImport } from './routes/_authenticated/directory'
 import { Route as AuthenticatedLocationsRouteImport } from './routes/_authenticated/locations'
 import { Route as AuthenticatedRolesRouteImport } from './routes/_authenticated/roles'
-import { Route as AuthenticatedAppKeysIndexRouteImport } from './routes/_authenticated/app-keys.index'
-import { Route as AuthenticatedAppKeysIdRouteImport } from './routes/_authenticated/app-keys.$id'
-import { Route as AuthenticatedAppKeysNewRouteImport } from './routes/_authenticated/app-keys.new'
+import { Route as AuthenticatedStationsRouteImport } from './routes/_authenticated/stations'
 import { Route as AuthenticatedCheckinsIndexRouteImport } from './routes/_authenticated/checkins.index'
 import { Route as AuthenticatedCheckinsIdRouteImport } from './routes/_authenticated/checkins.$id'
 import { Route as AuthenticatedDirectoryIndexRouteImport } from './routes/_authenticated/directory.index'
@@ -32,8 +29,9 @@ import { Route as AuthenticatedLocationsNewRouteImport } from './routes/_authent
 import { Route as AuthenticatedRolesIndexRouteImport } from './routes/_authenticated/roles.index'
 import { Route as AuthenticatedRolesIdRouteImport } from './routes/_authenticated/roles.$id'
 import { Route as AuthenticatedRolesNewRouteImport } from './routes/_authenticated/roles.new'
-import { Route as AuthenticatedAppKeysIdIndexRouteImport } from './routes/_authenticated/app-keys.$id.index'
-import { Route as AuthenticatedAppKeysIdEditRouteImport } from './routes/_authenticated/app-keys.$id.edit'
+import { Route as AuthenticatedStationsIndexRouteImport } from './routes/_authenticated/stations.index'
+import { Route as AuthenticatedStationsIdRouteImport } from './routes/_authenticated/stations.$id'
+import { Route as AuthenticatedStationsNewRouteImport } from './routes/_authenticated/stations.new'
 import { Route as AuthenticatedDirectoryGroupsIndexRouteImport } from './routes/_authenticated/directory.groups.index'
 import { Route as AuthenticatedDirectoryGroupsIdRouteImport } from './routes/_authenticated/directory.groups.$id'
 import { Route as AuthenticatedDirectoryUsersIndexRouteImport } from './routes/_authenticated/directory.users.index'
@@ -43,6 +41,8 @@ import { Route as AuthenticatedLocationsIdIndexRouteImport } from './routes/_aut
 import { Route as AuthenticatedLocationsIdEditRouteImport } from './routes/_authenticated/locations.$id.edit'
 import { Route as AuthenticatedRolesIdIndexRouteImport } from './routes/_authenticated/roles.$id.index'
 import { Route as AuthenticatedRolesIdEditRouteImport } from './routes/_authenticated/roles.$id.edit'
+import { Route as AuthenticatedStationsIdIndexRouteImport } from './routes/_authenticated/stations.$id.index'
+import { Route as AuthenticatedStationsIdEditRouteImport } from './routes/_authenticated/stations.$id.edit'
 import { Route as AuthenticatedDirectoryGroupsIdIndexRouteImport } from './routes/_authenticated/directory.groups.$id.index'
 import { Route as AuthenticatedDirectoryGroupsIdEditRouteImport } from './routes/_authenticated/directory.groups.$id.edit'
 import { Route as AuthenticatedDirectoryUsersIdIndexRouteImport } from './routes/_authenticated/directory.users.$id.index'
@@ -67,11 +67,6 @@ const AuthenticatedAccountRoute = AuthenticatedAccountRouteImport.update({
   path: '/account',
   getParentRoute: () => AuthenticatedRoute,
 } as any)
-const AuthenticatedAppKeysRoute = AuthenticatedAppKeysRouteImport.update({
-  id: '/app-keys',
-  path: '/app-keys',
-  getParentRoute: () => AuthenticatedRoute,
-} as any)
 const AuthenticatedCheckinsRoute = AuthenticatedCheckinsRouteImport.update({
   id: '/checkins',
   path: '/checkins',
@@ -92,21 +87,10 @@ const AuthenticatedRolesRoute = AuthenticatedRolesRouteImport.update({
   path: '/roles',
   getParentRoute: () => AuthenticatedRoute,
 } as any)
-const AuthenticatedAppKeysIndexRoute =
-  AuthenticatedAppKeysIndexRouteImport.update({
-    id: '/',
-    path: '/',
-    getParentRoute: () => AuthenticatedAppKeysRoute,
-  } as any)
-const AuthenticatedAppKeysIdRoute = AuthenticatedAppKeysIdRouteImport.update({
-  id: '/$id',
-  path: '/$id',
-  getParentRoute: () => AuthenticatedAppKeysRoute,
-} as any)
-const AuthenticatedAppKeysNewRoute = AuthenticatedAppKeysNewRouteImport.update({
-  id: '/new',
-  path: '/new',
-  getParentRoute: () => AuthenticatedAppKeysRoute,
+const AuthenticatedStationsRoute = AuthenticatedStationsRouteImport.update({
+  id: '/stations',
+  path: '/stations',
+  getParentRoute: () => AuthenticatedRoute,
 } as any)
 const AuthenticatedCheckinsIndexRoute =
   AuthenticatedCheckinsIndexRouteImport.update({
@@ -170,17 +154,22 @@ const AuthenticatedRolesNewRoute = AuthenticatedRolesNewRouteImport.update({
   path: '/new',
   getParentRoute: () => AuthenticatedRolesRoute,
 } as any)
-const AuthenticatedAppKeysIdIndexRoute =
-  AuthenticatedAppKeysIdIndexRouteImport.update({
+const AuthenticatedStationsIndexRoute =
+  AuthenticatedStationsIndexRouteImport.update({
     id: '/',
     path: '/',
-    getParentRoute: () => AuthenticatedAppKeysIdRoute,
+    getParentRoute: () => AuthenticatedStationsRoute,
   } as any)
-const AuthenticatedAppKeysIdEditRoute =
-  AuthenticatedAppKeysIdEditRouteImport.update({
-    id: '/edit',
-    path: '/edit',
-    getParentRoute: () => AuthenticatedAppKeysIdRoute,
+const AuthenticatedStationsIdRoute = AuthenticatedStationsIdRouteImport.update({
+  id: '/$id',
+  path: '/$id',
+  getParentRoute: () => AuthenticatedStationsRoute,
+} as any)
+const AuthenticatedStationsNewRoute =
+  AuthenticatedStationsNewRouteImport.update({
+    id: '/new',
+    path: '/new',
+    getParentRoute: () => AuthenticatedStationsRoute,
   } as any)
 const AuthenticatedDirectoryGroupsIndexRoute =
   AuthenticatedDirectoryGroupsIndexRouteImport.update({
@@ -236,6 +225,18 @@ const AuthenticatedRolesIdEditRoute =
     path: '/edit',
     getParentRoute: () => AuthenticatedRolesIdRoute,
   } as any)
+const AuthenticatedStationsIdIndexRoute =
+  AuthenticatedStationsIdIndexRouteImport.update({
+    id: '/',
+    path: '/',
+    getParentRoute: () => AuthenticatedStationsIdRoute,
+  } as any)
+const AuthenticatedStationsIdEditRoute =
+  AuthenticatedStationsIdEditRouteImport.update({
+    id: '/edit',
+    path: '/edit',
+    getParentRoute: () => AuthenticatedStationsIdRoute,
+  } as any)
 const AuthenticatedDirectoryGroupsIdIndexRoute =
   AuthenticatedDirectoryGroupsIdIndexRouteImport.update({
     id: '/',
@@ -265,13 +266,11 @@ export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/login': typeof LoginRoute
   '/account': typeof AuthenticatedAccountRoute
-  '/app-keys': typeof AuthenticatedAppKeysRouteWithChildren
   '/checkins': typeof AuthenticatedCheckinsRouteWithChildren
   '/directory': typeof AuthenticatedDirectoryRouteWithChildren
   '/locations': typeof AuthenticatedLocationsRouteWithChildren
   '/roles': typeof AuthenticatedRolesRouteWithChildren
-  '/app-keys/$id': typeof AuthenticatedAppKeysIdRouteWithChildren
-  '/app-keys/new': typeof AuthenticatedAppKeysNewRoute
+  '/stations': typeof AuthenticatedStationsRouteWithChildren
   '/checkins/$id': typeof AuthenticatedCheckinsIdRoute
   '/directory/groups': typeof AuthenticatedDirectoryGroupsRouteWithChildren
   '/directory/users': typeof AuthenticatedDirectoryUsersRouteWithChildren
@@ -279,22 +278,24 @@ export interface FileRoutesByFullPath {
   '/locations/new': typeof AuthenticatedLocationsNewRoute
   '/roles/$id': typeof AuthenticatedRolesIdRouteWithChildren
   '/roles/new': typeof AuthenticatedRolesNewRoute
-  '/app-keys/': typeof AuthenticatedAppKeysIndexRoute
+  '/stations/$id': typeof AuthenticatedStationsIdRouteWithChildren
+  '/stations/new': typeof AuthenticatedStationsNewRoute
   '/checkins/': typeof AuthenticatedCheckinsIndexRoute
   '/directory/': typeof AuthenticatedDirectoryIndexRoute
   '/locations/': typeof AuthenticatedLocationsIndexRoute
   '/roles/': typeof AuthenticatedRolesIndexRoute
-  '/app-keys/$id/edit': typeof AuthenticatedAppKeysIdEditRoute
+  '/stations/': typeof AuthenticatedStationsIndexRoute
   '/directory/groups/$id': typeof AuthenticatedDirectoryGroupsIdRouteWithChildren
   '/directory/users/$id': typeof AuthenticatedDirectoryUsersIdRouteWithChildren
   '/directory/users/new': typeof AuthenticatedDirectoryUsersNewRoute
   '/locations/$id/edit': typeof AuthenticatedLocationsIdEditRoute
   '/roles/$id/edit': typeof AuthenticatedRolesIdEditRoute
-  '/app-keys/$id/': typeof AuthenticatedAppKeysIdIndexRoute
+  '/stations/$id/edit': typeof AuthenticatedStationsIdEditRoute
   '/directory/groups/': typeof AuthenticatedDirectoryGroupsIndexRoute
   '/directory/users/': typeof AuthenticatedDirectoryUsersIndexRoute
   '/locations/$id/': typeof AuthenticatedLocationsIdIndexRoute
   '/roles/$id/': typeof AuthenticatedRolesIdIndexRoute
+  '/stations/$id/': typeof AuthenticatedStationsIdIndexRoute
   '/directory/groups/$id/edit': typeof AuthenticatedDirectoryGroupsIdEditRoute
   '/directory/users/$id/edit': typeof AuthenticatedDirectoryUsersIdEditRoute
   '/directory/groups/$id/': typeof AuthenticatedDirectoryGroupsIdIndexRoute
@@ -304,24 +305,24 @@ export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/login': typeof LoginRoute
   '/account': typeof AuthenticatedAccountRoute
-  '/app-keys/new': typeof AuthenticatedAppKeysNewRoute
   '/checkins/$id': typeof AuthenticatedCheckinsIdRoute
   '/locations/new': typeof AuthenticatedLocationsNewRoute
   '/roles/new': typeof AuthenticatedRolesNewRoute
-  '/app-keys': typeof AuthenticatedAppKeysIndexRoute
+  '/stations/new': typeof AuthenticatedStationsNewRoute
   '/checkins': typeof AuthenticatedCheckinsIndexRoute
   '/directory': typeof AuthenticatedDirectoryIndexRoute
   '/locations': typeof AuthenticatedLocationsIndexRoute
   '/roles': typeof AuthenticatedRolesIndexRoute
-  '/app-keys/$id/edit': typeof AuthenticatedAppKeysIdEditRoute
+  '/stations': typeof AuthenticatedStationsIndexRoute
   '/directory/users/new': typeof AuthenticatedDirectoryUsersNewRoute
   '/locations/$id/edit': typeof AuthenticatedLocationsIdEditRoute
   '/roles/$id/edit': typeof AuthenticatedRolesIdEditRoute
-  '/app-keys/$id': typeof AuthenticatedAppKeysIdIndexRoute
+  '/stations/$id/edit': typeof AuthenticatedStationsIdEditRoute
   '/directory/groups': typeof AuthenticatedDirectoryGroupsIndexRoute
   '/directory/users': typeof AuthenticatedDirectoryUsersIndexRoute
   '/locations/$id': typeof AuthenticatedLocationsIdIndexRoute
   '/roles/$id': typeof AuthenticatedRolesIdIndexRoute
+  '/stations/$id': typeof AuthenticatedStationsIdIndexRoute
   '/directory/groups/$id/edit': typeof AuthenticatedDirectoryGroupsIdEditRoute
   '/directory/users/$id/edit': typeof AuthenticatedDirectoryUsersIdEditRoute
   '/directory/groups/$id': typeof AuthenticatedDirectoryGroupsIdIndexRoute
@@ -333,13 +334,11 @@ export interface FileRoutesById {
   '/_authenticated': typeof AuthenticatedRouteWithChildren
   '/login': typeof LoginRoute
   '/_authenticated/account': typeof AuthenticatedAccountRoute
-  '/_authenticated/app-keys': typeof AuthenticatedAppKeysRouteWithChildren
   '/_authenticated/checkins': typeof AuthenticatedCheckinsRouteWithChildren
   '/_authenticated/directory': typeof AuthenticatedDirectoryRouteWithChildren
   '/_authenticated/locations': typeof AuthenticatedLocationsRouteWithChildren
   '/_authenticated/roles': typeof AuthenticatedRolesRouteWithChildren
-  '/_authenticated/app-keys/$id': typeof AuthenticatedAppKeysIdRouteWithChildren
-  '/_authenticated/app-keys/new': typeof AuthenticatedAppKeysNewRoute
+  '/_authenticated/stations': typeof AuthenticatedStationsRouteWithChildren
   '/_authenticated/checkins/$id': typeof AuthenticatedCheckinsIdRoute
   '/_authenticated/directory/groups': typeof AuthenticatedDirectoryGroupsRouteWithChildren
   '/_authenticated/directory/users': typeof AuthenticatedDirectoryUsersRouteWithChildren
@@ -347,22 +346,24 @@ export interface FileRoutesById {
   '/_authenticated/locations/new': typeof AuthenticatedLocationsNewRoute
   '/_authenticated/roles/$id': typeof AuthenticatedRolesIdRouteWithChildren
   '/_authenticated/roles/new': typeof AuthenticatedRolesNewRoute
-  '/_authenticated/app-keys/': typeof AuthenticatedAppKeysIndexRoute
+  '/_authenticated/stations/$id': typeof AuthenticatedStationsIdRouteWithChildren
+  '/_authenticated/stations/new': typeof AuthenticatedStationsNewRoute
   '/_authenticated/checkins/': typeof AuthenticatedCheckinsIndexRoute
   '/_authenticated/directory/': typeof AuthenticatedDirectoryIndexRoute
   '/_authenticated/locations/': typeof AuthenticatedLocationsIndexRoute
   '/_authenticated/roles/': typeof AuthenticatedRolesIndexRoute
-  '/_authenticated/app-keys/$id/edit': typeof AuthenticatedAppKeysIdEditRoute
+  '/_authenticated/stations/': typeof AuthenticatedStationsIndexRoute
   '/_authenticated/directory/groups/$id': typeof AuthenticatedDirectoryGroupsIdRouteWithChildren
   '/_authenticated/directory/users/$id': typeof AuthenticatedDirectoryUsersIdRouteWithChildren
   '/_authenticated/directory/users/new': typeof AuthenticatedDirectoryUsersNewRoute
   '/_authenticated/locations/$id/edit': typeof AuthenticatedLocationsIdEditRoute
   '/_authenticated/roles/$id/edit': typeof AuthenticatedRolesIdEditRoute
-  '/_authenticated/app-keys/$id/': typeof AuthenticatedAppKeysIdIndexRoute
+  '/_authenticated/stations/$id/edit': typeof AuthenticatedStationsIdEditRoute
   '/_authenticated/directory/groups/': typeof AuthenticatedDirectoryGroupsIndexRoute
   '/_authenticated/directory/users/': typeof AuthenticatedDirectoryUsersIndexRoute
   '/_authenticated/locations/$id/': typeof AuthenticatedLocationsIdIndexRoute
   '/_authenticated/roles/$id/': typeof AuthenticatedRolesIdIndexRoute
+  '/_authenticated/stations/$id/': typeof AuthenticatedStationsIdIndexRoute
   '/_authenticated/directory/groups/$id/edit': typeof AuthenticatedDirectoryGroupsIdEditRoute
   '/_authenticated/directory/users/$id/edit': typeof AuthenticatedDirectoryUsersIdEditRoute
   '/_authenticated/directory/groups/$id/': typeof AuthenticatedDirectoryGroupsIdIndexRoute
@@ -374,13 +375,11 @@ export interface FileRouteTypes {
     | '/'
     | '/login'
     | '/account'
-    | '/app-keys'
     | '/checkins'
     | '/directory'
     | '/locations'
     | '/roles'
-    | '/app-keys/$id'
-    | '/app-keys/new'
+    | '/stations'
     | '/checkins/$id'
     | '/directory/groups'
     | '/directory/users'
@@ -388,22 +387,24 @@ export interface FileRouteTypes {
     | '/locations/new'
     | '/roles/$id'
     | '/roles/new'
-    | '/app-keys/'
+    | '/stations/$id'
+    | '/stations/new'
     | '/checkins/'
     | '/directory/'
     | '/locations/'
     | '/roles/'
-    | '/app-keys/$id/edit'
+    | '/stations/'
     | '/directory/groups/$id'
     | '/directory/users/$id'
     | '/directory/users/new'
     | '/locations/$id/edit'
     | '/roles/$id/edit'
-    | '/app-keys/$id/'
+    | '/stations/$id/edit'
     | '/directory/groups/'
     | '/directory/users/'
     | '/locations/$id/'
     | '/roles/$id/'
+    | '/stations/$id/'
     | '/directory/groups/$id/edit'
     | '/directory/users/$id/edit'
     | '/directory/groups/$id/'
@@ -413,24 +414,24 @@ export interface FileRouteTypes {
     | '/'
     | '/login'
     | '/account'
-    | '/app-keys/new'
     | '/checkins/$id'
     | '/locations/new'
     | '/roles/new'
-    | '/app-keys'
+    | '/stations/new'
     | '/checkins'
     | '/directory'
     | '/locations'
     | '/roles'
-    | '/app-keys/$id/edit'
+    | '/stations'
     | '/directory/users/new'
     | '/locations/$id/edit'
     | '/roles/$id/edit'
-    | '/app-keys/$id'
+    | '/stations/$id/edit'
     | '/directory/groups'
     | '/directory/users'
     | '/locations/$id'
     | '/roles/$id'
+    | '/stations/$id'
     | '/directory/groups/$id/edit'
     | '/directory/users/$id/edit'
     | '/directory/groups/$id'
@@ -441,13 +442,11 @@ export interface FileRouteTypes {
     | '/_authenticated'
     | '/login'
     | '/_authenticated/account'
-    | '/_authenticated/app-keys'
     | '/_authenticated/checkins'
     | '/_authenticated/directory'
     | '/_authenticated/locations'
     | '/_authenticated/roles'
-    | '/_authenticated/app-keys/$id'
-    | '/_authenticated/app-keys/new'
+    | '/_authenticated/stations'
     | '/_authenticated/checkins/$id'
     | '/_authenticated/directory/groups'
     | '/_authenticated/directory/users'
@@ -455,22 +454,24 @@ export interface FileRouteTypes {
     | '/_authenticated/locations/new'
     | '/_authenticated/roles/$id'
     | '/_authenticated/roles/new'
-    | '/_authenticated/app-keys/'
+    | '/_authenticated/stations/$id'
+    | '/_authenticated/stations/new'
     | '/_authenticated/checkins/'
     | '/_authenticated/directory/'
     | '/_authenticated/locations/'
     | '/_authenticated/roles/'
-    | '/_authenticated/app-keys/$id/edit'
+    | '/_authenticated/stations/'
     | '/_authenticated/directory/groups/$id'
     | '/_authenticated/directory/users/$id'
     | '/_authenticated/directory/users/new'
     | '/_authenticated/locations/$id/edit'
     | '/_authenticated/roles/$id/edit'
-    | '/_authenticated/app-keys/$id/'
+    | '/_authenticated/stations/$id/edit'
     | '/_authenticated/directory/groups/'
     | '/_authenticated/directory/users/'
     | '/_authenticated/locations/$id/'
     | '/_authenticated/roles/$id/'
+    | '/_authenticated/stations/$id/'
     | '/_authenticated/directory/groups/$id/edit'
     | '/_authenticated/directory/users/$id/edit'
     | '/_authenticated/directory/groups/$id/'
@@ -513,13 +514,6 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedAccountRouteImport
       parentRoute: typeof AuthenticatedRoute
     }
-    '/_authenticated/app-keys': {
-      id: '/_authenticated/app-keys'
-      path: '/app-keys'
-      fullPath: '/app-keys'
-      preLoaderRoute: typeof AuthenticatedAppKeysRouteImport
-      parentRoute: typeof AuthenticatedRoute
-    }
     '/_authenticated/checkins': {
       id: '/_authenticated/checkins'
       path: '/checkins'
@@ -548,26 +542,12 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedRolesRouteImport
       parentRoute: typeof AuthenticatedRoute
     }
-    '/_authenticated/app-keys/': {
-      id: '/_authenticated/app-keys/'
-      path: '/'
-      fullPath: '/app-keys/'
-      preLoaderRoute: typeof AuthenticatedAppKeysIndexRouteImport
-      parentRoute: typeof AuthenticatedAppKeysRoute
-    }
-    '/_authenticated/app-keys/$id': {
-      id: '/_authenticated/app-keys/$id'
-      path: '/$id'
-      fullPath: '/app-keys/$id'
-      preLoaderRoute: typeof AuthenticatedAppKeysIdRouteImport
-      parentRoute: typeof AuthenticatedAppKeysRoute
-    }
-    '/_authenticated/app-keys/new': {
-      id: '/_authenticated/app-keys/new'
-      path: '/new'
-      fullPath: '/app-keys/new'
-      preLoaderRoute: typeof AuthenticatedAppKeysNewRouteImport
-      parentRoute: typeof AuthenticatedAppKeysRoute
+    '/_authenticated/stations': {
+      id: '/_authenticated/stations'
+      path: '/stations'
+      fullPath: '/stations'
+      preLoaderRoute: typeof AuthenticatedStationsRouteImport
+      parentRoute: typeof AuthenticatedRoute
     }
     '/_authenticated/checkins/': {
       id: '/_authenticated/checkins/'
@@ -646,19 +626,26 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedRolesNewRouteImport
       parentRoute: typeof AuthenticatedRolesRoute
     }
-    '/_authenticated/app-keys/$id/': {
-      id: '/_authenticated/app-keys/$id/'
+    '/_authenticated/stations/': {
+      id: '/_authenticated/stations/'
       path: '/'
-      fullPath: '/app-keys/$id/'
-      preLoaderRoute: typeof AuthenticatedAppKeysIdIndexRouteImport
-      parentRoute: typeof AuthenticatedAppKeysIdRoute
+      fullPath: '/stations/'
+      preLoaderRoute: typeof AuthenticatedStationsIndexRouteImport
+      parentRoute: typeof AuthenticatedStationsRoute
     }
-    '/_authenticated/app-keys/$id/edit': {
-      id: '/_authenticated/app-keys/$id/edit'
-      path: '/edit'
-      fullPath: '/app-keys/$id/edit'
-      preLoaderRoute: typeof AuthenticatedAppKeysIdEditRouteImport
-      parentRoute: typeof AuthenticatedAppKeysIdRoute
+    '/_authenticated/stations/$id': {
+      id: '/_authenticated/stations/$id'
+      path: '/$id'
+      fullPath: '/stations/$id'
+      preLoaderRoute: typeof AuthenticatedStationsIdRouteImport
+      parentRoute: typeof AuthenticatedStationsRoute
+    }
+    '/_authenticated/stations/new': {
+      id: '/_authenticated/stations/new'
+      path: '/new'
+      fullPath: '/stations/new'
+      preLoaderRoute: typeof AuthenticatedStationsNewRouteImport
+      parentRoute: typeof AuthenticatedStationsRoute
     }
     '/_authenticated/directory/groups/': {
       id: '/_authenticated/directory/groups/'
@@ -723,6 +710,20 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedRolesIdEditRouteImport
       parentRoute: typeof AuthenticatedRolesIdRoute
     }
+    '/_authenticated/stations/$id/': {
+      id: '/_authenticated/stations/$id/'
+      path: '/'
+      fullPath: '/stations/$id/'
+      preLoaderRoute: typeof AuthenticatedStationsIdIndexRouteImport
+      parentRoute: typeof AuthenticatedStationsIdRoute
+    }
+    '/_authenticated/stations/$id/edit': {
+      id: '/_authenticated/stations/$id/edit'
+      path: '/edit'
+      fullPath: '/stations/$id/edit'
+      preLoaderRoute: typeof AuthenticatedStationsIdEditRouteImport
+      parentRoute: typeof AuthenticatedStationsIdRoute
+    }
     '/_authenticated/directory/groups/$id/': {
       id: '/_authenticated/directory/groups/$id/'
       path: '/'
@@ -753,37 +754,6 @@ declare module '@tanstack/react-router' {
     }
   }
 }
-
-interface AuthenticatedAppKeysIdRouteChildren {
-  AuthenticatedAppKeysIdEditRoute: typeof AuthenticatedAppKeysIdEditRoute
-  AuthenticatedAppKeysIdIndexRoute: typeof AuthenticatedAppKeysIdIndexRoute
-}
-
-const AuthenticatedAppKeysIdRouteChildren: AuthenticatedAppKeysIdRouteChildren =
-  {
-    AuthenticatedAppKeysIdEditRoute: AuthenticatedAppKeysIdEditRoute,
-    AuthenticatedAppKeysIdIndexRoute: AuthenticatedAppKeysIdIndexRoute,
-  }
-
-const AuthenticatedAppKeysIdRouteWithChildren =
-  AuthenticatedAppKeysIdRoute._addFileChildren(
-    AuthenticatedAppKeysIdRouteChildren,
-  )
-
-interface AuthenticatedAppKeysRouteChildren {
-  AuthenticatedAppKeysIdRoute: typeof AuthenticatedAppKeysIdRouteWithChildren
-  AuthenticatedAppKeysNewRoute: typeof AuthenticatedAppKeysNewRoute
-  AuthenticatedAppKeysIndexRoute: typeof AuthenticatedAppKeysIndexRoute
-}
-
-const AuthenticatedAppKeysRouteChildren: AuthenticatedAppKeysRouteChildren = {
-  AuthenticatedAppKeysIdRoute: AuthenticatedAppKeysIdRouteWithChildren,
-  AuthenticatedAppKeysNewRoute: AuthenticatedAppKeysNewRoute,
-  AuthenticatedAppKeysIndexRoute: AuthenticatedAppKeysIndexRoute,
-}
-
-const AuthenticatedAppKeysRouteWithChildren =
-  AuthenticatedAppKeysRoute._addFileChildren(AuthenticatedAppKeysRouteChildren)
 
 interface AuthenticatedCheckinsRouteChildren {
   AuthenticatedCheckinsIdRoute: typeof AuthenticatedCheckinsIdRoute
@@ -956,22 +926,55 @@ const AuthenticatedRolesRouteChildren: AuthenticatedRolesRouteChildren = {
 const AuthenticatedRolesRouteWithChildren =
   AuthenticatedRolesRoute._addFileChildren(AuthenticatedRolesRouteChildren)
 
+interface AuthenticatedStationsIdRouteChildren {
+  AuthenticatedStationsIdEditRoute: typeof AuthenticatedStationsIdEditRoute
+  AuthenticatedStationsIdIndexRoute: typeof AuthenticatedStationsIdIndexRoute
+}
+
+const AuthenticatedStationsIdRouteChildren: AuthenticatedStationsIdRouteChildren =
+  {
+    AuthenticatedStationsIdEditRoute: AuthenticatedStationsIdEditRoute,
+    AuthenticatedStationsIdIndexRoute: AuthenticatedStationsIdIndexRoute,
+  }
+
+const AuthenticatedStationsIdRouteWithChildren =
+  AuthenticatedStationsIdRoute._addFileChildren(
+    AuthenticatedStationsIdRouteChildren,
+  )
+
+interface AuthenticatedStationsRouteChildren {
+  AuthenticatedStationsIdRoute: typeof AuthenticatedStationsIdRouteWithChildren
+  AuthenticatedStationsNewRoute: typeof AuthenticatedStationsNewRoute
+  AuthenticatedStationsIndexRoute: typeof AuthenticatedStationsIndexRoute
+}
+
+const AuthenticatedStationsRouteChildren: AuthenticatedStationsRouteChildren = {
+  AuthenticatedStationsIdRoute: AuthenticatedStationsIdRouteWithChildren,
+  AuthenticatedStationsNewRoute: AuthenticatedStationsNewRoute,
+  AuthenticatedStationsIndexRoute: AuthenticatedStationsIndexRoute,
+}
+
+const AuthenticatedStationsRouteWithChildren =
+  AuthenticatedStationsRoute._addFileChildren(
+    AuthenticatedStationsRouteChildren,
+  )
+
 interface AuthenticatedRouteChildren {
   AuthenticatedAccountRoute: typeof AuthenticatedAccountRoute
-  AuthenticatedAppKeysRoute: typeof AuthenticatedAppKeysRouteWithChildren
   AuthenticatedCheckinsRoute: typeof AuthenticatedCheckinsRouteWithChildren
   AuthenticatedDirectoryRoute: typeof AuthenticatedDirectoryRouteWithChildren
   AuthenticatedLocationsRoute: typeof AuthenticatedLocationsRouteWithChildren
   AuthenticatedRolesRoute: typeof AuthenticatedRolesRouteWithChildren
+  AuthenticatedStationsRoute: typeof AuthenticatedStationsRouteWithChildren
 }
 
 const AuthenticatedRouteChildren: AuthenticatedRouteChildren = {
   AuthenticatedAccountRoute: AuthenticatedAccountRoute,
-  AuthenticatedAppKeysRoute: AuthenticatedAppKeysRouteWithChildren,
   AuthenticatedCheckinsRoute: AuthenticatedCheckinsRouteWithChildren,
   AuthenticatedDirectoryRoute: AuthenticatedDirectoryRouteWithChildren,
   AuthenticatedLocationsRoute: AuthenticatedLocationsRouteWithChildren,
   AuthenticatedRolesRoute: AuthenticatedRolesRouteWithChildren,
+  AuthenticatedStationsRoute: AuthenticatedStationsRouteWithChildren,
 }
 
 const AuthenticatedRouteWithChildren = AuthenticatedRoute._addFileChildren(

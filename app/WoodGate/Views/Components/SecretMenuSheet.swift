@@ -37,7 +37,6 @@ struct SecretMenuSheet: View {
             .navigationTitle("Device Menu")
             .navigationBarTitleDisplayMode(.inline)
         }
-        .presentationDetents([.medium, .large])
         .modelAlert()
     }
 
@@ -62,25 +61,15 @@ struct SecretMenuSheet: View {
                     }
                 }
                 .disabled(isRefreshing)
-
-                Button {
-                    dismiss()
-                    Task {
-                        await modelData.beginSwitchLocation()
-                    }
-                } label: {
-                    Label("Switch Location", systemImage: "building.2")
-                }
-                .disabled(isRefreshing)
-
-                Button(role: .destructive) {
-                    dismiss()
-                    modelData.forgetPairing()
-                } label: {
-                    Label("Forget Pairing", systemImage: "trash")
-                }
-                .disabled(isRefreshing)
             }
+
+            Button(role: .destructive) {
+                dismiss()
+                modelData.forgetPairing()
+            } label: {
+                Label("Forget Pairing", systemImage: "trash")
+            }
+            .disabled(isRefreshing)
         }
     }
 
@@ -88,6 +77,7 @@ struct SecretMenuSheet: View {
     private var debugSection: some View {
         if let session {
             Section("Debug") {
+                Text("Station: \(session.stationName)")
                 Text("Location: \(session.location.name)")
                 Text("People cached: \(session.people.count)")
                 Text(

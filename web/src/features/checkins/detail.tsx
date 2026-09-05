@@ -61,13 +61,16 @@ export function CheckinDetailPage() {
         />
         <KeyValueRow label="Time" value={<RelativeTime value={checkin.created_at} />} />
         <KeyValueRow label="Notes" value={nonEmpty(checkin.notes) ?? "-"} />
-        <KeyValueRow
-          label="Recorded By"
-          value={
-            nonEmpty(checkin.actor_name) ??
-            `${checkin.actor_kind === "api_key" ? "App key" : "User"} (${checkin.actor_app_id})`
-          }
-        />
+        {checkin.station ? <KeyValueRow label="Station" value={checkin.station.name} /> : null}
+        {checkin.created_by || !checkin.station ? (
+          <KeyValueRow
+            label="Recorded By"
+            value={
+              nonEmpty(checkin.actor_name) ??
+              `${checkin.actor_kind === "station" ? "Station" : checkin.actor_kind === "api_key" ? "App key" : "User"} (${checkin.actor_app_id})`
+            }
+          />
+        ) : null}
       </KeyValueSection>
     </PageShell>
   );

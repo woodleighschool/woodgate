@@ -4,7 +4,7 @@ import SwiftUI
 @main
 struct WoodGateApp: App {
     private let modelTypes: [any PersistentModel.Type] = [
-        CachedPersonRecord.self,
+        CachedStationPersonRecord.self,
     ]
 
     private let container: ModelContainer

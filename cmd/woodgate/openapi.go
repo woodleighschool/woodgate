@@ -9,11 +9,11 @@ import (
 
 	"github.com/woodleighschool/woodgate/internal/account"
 	"github.com/woodleighschool/woodgate/internal/api"
-	appkeyapi "github.com/woodleighschool/woodgate/internal/appkey/httpapi"
 	"github.com/woodleighschool/woodgate/internal/buildinfo"
 	checkinapi "github.com/woodleighschool/woodgate/internal/checkin/httpapi"
 	directoryapi "github.com/woodleighschool/woodgate/internal/directory/httpapi"
 	authzapi "github.com/woodleighschool/woodgate/internal/rbac/httpapi"
+	stationapi "github.com/woodleighschool/woodgate/internal/station/httpapi"
 )
 
 func openAPICommand() *cobra.Command {
@@ -45,6 +45,6 @@ func buildOpenAPI(version string) huma.API {
 	directoryapi.RegisterOpenAPI(routes)
 	authzapi.RegisterOpenAPI(routes)
 	checkinapi.RegisterOpenAPI(routes)
-	appkeyapi.RegisterOpenAPI(routes)
+	stationapi.RegisterOpenAPI(routes)
 	return schema
 }

@@ -12,18 +12,25 @@ import (
 	"github.com/woodleighschool/woodgate/internal/directory"
 	"github.com/woodleighschool/woodgate/internal/fault"
 	"github.com/woodleighschool/woodgate/internal/listing"
+	"github.com/woodleighschool/woodgate/internal/station"
 )
+
+type locationNotifier interface{ LocationChanged(int64) }
 
 // Service owns check-in workflow rules and resource attachments.
 type Service struct {
-	store   *Store
-	objects *bloby.Service
+	store    *Store
+	objects  *bloby.Service
+	notifier locationNotifier
 }
 
 // NewService returns the check-in application service.
 func NewService(store *Store, objects *bloby.Service) *Service {
 	return &Service{store: store, objects: objects}
 }
+
+// SetLocationNotifier connects committed owner mutations to Station refreshes.
+func (s *Service) SetLocationNotifier(notifier locationNotifier) { s.notifier = notifier }
 
 // ListLocations returns paginated locations.
 func (s *Service) ListLocations(ctx context.Context, params LocationListParams) ([]Location, int, error) {
@@ -81,6 +88,8 @@ func (s *Service) UpdateLocation(ctx context.Context, id int64, mutation Locatio
 	item, err := s.store.UpdateLocation(ctx, id, mutation)
 	if err != nil {
 		s.objects.DeleteUnreferenced(ctx, ids...)
+	} else if s.notifier != nil {
+		s.notifier.LocationChanged(id)
 	}
 	return item, err
 }
@@ -88,6 +97,44 @@ func (s *Service) UpdateLocation(ctx context.Context, id int64, mutation Locatio
 // DeleteLocation deletes an unreferenced location.
 func (s *Service) DeleteLocation(ctx context.Context, id int64) error {
 	return s.store.DeleteLocation(ctx, id)
+}
+
+// GetStationLocation returns the location projection used by Station v1.
+func (s *Service) GetStationLocation(ctx context.Context, id int64) (*station.LocationConfiguration, error) {
+	location, err := s.store.GetLocation(ctx, id)
+	if err != nil {
+		return nil, err
+	}
+	return &station.LocationConfiguration{ID: location.ID, Name: location.Name, Enabled: location.Enabled, Notes: location.Notes,
+		Photo: location.Photo, BackgroundObjectID: location.BackgroundObjectID, LogoObjectID: location.LogoObjectID, UpdatedAt: location.UpdatedAt}, nil
+}
+
+// ListStationLocations returns the location identities assignable to a Station.
+func (s *Service) ListStationLocations(
+	ctx context.Context,
+	params listing.Params,
+) ([]station.Location, int, error) {
+	params = listing.Normalize(params)
+	if err := listing.Validate(params); err != nil {
+		return nil, 0, err
+	}
+	return s.store.ListStationLocationChoices(ctx, params)
+}
+
+// ListStationPeople returns only people eligible for a location's configured groups.
+func (s *Service) ListStationPeople(ctx context.Context, locationID int64) ([]station.Person, error) {
+	if _, err := s.store.GetLocation(ctx, locationID); err != nil {
+		return nil, err
+	}
+	rows, err := s.store.listPeople(ctx, locationID)
+	if err != nil {
+		return nil, err
+	}
+	people := make([]station.Person, len(rows))
+	for i, row := range rows {
+		people[i] = station.Person{ID: row.ID, Name: row.Name, Email: row.Email}
+	}
+	return people, nil
 }
 
 // ListCheckins returns paginated check-in history.
@@ -138,8 +185,24 @@ func (s *Service) Submit(ctx context.Context, create CheckinCreate, actor Actor,
 	if err != nil {
 		return nil, err
 	}
+	if !location.Enabled {
+		if actor.Kind == "station" {
+			return nil, fmt.Errorf("%w: location is disabled", fault.ErrConflict)
+		}
+		return nil, fmt.Errorf("%w: location is disabled", fault.ErrInvalidInput)
+	}
+	if actor.Kind == "user" && location.Photo {
+		return nil, fmt.Errorf("%w: use a Station when this location requires a photo", fault.ErrInvalidInput)
+	}
 	if err := ValidateSubmission(*location, create.Notes, len(photo) > 0); err != nil {
 		return nil, err
+	}
+	eligible, err := s.store.PersonEligible(ctx, create.LocationID, create.UserID)
+	if err != nil {
+		return nil, err
+	}
+	if !eligible {
+		return nil, fmt.Errorf("%w: person is not eligible for this location", fault.ErrInvalidInput)
 	}
 	var photoObjectID *int64
 	if len(photo) > 0 {
@@ -169,13 +232,26 @@ func ValidateSubmission(location Location, notes string, hasPhoto bool) error {
 	switch {
 	case !location.Enabled:
 		return fmt.Errorf("%w: location is disabled", fault.ErrInvalidInput)
-	case location.Photo && !hasPhoto:
-		return fmt.Errorf("%w: photo is required", fault.ErrInvalidInput)
 	case !location.Notes && notes != "":
 		return fmt.Errorf("%w: notes are disabled for this location", fault.ErrInvalidInput)
+	case location.Photo && !hasPhoto:
+		return fmt.Errorf("%w: photo is required", fault.ErrInvalidInput)
 	default:
 		return nil
 	}
+}
+
+// SubmitStationCheckin records an event attributed to the authenticated Station.
+func (s *Service) SubmitStationCheckin(ctx context.Context, submission station.CheckinSubmission) (*station.CheckinReceipt, error) {
+	actor, err := s.store.StationActor(ctx, submission.StationID)
+	if err != nil {
+		return nil, err
+	}
+	item, err := s.Submit(ctx, CheckinCreate{UserID: submission.PersonID, LocationID: submission.LocationID, Direction: Direction(submission.Direction), Notes: submission.Notes}, actor, submission.Photo)
+	if err != nil {
+		return nil, err
+	}
+	return &station.CheckinReceipt{ID: item.ID, PersonID: item.Person.ID, LocationID: item.Location.ID, Direction: station.Direction(item.Direction)}, nil
 }
 
 // BeginLocationBackgroundUpload reserves an object in the background gallery.
@@ -236,6 +312,9 @@ func (s *Service) setLocationAttachment(
 	if err := set(ctx, locationID, object.ID); err != nil {
 		return nil, errors.Join(err, s.cleanupObject(ctx, object.ID, prefix))
 	}
+	if s.notifier != nil {
+		s.notifier.LocationChanged(locationID)
+	}
 	return object, nil
 }
 
@@ -259,6 +338,30 @@ func (s *Service) DeliverCheckinPhoto(w http.ResponseWriter, r *http.Request, ch
 		return fault.ErrNotFound
 	}
 	return s.deliverObject(w, r, *item.PhotoObjectID, PhotoObjectPrefix)
+}
+
+// DeliverStationBackground sends the background owned by a Station's location.
+func (s *Service) DeliverStationBackground(w http.ResponseWriter, r *http.Request, locationID int64) error {
+	location, err := s.store.GetLocation(r.Context(), locationID)
+	if err != nil {
+		return err
+	}
+	if location.BackgroundObjectID == nil {
+		return fault.ErrNotFound
+	}
+	return s.deliverObject(w, r, *location.BackgroundObjectID, BackgroundObjectPrefix)
+}
+
+// DeliverStationLogo sends the logo owned by a Station's location.
+func (s *Service) DeliverStationLogo(w http.ResponseWriter, r *http.Request, locationID int64) error {
+	location, err := s.store.GetLocation(r.Context(), locationID)
+	if err != nil {
+		return err
+	}
+	if location.LogoObjectID == nil {
+		return fault.ErrNotFound
+	}
+	return s.deliverObject(w, r, *location.LogoObjectID, LogoObjectPrefix)
 }
 
 func (s *Service) deliverObject(w http.ResponseWriter, r *http.Request, objectID int64, prefix string) error {

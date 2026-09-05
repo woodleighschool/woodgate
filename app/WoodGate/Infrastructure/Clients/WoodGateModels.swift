@@ -31,70 +31,42 @@ nonisolated struct WoodGateProblemResponse: Decodable {
 
 /// Response
 nonisolated struct WoodGateListResponse<Row: Decodable & Sendable>: Decodable {
-    let rows: [Row]
-    let total: Int
+    let items: [Row]
+    let count: Int
 
     enum CodingKeys: String, CodingKey {
-        case rows
-        case total
+        case items
+        case count
     }
 }
 
-// MARK: Authentication
+nonisolated struct WoodGateErrorResponse: Decodable {
+    let error: String
+}
+
+// MARK: Station Configuration
 
 /// Response
-nonisolated struct WoodGateAuthMeResponse: Decodable {
-    nonisolated struct Principal: Decodable {
-        let type: String
-        let id: String
-        let displayName: String?
-        let email: String?
-        let name: String?
-
-        enum CodingKeys: String, CodingKey {
-            case type
-            case id
-            case displayName = "display_name"
-            case email
-            case name
-        }
-    }
-
-    let principal: Principal
-    let admin: Bool
-    let access: [WoodGatePermissionGrant]
+nonisolated struct WoodGateStationConfigurationResponse: Decodable {
+    let stationId: Int64
+    let stationName: String
+    let location: WoodGateStationLocation
 
     enum CodingKeys: String, CodingKey {
-        case principal
-        case admin
-        case access
+        case stationId = "station_id"
+        case stationName = "station_name"
+        case location
     }
 }
 
-nonisolated struct WoodGatePermissionGrant: Decodable {
-    let resource: String
-    let action: String
-    let locationId: UUID?
-
-    enum CodingKeys: String, CodingKey {
-        case resource
-        case action
-        case locationId = "location_id"
-    }
-}
-
-// MARK: Locations
-
-/// Response
-nonisolated struct WoodGateLocationResponse: Decodable {
-    let id: UUID
+nonisolated struct WoodGateStationLocation: Decodable {
+    let id: Int64
     let name: String
     let enabled: Bool
     let notes: Bool
     let photo: Bool
-    let backgroundAssetId: UUID?
-    let logoAssetId: UUID?
-    let groupIds: [UUID]
+    let backgroundObjectId: Int64?
+    let logoObjectId: Int64?
 
     enum CodingKeys: String, CodingKey {
         case id
@@ -102,9 +74,8 @@ nonisolated struct WoodGateLocationResponse: Decodable {
         case enabled
         case notes
         case photo
-        case backgroundAssetId = "background_asset_id"
-        case logoAssetId = "logo_asset_id"
-        case groupIds = "group_ids"
+        case backgroundObjectId = "background_object_id"
+        case logoObjectId = "logo_object_id"
     }
 }
 
@@ -112,14 +83,14 @@ nonisolated struct WoodGateLocationResponse: Decodable {
 
 /// Response
 nonisolated struct WoodGateUserResponse: Decodable {
-    let id: UUID
-    let upn: String
-    let displayName: String
+    let id: Int64
+    let name: String
+    let email: String
 
     enum CodingKeys: String, CodingKey {
         case id
-        case upn
-        case displayName = "display_name"
+        case name
+        case email
     }
 }
 
@@ -127,15 +98,21 @@ nonisolated struct WoodGateUserResponse: Decodable {
 
 /// Response
 nonisolated struct WoodGateCheckinResponse: Decodable {
-    let id: UUID
-    let userId: UUID
-    let locationId: UUID
+    let id: Int64
+    let personId: Int64
+    let locationId: Int64
     let direction: CheckinDirectionChoice
 
     enum CodingKeys: String, CodingKey {
         case id
-        case userId = "user_id"
+        case personId = "person_id"
         case locationId = "location_id"
         case direction
     }
+}
+
+// MARK: Control Plane
+
+nonisolated struct WoodGateStationControlMessage: Decodable {
+    let type: String
 }

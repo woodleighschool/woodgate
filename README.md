@@ -18,7 +18,7 @@ Manages check-ins with a web administration interface and a native companion app
 - Locations, rosters, and terminal branding
 - Entra directory sync for people and groups
 - Staff sign-in and resource-based roles
-- Location-scoped app keys for companion terminals
+- Station pairing and live companion configuration
 - File or S3 storage for resource attachments
 
 ## 🚀 Usage
@@ -51,7 +51,7 @@ docker compose exec woodgate /woodgate user create \
 
 The server listens on port 8080. Terminate HTTPS at the reverse proxy. For local HTTP development, set `WOODGATE_SESSION_COOKIE_SECURE=false`.
 
-Pair the companion app with a QR code containing the server URL and an app key, then select a permitted location. We distribute it as a private Custom App through Apple School Manager and our MDM.
+Create a station for a location, then scan its pairing QR code with the companion app. We distribute it as a private Custom App through Apple School Manager and our MDM.
 
 ## ⚙️ Configuration
 
