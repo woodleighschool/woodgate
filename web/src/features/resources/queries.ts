@@ -21,6 +21,12 @@ import type {
   ListCheckinsData,
   ListLocationGroupsData,
   ListLocationsData,
+  ListStationLocationsData,
+  ListStationsData,
+  Station,
+  StationLocation,
+  StationPairing,
+  StationMutation,
   Location,
   LocationMutation,
   Page,
@@ -47,6 +53,13 @@ import {
   listLocations,
   updateLocation,
   updateAuthzRole,
+  createStation,
+  deleteStation,
+  getStation,
+  listStationLocations,
+  listStations,
+  rotateStationKey,
+  updateStation,
   unwrap,
 } from "@lib/api";
 import { baseListParams, collectAllPages, MAX_PAGE_SIZE } from "@lib/pagination";
@@ -54,12 +67,18 @@ import { invalidateAfterDelete } from "@lib/query-invalidation";
 
 const keys = {
   locations: ["locations"] as const,
+  stations: ["stations"] as const,
   checkins: ["checkins"] as const,
   locationBackgrounds: ["locations", "backgrounds"] as const,
   locationLogos: ["locations", "logos"] as const,
   resources: ["authz", "resources"] as const,
   roles: ["authz", "roles"] as const,
 };
+
+const stationDetailRefreshMs = 5_000;
+const stationListRefreshMs = 30_000;
+type StationLocationListParams = NonNullable<ListStationLocationsData["query"]>;
+type StationListParams = NonNullable<ListStationsData["query"]>;
 
 type CheckinListParams = NonNullable<ListCheckinsData["query"]>;
 type LocationGroupListParams = NonNullable<ListLocationGroupsData["query"]>;
@@ -81,11 +100,28 @@ function locationQueryParams(params: LocationListParams = {}) {
   return { ...baseListParams(params), enabled: params.enabled };
 }
 
+function stationQueryParams(params: StationListParams = {}) {
+  return {
+    ...baseListParams(params),
+    location_id: params.location_id,
+    enabled: params.enabled,
+  };
+}
+
 export function useLocations(params: LocationListParams = {}) {
   const query = locationQueryParams(params);
   return useQuery<Page<Location>, ApiError>({
     queryKey: [...keys.locations, "list", query],
     queryFn: ({ signal }) => unwrap(listLocations({ query, signal })),
+    placeholderData: keepPreviousData,
+  });
+}
+
+export function useStationLocations(params: StationLocationListParams = {}) {
+  const query = baseListParams(params);
+  return useQuery<Page<StationLocation>, ApiError>({
+    queryKey: [...keys.stations, "locations", query],
+    queryFn: ({ signal }) => unwrap(listStationLocations({ query, signal })),
     placeholderData: keepPreviousData,
   });
 }
@@ -117,7 +153,7 @@ export function useCreateLocation() {
     onSuccess: async () => {
       await Promise.all([
         queryClient.invalidateQueries({ queryKey: keys.locations }),
-        queryClient.invalidateQueries({ queryKey: ["app-keys", "locations"] }),
+        queryClient.invalidateQueries({ queryKey: [...keys.stations, "locations"] }),
       ]);
       toast.add({ title: "Location Created", type: "success" });
     },
@@ -132,7 +168,7 @@ export function useUpdateLocation(id: number) {
       queryClient.setQueryData([...keys.locations, "detail", id], location);
       await Promise.all([
         queryClient.invalidateQueries({ queryKey: keys.locations }),
-        queryClient.invalidateQueries({ queryKey: ["app-keys", "locations"] }),
+        queryClient.invalidateQueries({ queryKey: [...keys.stations, "locations"] }),
       ]);
       toast.add({ title: "Location Saved", type: "success" });
     },
@@ -147,7 +183,7 @@ export function useDeleteLocation() {
       await invalidateAfterDelete(
         queryClient,
         [...keys.locations, "detail", id],
-        [keys.locations, ["app-keys", "locations"]],
+        [keys.locations, [...keys.stations, "locations"]],
       );
       toast.add({ title: "Location Deleted", type: "success" });
     },
@@ -261,6 +297,84 @@ export function checkinQueryOptions(id: number) {
   return queryOptions<Checkin, ApiError>({
     queryKey: [...keys.checkins, "detail", id],
     queryFn: ({ signal }) => unwrap(getCheckin({ path: { id }, signal })),
+  });
+}
+
+export function useStations(params: StationListParams = {}) {
+  const query = stationQueryParams(params);
+  return useQuery<Page<Station>, ApiError>({
+    queryKey: [...keys.stations, "list", query],
+    queryFn: ({ signal }) => unwrap(listStations({ query, signal })),
+    placeholderData: keepPreviousData,
+    refetchInterval: stationListRefreshMs,
+  });
+}
+
+export function useStation(id: number) {
+  return useQuery(stationQueryOptions(id));
+}
+
+export function stationQueryOptions(id: number) {
+  return queryOptions<Station, ApiError>({
+    queryKey: [...keys.stations, "detail", id],
+    queryFn: ({ signal }) => unwrap(getStation({ path: { id }, signal })),
+    staleTime: stationDetailRefreshMs,
+    refetchInterval: stationDetailRefreshMs,
+    refetchIntervalInBackground: false,
+  });
+}
+
+export function useCreateStation(onPairing: (pairing: StationPairing) => void) {
+  const queryClient = useQueryClient();
+  return useMutation<Station, ApiError, StationMutation>({
+    mutationFn: async (body) => {
+      const pairing = await unwrap(createStation({ body }));
+      onPairing(pairing);
+      return pairing.station;
+    },
+    onSuccess: async () => {
+      await queryClient.invalidateQueries({ queryKey: keys.stations });
+      toast.add({ title: "Station Created", type: "success" });
+    },
+  });
+}
+
+export function useUpdateStation(id: number) {
+  const queryClient = useQueryClient();
+  return useMutation<Station, ApiError, StationMutation>({
+    mutationFn: (body) => unwrap(updateStation({ path: { id }, body })),
+    onSuccess: async (station) => {
+      queryClient.setQueryData([...keys.stations, "detail", id], station);
+      await queryClient.invalidateQueries({ queryKey: keys.stations });
+      toast.add({ title: "Station Saved", type: "success" });
+    },
+  });
+}
+
+export function useDeleteStation() {
+  const queryClient = useQueryClient();
+  return useMutation<void, ApiError, number>({
+    mutationFn: (id) => unwrap(deleteStation({ path: { id } })),
+    onSuccess: async (_, id) => {
+      await invalidateAfterDelete(queryClient, [...keys.stations, "detail", id], [keys.stations]);
+      toast.add({ title: "Station Deleted", type: "success" });
+    },
+  });
+}
+
+export function useRotateStationKey(onPairing: (pairing: StationPairing) => void) {
+  const queryClient = useQueryClient();
+  return useMutation<Station, ApiError, number>({
+    mutationFn: async (id) => {
+      const pairing = await unwrap(rotateStationKey({ path: { id } }));
+      onPairing(pairing);
+      return pairing.station;
+    },
+    onSuccess: async (station, id) => {
+      queryClient.setQueryData([...keys.stations, "detail", id], station);
+      await queryClient.invalidateQueries({ queryKey: keys.stations });
+      toast.add({ title: "Station Key Rotated", type: "success" });
+    },
   });
 }
 

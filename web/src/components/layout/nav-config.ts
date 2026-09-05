@@ -1,5 +1,11 @@
 import { linkOptions, type ActiveOptions } from "@tanstack/react-router";
-import { ClipboardCheck, MapPin, KeyRound, type LucideIcon, UsersRound } from "lucide-react";
+import {
+  ClipboardCheck,
+  MapPin,
+  MonitorSmartphone,
+  type LucideIcon,
+  UsersRound,
+} from "lucide-react";
 
 import type { PermissionRequirement } from "@features/authz/permissions";
 import type { Account } from "@lib/api";
@@ -38,10 +44,10 @@ const navSections: NavMenu[] = [
         permission: { resource: "locations", access: "view" },
       },
       {
-        label: "App Keys",
-        to: "/app-keys",
-        icon: KeyRound,
-        permission: { resource: "app_keys", access: "view" },
+        label: "Stations",
+        to: "/stations",
+        icon: MonitorSmartphone,
+        permission: { resource: "stations", access: "view" },
       },
     ]),
   },
