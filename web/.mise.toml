@@ -5,7 +5,9 @@ run = "pnpm install --frozen-lockfile"
 [tasks.dev]
 description = "Run web development server"
 depends = [":deps"]
-run = "pnpm run dev"
+run = """
+pnpm run dev
+"""
 
 [tasks.build]
 description = "Build web bundle"
@@ -31,6 +33,11 @@ description = "Run web typecheck"
 depends = [":deps"]
 run = "pnpm run typecheck"
 
+[tasks.test]
+description = "Run web behavior tests"
+depends = [":deps"]
+run = "pnpm run test"
+
 [tasks.format]
 description = "Format web code"
 run = "pnpm run format"
@@ -40,7 +47,7 @@ description = "Check web formatting"
 run = "oxfmt --check"
 
 [tasks.openapi-types]
-description = "Generate web OpenAPI types"
+description = "Generate web OpenAPI client types"
 depends = [":deps"]
 run = "pnpm run openapi:types"
 

@@ -38,7 +38,7 @@ jobs:
         with:
           cache: false
           experimental: true
-          install_args: --locked node pnpm oxfmt oxlint
+          install_args: --locked node pnpm oxfmt
 
       - name: Check formatting
         run: mise run //mock:fmt-check

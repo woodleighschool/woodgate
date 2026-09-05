@@ -1,6 +1,6 @@
 # Companion app
 
-Native iOS client for dedicated check-in terminals. A pairing QR provides the server URL and API key, then the operator selects the terminal's location.
+Native iOS client for dedicated check-in Stations. A configuration QR opens the app with its server URL and Station key; the server owns the Station's location.
 
 ## 🧑‍💻 Development
 
@@ -18,7 +18,7 @@ For standalone development, run the stateless Station mock from the repository r
 mise run //mock:dev
 ```
 
-On an unpaired device, tap the lower-right corner ten times and manually pair with the URL printed by Wrangler and the Station secret `testing123`. The mock uses synthetic people and discards check-ins.
+On an unpaired device, tap the lower-right corner ten times and manually pair with the URL printed by Wrangler and the Station key `testing123`. The mock uses synthetic people and discards check-ins.
 
 ## 📦 Releases
 

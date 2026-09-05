@@ -10,16 +10,10 @@ services:
     restart: unless-stopped
     env_file: .env
     environment:
-      WOODGATE_PORT: 8080
-      WOODGATE_MEDIA_ROOT: /data
-      DATABASE_HOST: postgres
-      DATABASE_PORT: 5432
-      DATABASE_USER: woodgate
-      DATABASE_PASSWORD: woodgate
-      DATABASE_NAME: woodgate
-      DATABASE_SSLMODE: disable
+      WOODGATE_DATABASE_URL: postgres://woodgate:woodgate@postgres:5432/woodgate?sslmode=disable
+      WOODGATE_STORAGE_FILE_ROOT: /data
     ports:
-      - "${WOODGATE_PORT:-8080}:8080"
+      - "8080:8080"
     volumes:
       - woodgate-data:/data
     depends_on:

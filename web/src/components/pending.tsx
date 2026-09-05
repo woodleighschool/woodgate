@@ -1,0 +1,97 @@
+import { mergeProps } from "@base-ui/react/merge-props";
+import { useRender } from "@base-ui/react/use-render";
+import * as React from "react";
+
+interface UsePendingOptions {
+  id?: string;
+  isPending?: boolean;
+  disabled?: boolean;
+}
+
+interface UsePendingReturn<T extends HTMLElement = HTMLElement> {
+  pendingProps: React.HTMLAttributes<T> & {
+    "aria-busy"?: "true";
+    "aria-disabled"?: "true";
+    "data-pending"?: true;
+    "data-disabled"?: true;
+  };
+  isPending: boolean;
+}
+
+function preventPendingEvent(event: React.SyntheticEvent) {
+  event.preventDefault();
+}
+
+function preventPendingKeyEvent(event: React.KeyboardEvent) {
+  if (event.key === "Enter" || event.key === " ") {
+    event.preventDefault();
+  }
+}
+
+function usePending<T extends HTMLElement = HTMLElement>(
+  options: UsePendingOptions = {},
+): UsePendingReturn<T> {
+  const { id, isPending = false, disabled = false } = options;
+
+  const instanceId = React.useId();
+  const pendingId = id ?? instanceId;
+
+  const pendingProps = React.useMemo(() => {
+    const props: React.HTMLAttributes<T> & {
+      "aria-busy"?: "true";
+      "aria-disabled"?: "true";
+      "data-pending"?: true;
+      "data-disabled"?: true;
+    } = {
+      id: pendingId,
+    };
+
+    if (isPending) {
+      props["aria-busy"] = "true";
+      props["aria-disabled"] = "true";
+      props["data-pending"] = true;
+
+      props.onClick = preventPendingEvent;
+      props.onPointerDown = preventPendingEvent;
+      props.onPointerUp = preventPendingEvent;
+      props.onMouseDown = preventPendingEvent;
+      props.onMouseUp = preventPendingEvent;
+      props.onKeyDown = preventPendingKeyEvent;
+      props.onKeyUp = preventPendingKeyEvent;
+    }
+
+    if (disabled) {
+      props["data-disabled"] = true;
+    }
+
+    return props;
+  }, [isPending, disabled, pendingId]);
+
+  return React.useMemo(() => {
+    return {
+      pendingProps,
+      isPending,
+    };
+  }, [pendingProps, isPending]);
+}
+
+interface PendingProps extends React.ComponentProps<"button">, useRender.ComponentProps<"button"> {
+  isPending?: boolean;
+  disabled?: boolean;
+}
+
+function Pending({ id, isPending, disabled, render, ...props }: PendingProps) {
+  const { pendingProps } = usePending({ id, isPending, disabled });
+
+  return useRender({
+    defaultTagName: "button",
+    props: mergeProps<"button">(props, pendingProps),
+    render,
+    state: {
+      disabled,
+      pending: isPending,
+    },
+  });
+}
+
+export { Pending };

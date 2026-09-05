@@ -10,7 +10,7 @@ struct CheckinHomeView: View {
 
     private struct FormState {
         var query = ""
-        var selectedPersonID: UUID?
+        var selectedPersonID: Int64?
         var notes = ""
         var selfie: CapturedSelfie?
     }
@@ -64,6 +64,18 @@ struct CheckinHomeView: View {
         return nil
     }
 
+    private var hasBackground: Bool {
+        session.backgroundImage != nil
+    }
+
+    private var inputBackgroundStyle: AnyShapeStyle {
+        if hasBackground {
+            AnyShapeStyle(.thickMaterial)
+        } else {
+            AnyShapeStyle(Color(uiColor: .secondarySystemBackground))
+        }
+    }
+
     // MARK: - Body
 
     var body: some View {
@@ -110,66 +122,41 @@ struct CheckinHomeView: View {
     // MARK: - View Builders
 
     private var checkinCard: some View {
-        VStack(alignment: .leading, spacing: 20) {
-            headerSection
-            personSelectionSection
-            detailsSection
-            submissionHintSection
-            submitButtons
+        WallpaperCard(hasBackground: hasBackground) {
+            VStack(alignment: .leading, spacing: 20) {
+                headerSection
+                personSelectionSection
+                detailsSection
+                submissionHintSection
+                submitButtons
+            }
+            .padding(24)
+            .contentShape(Rectangle())
         }
-        .padding(24)
-        .glassEffect(in: .rect(cornerRadius: 28))
-        .contentShape(Rectangle())
     }
 
+    @ViewBuilder
     private var logoSection: some View {
-        LocationLogoView(image: session.logoImage)
-            .frame(maxWidth: 320, maxHeight: 120)
-            .shadow(color: .black.opacity(0.15), radius: 12, y: 4)
+        if let image = session.logoImage {
+            Image(uiImage: image)
+                .resizable()
+                .scaledToFit()
+                .frame(maxWidth: 320, maxHeight: 120)
+                .shadow(
+                    color: hasBackground ? .black.opacity(0.15) : .clear,
+                    radius: 12,
+                    y: 4
+                )
+                .accessibilityHidden(true)
+        }
     }
 
     private var headerSection: some View {
-        HStack(alignment: .center, spacing: 12) {
-            Text(session.location.name)
-                .font(.system(size: 34, weight: .bold, design: .rounded))
-                .lineLimit(1)
-                .minimumScaleFactor(0.55)
-                .allowsTightening(true)
-
-            Spacer(minLength: 0)
-
-            if session.isDemo {
-                HStack(spacing: 16) {
-                    Toggle(
-                        "Notes",
-                        isOn: Binding(
-                            get: { session.location.notes },
-                            set: { _ in
-                                modelData.toggleDemoNotes()
-                                if !session.location.notes {
-                                    form.notes = ""
-                                }
-                            }
-                        )
-                    )
-
-                    Toggle(
-                        "Selfie",
-                        isOn: Binding(
-                            get: { session.location.photo },
-                            set: { _ in
-                                modelData.toggleDemoPhoto()
-                                if !session.location.photo {
-                                    form.selfie = nil
-                                }
-                            }
-                        )
-                    )
-                }
-                .font(.system(size: 13, weight: .medium, design: .rounded))
-                .fixedSize()
-            }
-        }
+        Text(session.location.name)
+            .font(.system(size: 34, weight: .bold, design: .rounded))
+            .lineLimit(1)
+            .minimumScaleFactor(0.55)
+            .allowsTightening(true)
     }
 
     private var personSelectionSection: some View {
@@ -200,7 +187,7 @@ struct CheckinHomeView: View {
             .padding(.vertical, 12)
             .background(
                 RoundedRectangle(cornerRadius: 18, style: .continuous)
-                    .fill(.thickMaterial)
+                    .fill(inputBackgroundStyle)
             )
             .popover(
                 isPresented: $isSearchPopoverPresented,
@@ -252,7 +239,7 @@ struct CheckinHomeView: View {
                 .padding(12)
                 .background(
                     RoundedRectangle(cornerRadius: 18, style: .continuous)
-                        .fill(.thickMaterial)
+                        .fill(inputBackgroundStyle)
                 )
         }
     }
@@ -295,7 +282,7 @@ struct CheckinHomeView: View {
                     .frame(width: 88, height: 88)
                     .background(
                         RoundedRectangle(cornerRadius: 18, style: .continuous)
-                            .fill(.thickMaterial)
+                            .fill(inputBackgroundStyle)
                     )
                 }
             }
@@ -405,4 +392,31 @@ struct CheckinHomeView: View {
         let trimmedQuery = form.query.trimmingCharacters(in: .whitespacesAndNewlines)
         isSearchPopoverPresented = isSearchFocused && !trimmedQuery.isEmpty
     }
+}
+
+private struct CheckinHomePreview: View {
+    let session: ActiveSession
+
+    @State private var modelData: ModelData
+
+    init(session: ActiveSession) {
+        self.session = session
+        _modelData = State(initialValue: PreviewFixtures.modelData(session: session))
+    }
+
+    var body: some View {
+        ZStack {
+            LocationBackgroundView(image: session.backgroundImage)
+            CheckinHomeView(session: session)
+        }
+        .environment(modelData)
+    }
+}
+
+#Preview("Check-in — Plain") {
+    CheckinHomePreview(session: PreviewFixtures.plainSession)
+}
+
+#Preview("Check-in — Wallpaper and Logo") {
+    CheckinHomePreview(session: PreviewFixtures.brandedSession)
 }

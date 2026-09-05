@@ -1,69 +1,28 @@
 import SwiftUI
 
 struct WelcomeView: View {
-    // MARK: - Properties
-
     let isBusy: Bool
-    let onScan: () -> Void
-    let onDemo: () -> Void
-
-    // MARK: - Body
+    let onPair: () -> Void
 
     var body: some View {
-        VStack {
-            Spacer()
-
-            VStack(spacing: 20) {
-                pairingCard
-                demoCard
-            }
-            .padding()
-
-            Spacer()
-        }
-    }
-
-    // MARK: - View Builders
-
-    private var pairingCard: some View {
-        VStack(alignment: .leading, spacing: 16) {
+        ContentUnavailableView {
             Label("Pair This Device", systemImage: "qrcode.viewfinder")
-                .font(.system(size: 22, weight: .bold, design: .rounded))
-
-            Text(
-                "Use the API key pairing QR to connect this device, then choose its location."
-            )
-            .foregroundStyle(.secondary)
-            .fixedSize(horizontal: false, vertical: true)
-
-            Button(action: onScan) {
-                Label("Scan QR Code", systemImage: "camera.viewfinder")
-                    .font(.system(size: 17, weight: .semibold, design: .rounded))
-                    .frame(maxWidth: .infinity)
+        } description: {
+            Text("Scan a Station pairing code or enter its details manually.")
+        } actions: {
+            Button(action: onPair) {
+                Label("Pair Device", systemImage: "link")
             }
+            .buttonStyle(.borderedProminent)
             .disabled(isBusy)
         }
-        .padding(24)
-        .glassEffect(in: .rect(cornerRadius: 28))
     }
+}
 
-    private var demoCard: some View {
-        VStack(alignment: .leading, spacing: 16) {
-            Label("Demo Mode", systemImage: "sparkles.rectangle.stack")
-                .font(.system(size: 22, weight: .bold, design: .rounded))
+#Preview("Setup") {
+    WelcomeView(isBusy: false, onPair: {})
+}
 
-            Text("Run the whole check-in flow on device without a live server.")
-                .foregroundStyle(.secondary)
-                .fixedSize(horizontal: false, vertical: true)
-
-            Button(action: onDemo) {
-                Label("Try Demo", systemImage: "play.fill")
-                    .font(.system(size: 17, weight: .semibold, design: .rounded))
-                    .frame(maxWidth: .infinity)
-            }
-            .disabled(isBusy)
-        }
-        .padding(24)
-        .glassEffect(in: .rect(cornerRadius: 28))
-    }
+#Preview("Setup — Busy") {
+    WelcomeView(isBusy: true, onPair: {})
 }

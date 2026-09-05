@@ -15,74 +15,38 @@ struct WoodGateAPIClient {
     // MARK: - Properties
 
     private let baseURL: URL
-    private let apiKey: String
+    private let stationSecret: String
     private let session: URLSession
 
     private static let decoder: JSONDecoder = .init()
 
+    static let stationSubprotocol = "woodgate-station.v1"
+
     // MARK: - Init
 
-    init(baseURL: URL, apiKey: String, session: URLSession = .shared) {
+    init(baseURL: URL, stationSecret: String, session: URLSession = .shared) {
         self.baseURL = baseURL
-        self.apiKey = apiKey
+        self.stationSecret = stationSecret
         self.session = session
     }
 
     // MARK: - Public Methods
 
-    func authenticate() async throws -> WoodGateAuthMeResponse {
-        try await get(path: "/auth/me")
+    func getConfiguration() async throws -> WoodGateStationConfigurationResponse {
+        try await get(path: "/api/station/v1/configuration")
     }
 
-    func listLocations() async throws -> [WoodGateLocationResponse] {
-        let response: WoodGateListResponse<WoodGateLocationResponse> = try await get(
-            path: "/api/v1/locations"
+    func listPeople() async throws -> [PersonSummary] {
+        let response: WoodGateListResponse<WoodGateUserResponse> = try await get(
+            path: "/api/station/v1/people"
         )
-        return response.rows
-    }
-
-    func getLocation(id: UUID) async throws -> WoodGateLocationResponse {
-        try await get(path: "/api/v1/locations/\(id.uuidString.lowercased())")
-    }
-
-    func listPeople(locationID: UUID) async throws -> [PersonSummary] {
-        var people: [PersonSummary] = []
-        var offset = 0
-        let limit = 250
-
-        while true {
-            let response: WoodGateListResponse<WoodGateUserResponse> = try await get(
-                path: "/api/v1/users",
-                queryItems: [
-                    URLQueryItem(name: "location_id", value: locationID.uuidString.lowercased()),
-                    URLQueryItem(name: "limit", value: "\(limit)"),
-                    URLQueryItem(name: "offset", value: "\(offset)"),
-                ]
-            )
-
-            people.append(
-                contentsOf: response.rows.map { row in
-                    PersonSummary(
-                        id: row.id,
-                        displayName: row.displayName,
-                        email: row.upn
-                    )
-                }
-            )
-
-            offset += response.rows.count
-
-            if offset >= response.total || response.rows.isEmpty {
-                break
-            }
+        return response.items.map { row in
+            PersonSummary(id: row.id, displayName: row.name, email: row.email)
         }
-
-        return people
     }
 
     func createCheckin(
-        locationID: UUID,
-        userID: UUID,
+        personID: Int64,
         direction: CheckinDirectionChoice,
         notes: String?,
         photoJPEGData: Data?
@@ -90,13 +54,7 @@ struct WoodGateAPIClient {
         let boundary = "WoodGateBoundary-\(UUID().uuidString)"
         var body = Data()
 
-        appendField("user_id", value: userID.uuidString.lowercased(), to: &body, boundary: boundary)
-        appendField(
-            "location_id",
-            value: locationID.uuidString.lowercased(),
-            to: &body,
-            boundary: boundary
-        )
+        appendField("person_id", value: "\(personID)", to: &body, boundary: boundary)
         appendField("direction", value: direction.rawValue, to: &body, boundary: boundary)
 
         if let notes, notes.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty == false {
@@ -116,7 +74,7 @@ struct WoodGateAPIClient {
 
         body.append(Data("--\(boundary)--\r\n".utf8))
 
-        var request = try makeRequest(path: "/api/v1/checkins")
+        var request = try makeRequest(path: "/api/station/v1/checkins")
         request.httpMethod = "POST"
         request.setValue(
             "multipart/form-data; boundary=\(boundary)",
@@ -127,11 +85,27 @@ struct WoodGateAPIClient {
         return try decodeResponse(WoodGateCheckinResponse.self, data: data, response: response)
     }
 
-    func getAssetContent(id: UUID) async throws -> Data {
-        let request = try makeRequest(path: "/api/v1/assets/\(id.uuidString.lowercased())/content")
+    func getLocationBackground() async throws -> Data {
+        try await getContent(path: "/api/station/v1/configuration/background")
+    }
+
+    func getLocationLogo() async throws -> Data {
+        try await getContent(path: "/api/station/v1/configuration/logo")
+    }
+
+    private func getContent(path: String) async throws -> Data {
+        let request = try makeRequest(path: path)
         let (data, response) = try await session.data(for: request)
         try validateResponse(data: data, response: response)
         return data
+    }
+
+    func makeControlTask(appBuild: String) throws -> URLSessionWebSocketTask {
+        var request = try makeRequest(path: "/api/station/v1/connect")
+        request.setValue(Self.stationSubprotocol, forHTTPHeaderField: "Sec-WebSocket-Protocol")
+        request.setValue(appBuild, forHTTPHeaderField: "Woodgate-Station-Build")
+        request.timeoutInterval = 30
+        return session.webSocketTask(with: request)
     }
 
     // MARK: - Private Helpers
@@ -164,7 +138,7 @@ struct WoodGateAPIClient {
         }
 
         var request = URLRequest(url: url)
-        request.setValue(apiKey, forHTTPHeaderField: "X-API-Key")
+        request.setValue("Bearer \(stationSecret)", forHTTPHeaderField: "Authorization")
         request.setValue("application/json", forHTTPHeaderField: "Accept")
         request.timeoutInterval = 30
 
@@ -191,6 +165,10 @@ struct WoodGateAPIClient {
         guard (200 ... 299).contains(httpResponse.statusCode) else {
             if let problem = try? Self.decoder.decode(WoodGateProblemResponse.self, from: data) {
                 throw WoodGateAPIError(statusCode: httpResponse.statusCode, detail: problem.detail)
+            }
+
+            if let response = try? Self.decoder.decode(WoodGateErrorResponse.self, from: data) {
+                throw WoodGateAPIError(statusCode: httpResponse.statusCode, detail: response.error)
             }
 
             throw WoodGateAPIError(

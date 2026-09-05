@@ -37,21 +37,14 @@ struct SecretMenuSheet: View {
             .navigationTitle("Device Menu")
             .navigationBarTitleDisplayMode(.inline)
         }
-        .presentationDetents([.medium, .large])
+        .modelAlert()
     }
 
     // MARK: - View Builders
 
     private var actionsSection: some View {
         Section("Actions") {
-            if let session, session.isDemo {
-                Button(role: .destructive) {
-                    dismiss()
-                    modelData.exitDemoMode()
-                } label: {
-                    Label("Exit Demo Mode", systemImage: "xmark.octagon")
-                }
-            } else if session != nil {
+            if session != nil {
                 Button {
                     Task {
                         isRefreshing = true
@@ -68,25 +61,15 @@ struct SecretMenuSheet: View {
                     }
                 }
                 .disabled(isRefreshing)
-
-                Button {
-                    dismiss()
-                    Task {
-                        await modelData.beginSwitchLocation()
-                    }
-                } label: {
-                    Label("Switch Location", systemImage: "building.2")
-                }
-                .disabled(isRefreshing)
-
-                Button(role: .destructive) {
-                    dismiss()
-                    modelData.forgetPairing()
-                } label: {
-                    Label("Forget Pairing", systemImage: "trash")
-                }
-                .disabled(isRefreshing)
             }
+
+            Button(role: .destructive) {
+                dismiss()
+                modelData.forgetPairing()
+            } label: {
+                Label("Forget Pairing", systemImage: "trash")
+            }
+            .disabled(isRefreshing)
         }
     }
 
@@ -94,7 +77,7 @@ struct SecretMenuSheet: View {
     private var debugSection: some View {
         if let session {
             Section("Debug") {
-                Text("Mode: \(session.isDemo ? "Demo" : "Paired")")
+                Text("Station: \(session.stationName)")
                 Text("Location: \(session.location.name)")
                 Text("People cached: \(session.people.count)")
                 Text(
