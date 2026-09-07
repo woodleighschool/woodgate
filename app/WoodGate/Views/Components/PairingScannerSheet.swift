@@ -1,3 +1,4 @@
+import Foundation
 import SwiftUI
 import Vision
 import VisionKit
@@ -5,59 +6,198 @@ import VisionKit
 struct PairingScannerSheet: View {
     // MARK: - Properties
 
-    let onPayload: (String) -> Void
+    let onPayload: (PairingPayload) async throws -> Void
+
+    @State private var pendingPayload: PairingPayload?
+    @State private var pairingError: String?
+
+    private var isBusy: Bool {
+        pendingPayload != nil
+    }
+
+    @State private var canScan = DataScannerViewController.isSupported && DataScannerViewController.isAvailable
+    @State private var method: PairingMethod = DataScannerViewController.isSupported && DataScannerViewController.isAvailable ? .scan : .manual
+    @State private var scannerID = UUID()
 
     // MARK: - Body
 
     var body: some View {
-        VStack(spacing: 24) {
-            scannerView
-            copyView
-            Spacer()
+        VStack(spacing: 0) {
+            Picker("Pairing Method", selection: $method) {
+                Text("Scan").tag(PairingMethod.scan)
+                Text("Manual").tag(PairingMethod.manual)
+            }
+            .pickerStyle(.segmented)
+            .disabled(isBusy || !canScan)
+            .padding(.horizontal, 24)
+            .padding(.vertical, 16)
+
+            switch method {
+            case .scan:
+                ScanPairingView(isBusy: isBusy, onPayload: scan, onUnavailable: {
+                    canScan = false
+                    method = .manual
+                })
+                .id(scannerID)
+            case .manual:
+                ManualPairingView(isBusy: isBusy, onPayload: pair)
+            }
         }
-        .padding(24)
+        .task(id: pendingPayload) {
+            guard let payload = pendingPayload else { return }
+            do {
+                try await onPayload(payload)
+            } catch {
+                guard !Task.isCancelled else { return }
+                pairingError = error.localizedDescription
+            }
+            pendingPayload = nil
+        }
+        .alert("Could Not Pair", isPresented: Binding(
+            get: { pairingError != nil },
+            set: {
+                if !$0 {
+                    pairingError = nil
+                }
+            }
+        )) {
+            Button("OK") { scannerID = UUID() }
+        } message: {
+            Text(pairingError ?? "")
+        }
+        .interactiveDismissDisabled(isBusy)
         .navigationTitle("Pair Device")
         .navigationBarTitleDisplayMode(.inline)
     }
 
-    // MARK: - View Builders
+    // MARK: - Private Helpers
 
-    private var scannerView: some View {
-        QRScannerView { payload in
-            onPayload(payload)
+    private func scan(_ text: String) {
+        guard !isBusy else { return }
+        do {
+            try pair(PairingPayload.parse(json: text))
+        } catch {
+            pairingError = "This QR code does not contain valid pairing details."
         }
-        .frame(maxWidth: .infinity)
-        .frame(height: 420)
-        .clipShape(RoundedRectangle(cornerRadius: 28, style: .continuous))
-        .shadow(color: .black.opacity(0.1), radius: 10, y: 4)
     }
 
-    private var copyView: some View {
-        VStack(alignment: .leading, spacing: 12) {
-            Text("Scan Configuration QR")
-                .font(.title2.weight(.bold))
-
-            Text(
-                "This screen is only used to pair the app with a location. The app will return to the check-in screen automatically once configured."
-            )
-            .font(.callout)
-            .foregroundStyle(.secondary)
-        }
-        .frame(maxWidth: .infinity, alignment: .leading)
+    private func pair(_ payload: PairingPayload) {
+        guard !isBusy else { return }
+        pendingPayload = payload
     }
 }
 
 // MARK: - Private Components
 
+private enum PairingMethod {
+    case scan
+    case manual
+}
+
+private struct ScanPairingView: View {
+    let isBusy: Bool
+    let onPayload: (String) -> Void
+    let onUnavailable: () -> Void
+
+    var body: some View {
+        ScrollView {
+            VStack(alignment: .leading, spacing: 12) {
+                Text("Scan Configuration QR")
+                    .font(.title2.weight(.bold))
+
+                Text(
+                    "Scan the API key pairing QR code. Then choose the destination location."
+                )
+                .font(.callout)
+                .foregroundStyle(.secondary)
+
+                QRScannerView(onPayload: onPayload, onUnavailable: onUnavailable)
+                    .frame(maxWidth: .infinity)
+                    .frame(height: 420)
+                    .clipShape(RoundedRectangle(cornerRadius: 28, style: .continuous))
+                    .shadow(color: .black.opacity(0.1), radius: 10, y: 4)
+                    .allowsHitTesting(!isBusy)
+            }
+            .frame(maxWidth: .infinity, alignment: .leading)
+            .padding(24)
+        }
+    }
+}
+
+private struct ManualPairingView: View {
+    // MARK: - Properties
+
+    @State private var baseURL = ""
+    @State private var apiKey = ""
+
+    let isBusy: Bool
+    let onPayload: (PairingPayload) -> Void
+
+    private var isPairingDisabled: Bool {
+        isBusy
+            || baseURL.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty
+            || apiKey.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty
+    }
+
+    // MARK: - Body
+
+    var body: some View {
+        Form {
+            Section {
+                TextField("Server URL", text: $baseURL)
+                    .textContentType(.URL)
+                    .keyboardType(.URL)
+                    .textInputAutocapitalization(.never)
+                    .autocorrectionDisabled()
+
+                SecureField("API Key", text: $apiKey)
+                    .textContentType(.password)
+                    .textInputAutocapitalization(.never)
+                    .autocorrectionDisabled()
+                    .onSubmit(pair)
+            } header: {
+                Text("Server and Key")
+            } footer: {
+                Text("Enter the server URL and API key to start pairing.")
+            }
+
+            Section {
+                Button(action: pair) {
+                    HStack {
+                        Label("Pair Device", systemImage: "link")
+                        Spacer()
+                        if isBusy {
+                            ProgressView()
+                        }
+                    }
+                }
+                .disabled(isPairingDisabled)
+            }
+        }
+        .disabled(isBusy)
+    }
+
+    // MARK: - Private Helpers
+
+    private func pair() {
+        guard !isPairingDisabled else {
+            return
+        }
+
+        onPayload(PairingPayload(baseURL: baseURL, apiKey: apiKey))
+    }
+}
+
 private struct QRScannerView: UIViewControllerRepresentable {
     // MARK: - Properties
 
     let onPayload: (String) -> Void
+    let onUnavailable: () -> Void
 
     // MARK: - UIViewControllerRepresentable
 
     func makeCoordinator() -> Coordinator {
-        Coordinator(onPayload: onPayload)
+        Coordinator(onPayload: onPayload, onUnavailable: onUnavailable)
     }
 
     func makeUIViewController(context: Context) -> DataScannerViewController {
@@ -72,10 +212,13 @@ private struct QRScannerView: UIViewControllerRepresentable {
         return controller
     }
 
-    func updateUIViewController(_ controller: DataScannerViewController, context _: Context) {
-        guard !controller.isScanning else { return }
-
-        try? controller.startScanning()
+    func updateUIViewController(_ controller: DataScannerViewController, context: Context) {
+        guard !controller.isScanning, !context.coordinator.hasScanned else { return }
+        do {
+            try controller.startScanning()
+        } catch {
+            Task { onUnavailable() }
+        }
     }
 
     static func dismantleUIViewController(
@@ -91,15 +234,25 @@ private struct QRScannerView: UIViewControllerRepresentable {
         // MARK: - Properties
 
         private let onPayload: (String) -> Void
-        private var hasScanned = false
+        private let onUnavailable: () -> Void
+        private(set) var hasScanned = false
 
         // MARK: - Lifecycle
 
-        init(onPayload: @escaping (String) -> Void) {
+        init(onPayload: @escaping (String) -> Void, onUnavailable: @escaping () -> Void) {
             self.onPayload = onPayload
+            self.onUnavailable = onUnavailable
         }
 
         // MARK: - DataScannerViewControllerDelegate
+
+        func dataScanner(
+            _ dataScanner: DataScannerViewController,
+            becameUnavailableWithError _: DataScannerViewController.ScanningUnavailable
+        ) {
+            dataScanner.stopScanning()
+            onUnavailable()
+        }
 
         func dataScanner(
             _ dataScanner: DataScannerViewController,

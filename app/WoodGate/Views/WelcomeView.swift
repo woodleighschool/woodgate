@@ -2,16 +2,16 @@ import SwiftUI
 
 struct WelcomeView: View {
     let isBusy: Bool
-    let onScan: () -> Void
+    let onPair: () -> Void
 
     var body: some View {
         ContentUnavailableView {
             Label("Pair This Device", systemImage: "qrcode.viewfinder")
         } description: {
-            Text("Scan the API key pairing QR code, then choose this device’s location.")
+            Text("Scan the API key pairing QR code or enter server/key details manually.")
         } actions: {
-            Button(action: onScan) {
-                Label("Scan QR Code", systemImage: "camera.viewfinder")
+            Button(action: onPair) {
+                Label("Pair Device", systemImage: "link")
             }
             .buttonStyle(.borderedProminent)
             .disabled(isBusy)
@@ -20,9 +20,9 @@ struct WelcomeView: View {
 }
 
 #Preview("Setup") {
-    WelcomeView(isBusy: false, onScan: {})
+    WelcomeView(isBusy: false, onPair: {})
 }
 
 #Preview("Setup — Busy") {
-    WelcomeView(isBusy: true, onScan: {})
+    WelcomeView(isBusy: true, onPair: {})
 }

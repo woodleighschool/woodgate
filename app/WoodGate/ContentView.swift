@@ -6,16 +6,17 @@ struct ContentView: View {
     @Environment(ModelData.self) private var modelData
     @Environment(\.scenePhase) private var scenePhase
 
-    @State private var isScannerPresented = false
+    @State private var isPairingPresented = false
     @State private var isSecretMenuPresented = false
 
     // MARK: - Computed Properties
 
-    private var locationSelectionBinding: Binding<LocationSelectionState?> {
+    private var pairingPresentationBinding: Binding<Bool> {
         Binding(
-            get: { modelData.locationSelection },
-            set: { newValue in
-                if newValue == nil {
+            get: { isPairingPresented || modelData.locationSelection != nil },
+            set: { presented in
+                isPairingPresented = presented
+                if !presented {
                     modelData.cancelLocationSelection()
                 }
             }
@@ -55,14 +56,11 @@ struct ContentView: View {
                 await modelData.handleSceneActive()
             }
         }
-        .sheet(isPresented: $isScannerPresented) {
-            scannerSheet
+        .sheet(isPresented: pairingPresentationBinding) {
+            pairingSheet
         }
         .sheet(isPresented: $isSecretMenuPresented) {
             SecretMenuSheet(session: modelData.currentSession)
-        }
-        .sheet(item: locationSelectionBinding) { selection in
-            locationSelectionSheet(selection: selection)
         }
         .alert(item: alertBinding) { alert in
             Alert(
@@ -121,50 +119,34 @@ struct ContentView: View {
         } else {
             WelcomeView(
                 isBusy: modelData.isBusy,
-                onScan: {
-                    isScannerPresented = true
+                onPair: {
+                    isPairingPresented = true
                 }
             )
         }
     }
 
-    private var scannerSheet: some View {
+    private var pairingSheet: some View {
         NavigationStack {
-            PairingScannerSheet(
-                onPayload: { payload in
-                    isScannerPresented = false
-
-                    Task {
-                        await modelData.beginPairing(with: payload)
+            Group {
+                if let selection = modelData.locationSelection {
+                    LocationSelectionSheet(selection: selection, isBusy: modelData.isBusy) { option in
+                        Task {
+                            await modelData.selectLocation(option)
+                            if modelData.locationSelection == nil {
+                                isPairingPresented = false
+                            }
+                        }
                     }
+                } else {
+                    PairingScannerSheet(onPayload: modelData.beginPairing)
                 }
-            )
-        }
-        .presentationDetents([.large])
-        .presentationDragIndicator(.visible)
-    }
-
-    // MARK: - Private Helpers
-
-    private func locationSelectionSheet(selection: LocationSelectionState) -> some View {
-        NavigationStack {
-            LocationSelectionSheet(
-                selection: selection,
-                isBusy: modelData.isBusy,
-                onSelect: { option in
-                    Task {
-                        await modelData.selectLocation(option)
-                    }
-                }
-            )
+            }
             .alert(item: alertBinding) { alert in
-                Alert(
-                    title: Text(alert.title),
-                    message: Text(alert.message),
-                    dismissButton: .default(Text("OK"))
-                )
+                Alert(title: Text(alert.title), message: Text(alert.message))
             }
         }
+        .interactiveDismissDisabled(modelData.isBusy)
         .presentationDetents([.large])
         .presentationDragIndicator(.visible)
     }

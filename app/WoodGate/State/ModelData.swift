@@ -82,13 +82,12 @@ final class ModelData {
 
     // MARK: - Pairing
 
-    func beginPairing(with payloadText: String) async {
-        do {
-            let payload = try PairingPayload.parse(json: payloadText)
-            try await fetchPairableLocations(using: payload)
-        } catch {
-            alert = AlertItem(title: "QR Code Not Recognised", message: error.localizedDescription)
-        }
+    func beginPairing(with payload: PairingPayload) async throws {
+        let normalizedPayload = PairingPayload(
+            baseURL: payload.baseURL.trimmingCharacters(in: .whitespacesAndNewlines),
+            apiKey: payload.apiKey.trimmingCharacters(in: .whitespacesAndNewlines)
+        )
+        try await fetchPairableLocations(using: normalizedPayload)
     }
 
     func beginSwitchLocation() async {
@@ -106,7 +105,7 @@ final class ModelData {
     }
 
     func selectLocation(_ option: SessionLocation) async {
-        let payload = locationSelection!.payload
+        guard !isBusy, let payload = locationSelection?.payload else { return }
 
         isBusy = true
         defer { isBusy = false }
@@ -118,7 +117,7 @@ final class ModelData {
                     apiKey: payload.apiKey
                 )
             else {
-                throw WoodGateError(message: "The QR code does not contain a valid server URL.")
+                throw WoodGateError(message: "Enter a valid HTTP or HTTPS server URL.")
             }
             let location = try await client.getLocation(id: option.id)
             guard location.enabled else {
@@ -257,6 +256,9 @@ final class ModelData {
     // MARK: - Private Helpers
 
     private func fetchPairableLocations(using payload: PairingPayload) async throws {
+        guard !isBusy else {
+            throw WoodGateError(message: "The station is busy. Please try again.")
+        }
         isBusy = true
         defer { isBusy = false }
 
@@ -266,12 +268,12 @@ final class ModelData {
                 apiKey: payload.apiKey
             )
         else {
-            throw WoodGateError(message: "The QR code does not contain a valid server URL.")
+            throw WoodGateError(message: "Enter a valid HTTP or HTTPS server URL.")
         }
         let auth = try await client.authenticate()
 
         guard auth.principal.type == "api_key" else {
-            throw WoodGateError(message: "That QR code did not authenticate as an API key.")
+            throw WoodGateError(message: "These credentials did not authenticate as an API key.")
         }
 
         let allowedLocationIDs = Set(
@@ -289,6 +291,7 @@ final class ModelData {
             throw WoodGateError(message: "This API key does not have any enabled locations available.")
         }
 
+        try Task.checkCancellation()
         locationSelection = LocationSelectionState(
             options: locations,
             payload: payload
