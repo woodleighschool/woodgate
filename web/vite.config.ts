@@ -1,6 +1,7 @@
 import path from "node:path";
 
 import tailwindcss from "@tailwindcss/vite";
+import { tanstackRouter } from "@tanstack/router-plugin/vite";
 import react from "@vitejs/plugin-react";
 import { defineConfig } from "vite";
 
@@ -8,6 +9,10 @@ const projectDirectory = import.meta.dirname;
 
 export default defineConfig({
   plugins: [
+    tanstackRouter({
+      target: "react",
+      autoCodeSplitting: true,
+    }),
     react({
       jsxRuntime: "automatic",
     }),
@@ -25,7 +30,6 @@ export default defineConfig({
     port: 5173,
     strictPort: true,
     proxy: {
-      "/auth": { changeOrigin: true, target: "http://localhost:8080" },
       "/api": {
         changeOrigin: true,
         target: "http://localhost:8080",

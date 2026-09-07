@@ -84,41 +84,45 @@ struct ContentView: View {
     @ViewBuilder
     private var rootView: some View {
         if let session = modelData.currentSession {
-            if let unavailableState = modelData.unavailableState, !session.isDemo {
+            if let unavailableState = modelData.unavailableState {
                 switch unavailableState {
                 case .connectivity:
                     UnavailableCardView(
                         title: "Can't Connect Right Now",
                         systemImage: "wifi.exclamationmark",
                         message:
-                        "The server can't be reached right now. You can try refreshing, and this device will keep trying in the background."
+                        "The server can't be reached right now. You can try refreshing, and this device will keep trying in the background.",
+                        hasBackground: session.backgroundImage != nil
                     )
                 case .authorization:
                     UnavailableCardView(
                         title: "This Device Is No Longer Authorized",
                         systemImage: "key.slash.fill",
-                        message: "This device can no longer accept check-ins with its current pairing."
+                        message: "This device can no longer accept check-ins with its current pairing.",
+                        hasBackground: session.backgroundImage != nil
                     )
                 case .locationDisabled:
                     UnavailableCardView(
                         title: "This Location Is Not Currently Accepting Check-Ins",
                         systemImage: "mappin.slash.circle.fill",
-                        message: "Please see a staff member if you need help."
+                        message: "Please see a staff member if you need help.",
+                        hasBackground: session.backgroundImage != nil
                     )
                 }
             } else {
                 CheckinHomeView(session: session)
             }
         } else if AppSettings.shared.hasPairing {
-            Color.clear
+            UnavailableCardView(
+                title: "Can’t Connect Right Now", systemImage: "wifi.exclamationmark",
+                message: "The saved configuration is unavailable. This device will keep trying in the background.",
+                hasBackground: false
+            )
         } else {
             WelcomeView(
                 isBusy: modelData.isBusy,
                 onScan: {
                     isScannerPresented = true
-                },
-                onDemo: {
-                    modelData.beginDemoMode()
                 }
             )
         }

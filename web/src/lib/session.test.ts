@@ -9,11 +9,11 @@ void test("authentication failure expires both queries and mutations while prese
   session.onExpired(() => {
     expired++;
   });
-  const read = await session.fetch("/api/v1/users");
+  const read = await session.fetch("/api/users");
   assert.equal(read.status, 401);
   assert.equal(expired, 1);
   session.renew();
-  const write = await session.fetch("/api/v1/locations/example", { method: "PATCH" });
+  const write = await session.fetch("/api/locations/example", { method: "PATCH" });
   assert.equal(write.status, 401);
   assert.equal(expired, 2);
 });
@@ -23,7 +23,7 @@ void test("permission and validation failures preserve the current session", asy
   session.onExpired(() => {
     expired = true;
   });
-  assert.equal((await session.fetch("/api/v1/users")).status, 403);
+  assert.equal((await session.fetch("/api/users")).status, 403);
   assert.equal(expired, false);
 });
 void test("responses from an earlier session cannot expire a new sign-in", async () => {
@@ -38,7 +38,7 @@ void test("responses from an earlier session cannot expire a new sign-in", async
   session.onExpired(() => {
     expired = true;
   });
-  const pending = session.fetch("/api/v1/users");
+  const pending = session.fetch("/api/users");
   session.renew();
   assert.ok(respond);
   respond(new Response(null, { status: 401 }));
@@ -51,6 +51,19 @@ void test("concurrent failures expire a session only once", async () => {
   session.onExpired(() => {
     expired++;
   });
-  await Promise.all([session.fetch("/auth/user"), session.fetch("/api/v1/users")]);
+  await Promise.all([session.fetch("/auth/user"), session.fetch("/api/users")]);
   assert.equal(expired, 1);
+});
+
+void test("failed login preserves its inline response without expiring a session", async () => {
+  let expired = false;
+  const session = createSessionTransport(async () => new Response(null, { status: 401 }));
+  session.onExpired(() => {
+    expired = true;
+  });
+  assert.equal(
+    (await session.fetch("https://app.example.invalid/api/session", { method: "POST" })).status,
+    401,
+  );
+  assert.equal(expired, false);
 });

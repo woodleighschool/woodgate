@@ -38,6 +38,6 @@
 
 ## Repository notes
 
-- The repository contains a Go API, React-admin frontend, and native companion app. Keep platform details at the edge and workflow rules in application or domain code.
+- The repository contains a Go API, React administration interface, and native companion app. Keep platform details at the edge and workflow rules in application or domain code.
 - The OpenAPI contract, generated clients, handlers, and consumers change together.
 - Real identities, tenant data, credentials, and check-in records never belong in tests.

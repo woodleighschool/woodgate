@@ -26,10 +26,12 @@ final class ModelData {
 
     // MARK: - Init
 
-    init(modelContext: ModelContext) {
+    init(modelContext: ModelContext, startsServices: Bool = true) {
         self.modelContext = modelContext
-        startBackgroundRefresh()
-        Task { await bootstrap() }
+        if startsServices {
+            startBackgroundRefresh()
+            Task { await bootstrap() }
+        }
     }
 
     // MARK: - Lifecycle
@@ -59,7 +61,6 @@ final class ModelData {
 
             do {
                 currentSession = try await buildSession(
-                    mode: .paired,
                     baseURLString: settings.baseURLString,
                     client: client,
                     locationID: locationID,
@@ -77,50 +78,6 @@ final class ModelData {
 
     func handleSceneActive() async {
         await refreshSession()
-    }
-
-    // MARK: - Demo
-
-    func beginDemoMode() {
-        currentSession = DemoCatalog.session()
-        locationSelection = nil
-        unavailableState = nil
-    }
-
-    func exitDemoMode() {
-        guard currentSession?.mode == .demo else { return }
-
-        currentSession = nil
-        locationSelection = nil
-        unavailableState = nil
-    }
-
-    func toggleDemoNotes() {
-        guard var session = currentSession, session.mode == .demo else { return }
-
-        session.location = ActiveLocation(
-            id: session.location.id,
-            name: session.location.name,
-            notes: !session.location.notes,
-            photo: session.location.photo,
-            backgroundAssetID: session.location.backgroundAssetID,
-            logoAssetID: session.location.logoAssetID
-        )
-        currentSession = session
-    }
-
-    func toggleDemoPhoto() {
-        guard var session = currentSession, session.mode == .demo else { return }
-
-        session.location = ActiveLocation(
-            id: session.location.id,
-            name: session.location.name,
-            notes: session.location.notes,
-            photo: !session.location.photo,
-            backgroundAssetID: session.location.backgroundAssetID,
-            logoAssetID: session.location.logoAssetID
-        )
-        currentSession = session
     }
 
     // MARK: - Pairing
@@ -169,7 +126,6 @@ final class ModelData {
             }
             let people = try await client.listPeople(locationID: location.id)
             let session = await makeSession(
-                mode: .paired,
                 baseURLString: payload.baseURL,
                 location: location,
                 people: people,
@@ -201,7 +157,7 @@ final class ModelData {
     // MARK: - Session Refresh
 
     func refreshSession() async {
-        guard let currentSession, currentSession.mode == .paired else { return }
+        guard let currentSession else { return }
         guard !isBusy, locationSelection == nil else { return }
 
         if let refreshInFlightTask {
@@ -237,14 +193,6 @@ final class ModelData {
         let session = currentSession!
         let trimmedNotes = notes.trimmingCharacters(in: .whitespacesAndNewlines)
         let photoJPEGData = session.location.photo ? selfie!.jpegData : nil
-
-        if session.mode == .demo {
-            try await Task.sleep(for: .milliseconds(500))
-            let message =
-                "\(person.displayName) was \(direction == .checkIn ? "checked in" : "checked out") in demo mode."
-            alert = AlertItem(title: "Submitted", message: message)
-            return
-        }
 
         let settings = AppSettings.shared
         let client = settings.woodGateClient(
@@ -284,19 +232,6 @@ final class ModelData {
         let q = query.trimmingCharacters(in: .whitespacesAndNewlines)
         guard !q.isEmpty, let currentSession else {
             return []
-        }
-
-        if currentSession.isDemo {
-            return currentSession.people
-                .filter { person in
-                    person.displayName.localizedStandardContains(q)
-                        || person.email.localizedStandardContains(q)
-                }
-                .sorted {
-                    $0.displayName.localizedCaseInsensitiveCompare($1.displayName) == .orderedAscending
-                }
-                .prefix(25)
-                .map(\.self)
         }
 
         let predicate = #Predicate<CachedPersonRecord> { person in
@@ -377,7 +312,6 @@ final class ModelData {
     ) throws -> ActiveSession {
         let cachedPeople = try loadPeople()
         return ActiveSession(
-            mode: .paired,
             baseURLString: settings.baseURLString,
             location: ActiveLocation(
                 id: locationID,
@@ -464,7 +398,6 @@ final class ModelData {
             }
             let people = try await client.listPeople(locationID: location.id)
             let refreshedSession = await makeSession(
-                mode: .paired,
                 baseURLString: settings.baseURLString,
                 location: location,
                 people: people,
@@ -482,7 +415,6 @@ final class ModelData {
     }
 
     private func buildSession(
-        mode: SessionMode,
         baseURLString: String,
         client: WoodGateAPIClient,
         locationID: UUID,
@@ -496,7 +428,6 @@ final class ModelData {
             }
 
             return await makeSession(
-                mode: mode,
                 baseURLString: baseURLString,
                 location: location,
                 people: [],
@@ -508,7 +439,6 @@ final class ModelData {
 
         let people = try await client.listPeople(locationID: location.id)
         return await makeSession(
-            mode: mode,
             baseURLString: baseURLString,
             location: location,
             people: people,
@@ -519,7 +449,6 @@ final class ModelData {
     }
 
     private func makeSession(
-        mode: SessionMode,
         baseURLString: String,
         location: WoodGateLocationResponse,
         people: [PersonSummary],
@@ -541,7 +470,6 @@ final class ModelData {
         )
 
         return await ActiveSession(
-            mode: mode,
             baseURLString: baseURLString,
             location: ActiveLocation(
                 id: location.id,

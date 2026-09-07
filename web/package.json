@@ -12,7 +12,7 @@
     "typecheck": "tsc -b",
     "format": "oxfmt",
     "openapi:types": "openapi-ts -i ./openapi.yaml -o ./src/lib/api-client -c @hey-api/client-fetch --plugins @hey-api/typescript @hey-api/sdk",
-    "test": "node --test src/features/access/grants.test.ts src/features/api-keys/pairing.test.ts src/features/resources/search.test.ts src/lib/session.test.ts"
+    "test": "node --test src/components/layout/navigation.test.ts src/features/app-keys/pairing.test.ts src/lib/session.test.ts"
   },
   "dependencies": {
     "@base-ui/react": "^1.7.0",
@@ -21,6 +21,8 @@
     "@tanstack/react-router": "^1.170.32",
     "@tanstack/react-store": "^0.11.1",
     "@tanstack/react-table": "^9.2.4",
+    "@woodleighschool/authz": "^1.0.0",
+    "@woodleighschool/bloby-client": "^1.0.0",
     "clsx": "^2.1.1",
     "cva": "^1.0.0-beta.8",
     "date-fns": "^4.4.0",
@@ -42,6 +44,7 @@
     "@tanstack/eslint-plugin-router": "^1.162.0",
     "@tanstack/react-query-devtools": "^5.102.8",
     "@tanstack/react-router-devtools": "^1.167.1",
+    "@tanstack/router-plugin": "^1.168.35",
     "@types/node": "^26.4.0",
     "@types/papaparse": "^5.5.2",
     "@types/react": "^19.2.18",

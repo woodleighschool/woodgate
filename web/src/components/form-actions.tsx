@@ -12,7 +12,6 @@ import { cn } from "@lib/utils";
 export function FormActions({
   form,
   submitLabel,
-  nativeSubmit = false,
   onSubmit,
   onCancel,
   canCancelWhileSubmitting = false,
@@ -21,7 +20,6 @@ export function FormActions({
 }: {
   form: AnyFormApi;
   submitLabel: string;
-  nativeSubmit?: boolean;
   onSubmit?: () => Promise<unknown> | void;
   onCancel?: () => void;
   canCancelWhileSubmitting?: boolean;
@@ -40,12 +38,7 @@ export function FormActions({
   };
   return (
     <Field orientation="horizontal" className={cn("justify-start", className)}>
-      <AsyncButton
-        isPending={isSubmitting}
-        type={nativeSubmit ? "submit" : "button"}
-        size="sm"
-        onClick={nativeSubmit ? undefined : submit}
-      >
+      <AsyncButton isPending={isSubmitting} type="button" size="sm" onClick={submit}>
         {submitLabel}
       </AsyncButton>
       {onCancel ? (
