@@ -1,41 +1,37 @@
 package httpapi
 
 import (
-	"net/http"
+	"context"
 	"strings"
 
 	"github.com/woodleighschool/woodgate/internal/domain"
 )
 
-func (handler *Server) ListAPIKeys(writer http.ResponseWriter, request *http.Request, params ListAPIKeysParams) {
-	listOptions, err := parseListOptions(params.Limit, params.Offset, params.Search, params.Sort, params.Order)
+func (handler *Server) listAPIKeys(ctx context.Context, input *ListAPIKeysParams) (*response[APIKeyListResponse], error) {
+	params := input
+
+	listOptions, err := parseListOptions(params.Limit.Value, params.Offset.Value, params.Search.Value, params.Sort.Value, params.Order.Value)
 	if err != nil {
-		writeClassifiedError(writer, err, apiErrorOptions{})
-		return
+		return nil, classifiedError(err, apiErrorOptions{})
 	}
 
 	items, total, err := handler.admin.ListAPIKeys(
-		request.Context(),
+		ctx,
 		domain.APIKeyListOptions{ListOptions: listOptions},
 	)
 	if err != nil {
-		writeClassifiedError(writer, err, apiErrorOptions{})
-		return
+		return nil, classifiedError(err, apiErrorOptions{})
 	}
 
-	writeJSON(writer, http.StatusOK, APIKeyListResponse{Rows: mapSliceValue(items, mapAPIKey), Total: total})
+	return &response[APIKeyListResponse]{Body: APIKeyListResponse{Rows: mapSliceValue(items, mapAPIKey), Total: total}}, nil
 }
 
-func (handler *Server) CreateAPIKey(writer http.ResponseWriter, request *http.Request) {
-	var body CreateAPIKeyJSONRequestBody
-	if err := decodeJSONBody(request, &body); err != nil {
-		writeClassifiedError(writer, err, apiErrorOptions{})
-		return
-	}
+func (handler *Server) createAPIKey(ctx context.Context, input *BodyInput[APIKeyCreateRequest]) (*response[CreateAPIKeyData], error) {
+	body := input.Body.Value
 
 	name := strings.TrimSpace(body.Name)
 	if name == "" {
-		writeClassifiedError(writer, &domain.ValidationError{
+		return nil, classifiedError(&domain.ValidationError{
 			Code:   "validation_error",
 			Detail: "API key is invalid.",
 			FieldErrors: []domain.FieldError{{
@@ -44,23 +40,20 @@ func (handler *Server) CreateAPIKey(writer http.ResponseWriter, request *http.Re
 				Code:    "required",
 			}},
 		}, apiErrorOptions{})
-		return
 	}
 
 	secret, prefix, secretHash, err := generateAPISecret()
 	if err != nil {
-		writeClassifiedError(writer, err, apiErrorOptions{})
-		return
+		return nil, classifiedError(err, apiErrorOptions{})
 	}
 
-	item, err := handler.admin.CreateAPIKey(request.Context(), name, prefix, secretHash, body.ExpiresAt)
+	item, err := handler.admin.CreateAPIKey(ctx, name, prefix, secretHash, body.ExpiresAt)
 	if err != nil {
-		writeClassifiedError(writer, err, apiErrorOptions{})
-		return
+		return nil, classifiedError(err, apiErrorOptions{})
 	}
 
-	writeJSON(writer, http.StatusCreated, CreateAPIKeyData{
-		Id:         idFromUUID(item.ID),
+	return &response[CreateAPIKeyData]{Body: CreateAPIKeyData{
+		ID:         idFromUUID(item.ID),
 		Name:       item.Name,
 		KeyPrefix:  item.KeyPrefix,
 		LastUsedAt: item.LastUsedAt,
@@ -69,44 +62,41 @@ func (handler *Server) CreateAPIKey(writer http.ResponseWriter, request *http.Re
 		Access:     []PermissionGrant{},
 		CreatedAt:  item.CreatedAt,
 		Secret:     secret,
-	})
+	}}, nil
 }
 
-func (handler *Server) GetAPIKey(writer http.ResponseWriter, request *http.Request, id Id) {
-	item, err := handler.admin.GetAPIKey(request.Context(), id)
+func (handler *Server) getAPIKey(ctx context.Context, input *ItemInput) (*response[APIKey], error) {
+	id := input.ID
+
+	item, err := handler.admin.GetAPIKey(ctx, id)
 	if err != nil {
-		writeClassifiedError(writer, err, apiErrorOptions{NotFoundMessage: "api key not found"})
-		return
+		return nil, classifiedError(err, apiErrorOptions{NotFoundMessage: "api key not found"})
 	}
-	writeJSON(writer, http.StatusOK, mapAPIKey(item))
+	return &response[APIKey]{Body: mapAPIKey(item)}, nil
 }
 
-func (handler *Server) PatchAPIKey(writer http.ResponseWriter, request *http.Request, id Id) {
-	var body PatchAPIKeyJSONRequestBody
-	if err := decodeJSONBody(request, &body); err != nil {
-		writeClassifiedError(writer, err, apiErrorOptions{})
-		return
-	}
+func (handler *Server) patchAPIKey(ctx context.Context, input *patchInput[APIKeyAccessWriteRequest]) (*response[APIKey], error) {
+	id := input.ID
+	body := input.Body.Value
 
 	permissions, err := validatePermissionGrants(body.Access, "API key access is invalid.")
 	if err != nil {
-		writeClassifiedError(writer, err, apiErrorOptions{})
-		return
+		return nil, classifiedError(err, apiErrorOptions{})
 	}
 
-	item, err := handler.admin.UpdateAPIKeyAccess(request.Context(), id, body.Admin, permissions)
+	item, err := handler.admin.UpdateAPIKeyAccess(ctx, id, body.Admin, permissions)
 	if err != nil {
-		writeClassifiedError(writer, err, apiErrorOptions{NotFoundMessage: "api key not found"})
-		return
+		return nil, classifiedError(err, apiErrorOptions{NotFoundMessage: "api key not found"})
 	}
 
-	writeJSON(writer, http.StatusOK, mapAPIKey(item))
+	return &response[APIKey]{Body: mapAPIKey(item)}, nil
 }
 
-func (handler *Server) DeleteAPIKey(writer http.ResponseWriter, request *http.Request, id Id) {
-	if err := handler.admin.DeleteAPIKey(request.Context(), id); err != nil {
-		writeClassifiedError(writer, err, apiErrorOptions{NotFoundMessage: "api key not found"})
-		return
+func (handler *Server) deleteAPIKey(ctx context.Context, input *ItemInput) (*struct{}, error) {
+	id := input.ID
+
+	if err := handler.admin.DeleteAPIKey(ctx, id); err != nil {
+		return nil, classifiedError(err, apiErrorOptions{NotFoundMessage: "api key not found"})
 	}
-	writer.WriteHeader(http.StatusNoContent)
+	return nil, nil
 }

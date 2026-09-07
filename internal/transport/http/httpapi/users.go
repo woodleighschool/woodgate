@@ -1,86 +1,78 @@
 package httpapi
 
 import (
-	"net/http"
+	"context"
 
 	"github.com/woodleighschool/woodgate/internal/app/authz"
 	"github.com/woodleighschool/woodgate/internal/domain"
 )
 
-func (handler *Server) ListUsers(writer http.ResponseWriter, request *http.Request, params ListUsersParams) {
-	listOptions, err := parseListOptions(params.Limit, params.Offset, params.Search, params.Sort, params.Order)
+func (handler *Server) listUsers(ctx context.Context, input *ListUsersParams) (*response[UserListResponse], error) {
+	params := input
+
+	listOptions, err := parseListOptions(params.Limit.Value, params.Offset.Value, params.Search.Value, params.Sort.Value, params.Order.Value)
 	if err != nil {
-		writeClassifiedError(writer, err, apiErrorOptions{})
-		return
+		return nil, classifiedError(err, apiErrorOptions{})
 	}
 
-	locationID := uuidPointer(params.LocationId)
-	principal, err := principalFromContext(request.Context())
+	locationID := uuidPointer(params.LocationID.Value)
+	principal, err := principalFromContext(ctx)
 	if err != nil {
-		writeClassifiedError(writer, err, apiErrorOptions{})
-		return
+		return nil, classifiedError(err, apiErrorOptions{})
 	}
 	if principal.Kind == authz.PrincipalKindAPIKey {
 		if locationID == nil {
-			writeClassifiedError(writer, domain.ErrPermissionDenied, apiErrorOptions{})
-			return
+			return nil, classifiedError(domain.ErrPermissionDenied, apiErrorOptions{})
 		}
 
 		locationScope, locationsErr := checkinScope(
-			request.Context(),
+			ctx,
 			handler.authorizer,
 			domain.PermissionActionCreate,
 		)
 		if locationsErr != nil {
-			writeClassifiedError(writer, locationsErr, apiErrorOptions{})
-			return
+			return nil, classifiedError(locationsErr, apiErrorOptions{})
 		}
 		if !locationScope.Contains(*locationID) {
-			writeClassifiedError(writer, domain.ErrPermissionDenied, apiErrorOptions{})
-			return
+			return nil, classifiedError(domain.ErrPermissionDenied, apiErrorOptions{})
 		}
 	}
 
-	items, total, err := handler.admin.ListUsers(request.Context(), domain.UserListOptions{
+	items, total, err := handler.admin.ListUsers(ctx, domain.UserListOptions{
 		ListOptions: listOptions,
 		LocationID:  locationID,
 	})
 	if err != nil {
-		writeClassifiedError(writer, err, apiErrorOptions{})
-		return
+		return nil, classifiedError(err, apiErrorOptions{})
 	}
 
-	writeJSON(writer, http.StatusOK, UserListResponse{Rows: mapSliceValue(items, mapUser), Total: total})
+	return &response[UserListResponse]{Body: UserListResponse{Rows: mapSliceValue(items, mapUser), Total: total}}, nil
 }
 
-func (handler *Server) GetUser(writer http.ResponseWriter, request *http.Request, id Id) {
-	item, err := handler.admin.GetUser(request.Context(), id)
+func (handler *Server) getUser(ctx context.Context, input *ItemInput) (*response[User], error) {
+	id := input.ID
+
+	item, err := handler.admin.GetUser(ctx, id)
 	if err != nil {
-		writeClassifiedError(writer, err, apiErrorOptions{NotFoundMessage: "user not found"})
-		return
+		return nil, classifiedError(err, apiErrorOptions{NotFoundMessage: "user not found"})
 	}
 
-	writeJSON(writer, http.StatusOK, mapUser(item))
+	return &response[User]{Body: mapUser(item)}, nil
 }
 
-func (handler *Server) PatchUser(writer http.ResponseWriter, request *http.Request, id Id) {
-	var body PatchUserJSONRequestBody
-	if err := decodeJSONBody(request, &body); err != nil {
-		writeClassifiedError(writer, err, apiErrorOptions{})
-		return
-	}
+func (handler *Server) patchUser(ctx context.Context, input *patchInput[UserAccessWriteRequest]) (*response[User], error) {
+	id := input.ID
+	body := input.Body.Value
 
 	permissions, err := validatePermissionGrants(body.Access, "User access is invalid.")
 	if err != nil {
-		writeClassifiedError(writer, err, apiErrorOptions{})
-		return
+		return nil, classifiedError(err, apiErrorOptions{})
 	}
 
-	item, err := handler.admin.UpdateUserAccess(request.Context(), id, body.Admin, permissions)
+	item, err := handler.admin.UpdateUserAccess(ctx, id, body.Admin, permissions)
 	if err != nil {
-		writeClassifiedError(writer, err, apiErrorOptions{NotFoundMessage: "user not found"})
-		return
+		return nil, classifiedError(err, apiErrorOptions{NotFoundMessage: "user not found"})
 	}
 
-	writeJSON(writer, http.StatusOK, mapUser(item))
+	return &response[User]{Body: mapUser(item)}, nil
 }

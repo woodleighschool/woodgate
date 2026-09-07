@@ -1,112 +1,103 @@
 package httpapi
 
 import (
-	"net/http"
+	"context"
 	"strings"
 
 	"github.com/woodleighschool/woodgate/internal/domain"
 )
 
-func (handler *Server) ListLocations(writer http.ResponseWriter, request *http.Request, params ListLocationsParams) {
-	listOptions, err := parseListOptions(params.Limit, params.Offset, params.Search, params.Sort, params.Order)
+func (handler *Server) listLocations(ctx context.Context, input *ListLocationsParams) (*response[LocationListResponse], error) {
+	params := input
+
+	listOptions, err := parseListOptions(params.Limit.Value, params.Offset.Value, params.Search.Value, params.Sort.Value, params.Order.Value)
 	if err != nil {
-		writeClassifiedError(writer, err, apiErrorOptions{})
-		return
+		return nil, classifiedError(err, apiErrorOptions{})
 	}
 
-	items, total, err := handler.admin.ListLocations(request.Context(), domain.LocationListOptions{
+	items, total, err := handler.admin.ListLocations(ctx, domain.LocationListOptions{
 		ListOptions: listOptions,
-		Enabled:     boolPointer(params.Enabled),
+		Enabled:     boolPointer(params.Enabled.Value),
 	})
 	if err != nil {
-		writeClassifiedError(writer, err, apiErrorOptions{})
-		return
+		return nil, classifiedError(err, apiErrorOptions{})
 	}
 
-	writeJSON(writer, http.StatusOK, LocationListResponse{Rows: mapSliceValue(items, mapLocation), Total: total})
+	return &response[LocationListResponse]{Body: LocationListResponse{Rows: mapSliceValue(items, mapLocation), Total: total}}, nil
 }
 
-func (handler *Server) CreateLocation(writer http.ResponseWriter, request *http.Request) {
-	var body CreateLocationJSONRequestBody
-	if err := decodeJSONBody(request, &body); err != nil {
-		writeClassifiedError(writer, err, apiErrorOptions{})
-		return
-	}
+func (handler *Server) createLocation(ctx context.Context, input *BodyInput[LocationWriteRequest]) (*response[Location], error) {
+	body := input.Body.Value
 
 	validationErr := &domain.ValidationError{Code: "validation_error", Detail: "Location is invalid."}
 	name := requireString("name", body.Name, validationErr)
 	description := strings.TrimSpace(body.Description)
 	if validationErr.HasFieldErrors() {
-		writeClassifiedError(writer, validationErr, apiErrorOptions{})
-		return
+		return nil, classifiedError(validationErr, apiErrorOptions{})
 	}
 
 	item, err := handler.admin.CreateLocation(
-		request.Context(),
+		ctx,
 		name,
 		description,
 		body.Enabled,
 		body.Notes,
 		body.Photo,
-		uuidPointer(body.BackgroundAssetId),
-		uuidPointer(body.LogoAssetId),
-		uuidSlice(body.GroupIds),
+		uuidPointer(body.BackgroundAssetID),
+		uuidPointer(body.LogoAssetID),
+		uuidSlice(body.GroupIDs),
 	)
 	if err != nil {
-		writeClassifiedError(writer, err, apiErrorOptions{})
-		return
+		return nil, classifiedError(err, apiErrorOptions{})
 	}
 
-	writeJSON(writer, http.StatusCreated, mapLocation(item))
+	return &response[Location]{Body: mapLocation(item)}, nil
 }
 
-func (handler *Server) GetLocation(writer http.ResponseWriter, request *http.Request, id Id) {
-	item, err := handler.admin.GetLocation(request.Context(), id)
+func (handler *Server) getLocation(ctx context.Context, input *ItemInput) (*response[Location], error) {
+	id := input.ID
+
+	item, err := handler.admin.GetLocation(ctx, id)
 	if err != nil {
-		writeClassifiedError(writer, err, apiErrorOptions{NotFoundMessage: "location not found"})
-		return
+		return nil, classifiedError(err, apiErrorOptions{NotFoundMessage: "location not found"})
 	}
-	writeJSON(writer, http.StatusOK, mapLocation(item))
+	return &response[Location]{Body: mapLocation(item)}, nil
 }
 
-func (handler *Server) PatchLocation(writer http.ResponseWriter, request *http.Request, id Id) {
-	var body PatchLocationJSONRequestBody
-	if err := decodeJSONBody(request, &body); err != nil {
-		writeClassifiedError(writer, err, apiErrorOptions{})
-		return
-	}
+func (handler *Server) patchLocation(ctx context.Context, input *patchInput[LocationWriteRequest]) (*response[Location], error) {
+	id := input.ID
+	body := input.Body.Value
 
 	validationErr := &domain.ValidationError{Code: "validation_error", Detail: "Location is invalid."}
 	name := requireString("name", body.Name, validationErr)
 	description := strings.TrimSpace(body.Description)
 	if validationErr.HasFieldErrors() {
-		writeClassifiedError(writer, validationErr, apiErrorOptions{})
-		return
+		return nil, classifiedError(validationErr, apiErrorOptions{})
 	}
 
 	item, err := handler.admin.UpdateLocation(
-		request.Context(),
+		ctx,
 		id,
 		name,
 		description,
 		body.Enabled,
 		body.Notes,
 		body.Photo,
-		uuidPointer(body.BackgroundAssetId),
-		uuidPointer(body.LogoAssetId),
-		uuidSlice(body.GroupIds),
+		uuidPointer(body.BackgroundAssetID),
+		uuidPointer(body.LogoAssetID),
+		uuidSlice(body.GroupIDs),
 	)
 	if err != nil {
-		writeClassifiedError(writer, err, apiErrorOptions{NotFoundMessage: "location not found"})
-		return
+		return nil, classifiedError(err, apiErrorOptions{NotFoundMessage: "location not found"})
 	}
-	writeJSON(writer, http.StatusOK, mapLocation(item))
+	return &response[Location]{Body: mapLocation(item)}, nil
 }
 
-func (handler *Server) DeleteLocation(writer http.ResponseWriter, request *http.Request, id Id) {
-	if err := handler.admin.DeleteLocation(request.Context(), id); err != nil {
-		writeClassifiedError(writer, err, apiErrorOptions{NotFoundMessage: "location not found"})
-		return
+func (handler *Server) deleteLocation(ctx context.Context, input *ItemInput) (*struct{}, error) {
+	id := input.ID
+
+	if err := handler.admin.DeleteLocation(ctx, id); err != nil {
+		return nil, classifiedError(err, apiErrorOptions{NotFoundMessage: "location not found"})
 	}
-	writer.WriteHeader(http.StatusNoContent)
+	return nil, nil
 }

@@ -1,71 +1,65 @@
 package httpapi
 
 import (
-	"net/http"
+	"context"
 
 	"github.com/woodleighschool/woodgate/internal/domain"
 )
 
-func (handler *Server) ListGroups(writer http.ResponseWriter, request *http.Request, params ListGroupsParams) {
-	listOptions, err := parseListOptions(params.Limit, params.Offset, params.Search, params.Sort, params.Order)
+func (handler *Server) listGroups(ctx context.Context, input *ListGroupsParams) (*response[GroupListResponse], error) {
+	params := input
+
+	listOptions, err := parseListOptions(params.Limit.Value, params.Offset.Value, params.Search.Value, params.Sort.Value, params.Order.Value)
 	if err != nil {
-		writeClassifiedError(writer, err, apiErrorOptions{})
-		return
+		return nil, classifiedError(err, apiErrorOptions{})
 	}
 
-	items, total, err := handler.admin.ListGroups(request.Context(), domain.GroupListOptions{ListOptions: listOptions})
+	items, total, err := handler.admin.ListGroups(ctx, domain.GroupListOptions{ListOptions: listOptions})
 	if err != nil {
-		writeClassifiedError(writer, err, apiErrorOptions{})
-		return
+		return nil, classifiedError(err, apiErrorOptions{})
 	}
 
-	writeJSON(writer, http.StatusOK, GroupListResponse{Rows: mapSliceValue(items, mapGroup), Total: total})
+	return &response[GroupListResponse]{Body: GroupListResponse{Rows: mapSliceValue(items, mapGroup), Total: total}}, nil
 }
 
-func (handler *Server) GetGroup(writer http.ResponseWriter, request *http.Request, id Id) {
-	item, err := handler.admin.GetGroup(request.Context(), id)
+func (handler *Server) getGroup(ctx context.Context, input *ItemInput) (*response[Group], error) {
+	id := input.ID
+
+	item, err := handler.admin.GetGroup(ctx, id)
 	if err != nil {
-		writeClassifiedError(writer, err, apiErrorOptions{NotFoundMessage: "group not found"})
-		return
+		return nil, classifiedError(err, apiErrorOptions{NotFoundMessage: "group not found"})
 	}
 
-	writeJSON(writer, http.StatusOK, mapGroup(item))
+	return &response[Group]{Body: mapGroup(item)}, nil
 }
 
-func (handler *Server) ListGroupMemberships(
-	writer http.ResponseWriter,
-	request *http.Request,
-	params ListGroupMembershipsParams,
-) {
-	listOptions, err := parseListOptions(params.Limit, params.Offset, params.Search, params.Sort, params.Order)
+func (handler *Server) listGroupMemberships(ctx context.Context, input *ListGroupMembershipsParams) (*response[GroupMembershipListResponse], error) {
+	params := input
+
+	listOptions, err := parseListOptions(params.Limit.Value, params.Offset.Value, params.Search.Value, params.Sort.Value, params.Order.Value)
 	if err != nil {
-		writeClassifiedError(writer, err, apiErrorOptions{})
-		return
+		return nil, classifiedError(err, apiErrorOptions{})
 	}
 
-	items, total, err := handler.admin.ListGroupMemberships(request.Context(), domain.GroupMembershipListOptions{
+	items, total, err := handler.admin.ListGroupMemberships(ctx, domain.GroupMembershipListOptions{
 		ListOptions: listOptions,
-		GroupID:     uuidPointer(params.GroupId),
-		UserID:      uuidPointer(params.UserId),
+		GroupID:     uuidPointer(params.GroupID.Value),
+		UserID:      uuidPointer(params.UserID.Value),
 	})
 	if err != nil {
-		writeClassifiedError(writer, err, apiErrorOptions{})
-		return
+		return nil, classifiedError(err, apiErrorOptions{})
 	}
 
-	writeJSON(
-		writer,
-		http.StatusOK,
-		GroupMembershipListResponse{Rows: mapSliceValue(items, mapGroupMembership), Total: total},
-	)
+	return &response[GroupMembershipListResponse]{Body: GroupMembershipListResponse{Rows: mapSliceValue(items, mapGroupMembership), Total: total}}, nil
 }
 
-func (handler *Server) GetGroupMembership(writer http.ResponseWriter, request *http.Request, id Id) {
-	item, err := handler.admin.GetGroupMembership(request.Context(), id)
+func (handler *Server) getGroupMembership(ctx context.Context, input *ItemInput) (*response[GroupMembership], error) {
+	id := input.ID
+
+	item, err := handler.admin.GetGroupMembership(ctx, id)
 	if err != nil {
-		writeClassifiedError(writer, err, apiErrorOptions{NotFoundMessage: "group membership not found"})
-		return
+		return nil, classifiedError(err, apiErrorOptions{NotFoundMessage: "group membership not found"})
 	}
 
-	writeJSON(writer, http.StatusOK, mapGroupMembership(item))
+	return &response[GroupMembership]{Body: mapGroupMembership(item)}, nil
 }

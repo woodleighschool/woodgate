@@ -15,7 +15,6 @@ import (
 	"strings"
 	"time"
 
-	"github.com/go-chi/chi/v5"
 	"github.com/google/uuid"
 	"github.com/jackc/pgerrcode"
 	"github.com/jackc/pgx/v5"
@@ -102,20 +101,6 @@ func New(adminService AdminService, authorizer authz.Authorizer) *Server {
 	return &Server{admin: adminService, authorizer: authorizer}
 }
 
-func (handler *Server) RegisterRoutes(router chi.Router) {
-	_ = HandlerWithOptions(handler, ChiServerOptions{
-		BaseRouter: router,
-		ErrorHandlerFunc: func(writer http.ResponseWriter, _ *http.Request, _ error) {
-			writeProblem(writer, http.StatusBadRequest, problemSpec{
-				Type:   "urn:woodgate:problem:invalid-request",
-				Title:  "Invalid request",
-				Code:   "invalid_request",
-				Detail: "Request parameters are invalid.",
-			})
-		},
-	})
-}
-
 func parsePagination(limit *int32, offset *int32) (int32, int32, error) {
 	resolvedLimit := int32(0)
 	resolvedOffset := int32(0)
@@ -177,8 +162,8 @@ func parseListOptions[S ~string, T ~string, O ~string](
 	}, nil
 }
 
-func decodeJSONBody(request *http.Request, dst any) error {
-	decoder := json.NewDecoder(io.LimitReader(request.Body, maxJSONBodyBytes))
+func decodeJSONBody(reader io.Reader, dst any) error {
+	decoder := json.NewDecoder(io.LimitReader(reader, maxJSONBodyBytes))
 	decoder.DisallowUnknownFields()
 
 	if err := decoder.Decode(dst); err != nil {
@@ -210,7 +195,7 @@ type problemSpec struct {
 	FieldErrors []domain.FieldError
 }
 
-func writeProblem(writer http.ResponseWriter, statusCode int, spec problemSpec) {
+func newProblem(statusCode int, spec problemSpec) *Problem {
 	problem := Problem{
 		Type:   spec.Type,
 		Title:  spec.Title,
@@ -233,7 +218,7 @@ func writeProblem(writer http.ResponseWriter, statusCode int, spec problemSpec) 
 		}
 		problem.FieldErrors = &fieldErrors
 	}
-	writeJSON(writer, statusCode, problem)
+	return &problem
 }
 
 func safeInt32(value int) int32 {
@@ -254,66 +239,60 @@ type apiErrorOptions struct {
 	NotFoundMessage string
 }
 
-func writeClassifiedError(writer http.ResponseWriter, err error, options apiErrorOptions) {
+func classifiedError(err error, options apiErrorOptions) *Problem {
 	var validationErr *domain.ValidationError
 	switch {
 	case options.NotFoundMessage != "" && isNotFound(err):
-		writeProblem(writer, http.StatusNotFound, problemSpec{
+		return newProblem(http.StatusNotFound, problemSpec{
 			Type:   "urn:woodgate:problem:not-found",
 			Title:  "Not found",
 			Code:   "not_found",
 			Detail: options.NotFoundMessage,
 		})
-		return
 	case errors.Is(err, domain.ErrPermissionDenied):
-		writeProblem(writer, http.StatusForbidden, problemSpec{
+		return newProblem(http.StatusForbidden, problemSpec{
 			Type:   "urn:woodgate:problem:forbidden",
 			Title:  "Forbidden",
 			Code:   "forbidden",
 			Detail: "Permission denied.",
 		})
-		return
 	case errors.Is(err, pgutil.ErrInvalidSort), isBadRequestError(err):
-		writeProblem(writer, http.StatusBadRequest, problemSpec{
+		return newProblem(http.StatusBadRequest, problemSpec{
 			Type:   "urn:woodgate:problem:invalid-request",
 			Title:  "Invalid request",
 			Code:   "invalid_request",
 			Detail: err.Error(),
 		})
-		return
 	case errors.As(err, &validationErr):
-		writeProblem(writer, http.StatusUnprocessableEntity, problemSpec{
+		return newProblem(http.StatusUnprocessableEntity, problemSpec{
 			Type:        "urn:woodgate:problem:validation-error",
 			Title:       "Validation failed",
 			Code:        validationErr.Code,
 			Detail:      validationErr.Detail,
 			FieldErrors: validationErr.FieldErrors,
 		})
-		return
 	}
 
 	if pgErr, ok := errors.AsType[*pgconn.PgError](err); ok {
 		switch pgErr.Code {
 		case pgerrcode.UniqueViolation:
-			writeProblem(writer, http.StatusConflict, problemSpec{
+			return newProblem(http.StatusConflict, problemSpec{
 				Type:   "urn:woodgate:problem:conflict",
 				Title:  "Conflict",
 				Code:   "conflict",
 				Detail: "Resource already exists.",
 			})
-			return
 		case pgerrcode.ForeignKeyViolation:
-			writeProblem(writer, http.StatusUnprocessableEntity, problemSpec{
+			return newProblem(http.StatusUnprocessableEntity, problemSpec{
 				Type:   "urn:woodgate:problem:validation-error",
 				Title:  "Validation failed",
 				Code:   "validation_error",
 				Detail: "Referenced resource does not exist.",
 			})
-			return
 		}
 	}
 
-	writeProblem(writer, http.StatusInternalServerError, problemSpec{
+	return newProblem(http.StatusInternalServerError, problemSpec{
 		Type:   "urn:woodgate:problem:internal-error",
 		Title:  "Internal server error",
 		Code:   "internal_error",
@@ -485,7 +464,7 @@ func validatePermissionGrants(
 			return nil, badRequestError("invalid access action")
 		}
 
-		locationID := uuidPointer(permission.LocationId)
+		locationID := uuidPointer(permission.LocationID)
 		assetType := assetTypePointer(permission.AssetType)
 		fieldPrefix := fmt.Sprintf("access.%d.location_id", index)
 		assetTypeField := fmt.Sprintf("access.%d.asset_type", index)
@@ -509,4 +488,9 @@ func validatePermissionGrants(
 	}
 
 	return grants, nil
+}
+
+func writeClassifiedError(writer http.ResponseWriter, err error, options apiErrorOptions) {
+	problem := classifiedError(err, options)
+	writeJSON(writer, int(problem.Status), problem)
 }

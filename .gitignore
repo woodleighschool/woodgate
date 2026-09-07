@@ -15,6 +15,10 @@ node_modules/
 # Xcode
 xcuserdata/
 
+# Local data
+/.local/
+/data/
+
 # Local configuration
 .env
 .env.*

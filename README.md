@@ -1,6 +1,6 @@
 # woodgate
 
-Internal check-in system with a Go API, a React admin console, and a native companion app for dedicated terminals.
+Internal check-in system with a Go API, a React administration interface, and a native companion app for dedicated terminals.
 
 Users and groups sync from Microsoft Entra. Administrators manage locations, permissions, check-ins, assets, and API keys from the web interface.
 
@@ -56,6 +56,8 @@ mise install
 mise run deps
 mise run dev
 ```
+
+The web interface uses shadcn and TanStack. Go handlers define the OpenAPI contract, and Hey API generates the web client. Run `mise run generate` after changing an API or SQL query.
 
 The root tasks cover the Go backend, web frontend, and development mock. Companion-app checks live under `//app:`:
 

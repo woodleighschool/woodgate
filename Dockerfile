@@ -14,8 +14,6 @@ RUN npm install --global "$(node --print 'require("./package.json").packageManag
 RUN pnpm install --frozen-lockfile
 
 COPY web/ ./
-COPY api/openapi.yaml ../api/openapi.yaml
-RUN pnpm openapi:types
 RUN pnpm build
 
 # ---- Go build -------------------------------------------------------------

@@ -10,8 +10,8 @@ import (
 
 func mapUser(item domain.User) User {
 	return User{
-		Id:          idFromUUID(item.ID),
-		Upn:         item.UPN,
+		ID:          idFromUUID(item.ID),
+		UPN:         item.UPN,
 		DisplayName: item.DisplayName,
 		Department:  item.Department,
 		Source:      Source(item.Source),
@@ -24,7 +24,7 @@ func mapUser(item domain.User) User {
 
 func mapGroup(item domain.Group) Group {
 	return Group{
-		Id:          idFromUUID(item.ID),
+		ID:          idFromUUID(item.ID),
 		Name:        item.Name,
 		Description: item.Description,
 		MemberCount: item.MemberCount,
@@ -35,9 +35,9 @@ func mapGroup(item domain.Group) Group {
 
 func mapGroupMembership(item domain.GroupMembership) GroupMembership {
 	return GroupMembership{
-		Id:        idFromUUID(item.ID),
-		GroupId:   idFromUUID(item.GroupID),
-		UserId:    idFromUUID(item.UserID),
+		ID:        idFromUUID(item.ID),
+		GroupID:   idFromUUID(item.GroupID),
+		UserID:    idFromUUID(item.UserID),
 		CreatedAt: item.CreatedAt,
 		UpdatedAt: item.UpdatedAt,
 	}
@@ -45,10 +45,10 @@ func mapGroupMembership(item domain.GroupMembership) GroupMembership {
 
 func mapAsset(item domain.Asset) Asset {
 	return Asset{
-		Id:        idFromUUID(item.ID),
+		ID:        idFromUUID(item.ID),
 		Name:      item.Name,
 		Type:      AssetType(item.Type),
-		Url:       assetContentURL(item.ID),
+		URL:       assetContentURL(item.ID),
 		CreatedAt: item.CreatedAt,
 		UpdatedAt: item.UpdatedAt,
 	}
@@ -56,15 +56,15 @@ func mapAsset(item domain.Asset) Asset {
 
 func mapLocation(item domain.Location) Location {
 	return Location{
-		Id:                idFromUUID(item.ID),
+		ID:                idFromUUID(item.ID),
 		Name:              item.Name,
 		Description:       item.Description,
 		Enabled:           item.Enabled,
 		Notes:             item.Notes,
 		Photo:             item.Photo,
-		BackgroundAssetId: idPointer(item.BackgroundAssetID),
-		LogoAssetId:       idPointer(item.LogoAssetID),
-		GroupIds:          idSlice(item.GroupIDs),
+		BackgroundAssetID: idPointer(item.BackgroundAssetID),
+		LogoAssetID:       idPointer(item.LogoAssetID),
+		GroupIDs:          idSlice(item.GroupIDs),
 		CreatedAt:         item.CreatedAt,
 		UpdatedAt:         item.UpdatedAt,
 	}
@@ -72,29 +72,29 @@ func mapLocation(item domain.Location) Location {
 
 func mapCheckin(item domain.Checkin) Checkin {
 	return Checkin{
-		Id:              idFromUUID(item.ID),
-		UserId:          idFromUUID(item.UserID),
+		ID:              idFromUUID(item.ID),
+		UserID:          idFromUUID(item.UserID),
 		UserDisplayName: item.UserDisplayName,
 		Department:      item.Department,
-		LocationId:      idFromUUID(item.LocationID),
+		LocationID:      idFromUUID(item.LocationID),
 		LocationName:    item.LocationName,
 		Direction:       CheckinDirection(item.Direction),
 		Notes:           item.Notes,
-		AssetId:         idPointer(item.AssetID),
-		PhotoUrl:        assetContentURLPointer(item.AssetID),
+		AssetID:         idPointer(item.AssetID),
+		PhotoURL:        assetContentURLPointer(item.AssetID),
 		CreatedByKind:   PermissionSubjectKind(item.CreatedByKind),
-		CreatedById:     idFromUUID(item.CreatedByID),
+		CreatedByID:     idFromUUID(item.CreatedByID),
 		CreatedAt:       item.CreatedAt,
 	}
 }
 
 func mapDepartmentOption(item string) DepartmentOption {
-	return DepartmentOption{Id: item, Name: item}
+	return DepartmentOption{ID: item, Name: item}
 }
 
 func mapAPIKey(item domain.APIKey) APIKey {
 	return APIKey{
-		Id:         idFromUUID(item.ID),
+		ID:         idFromUUID(item.ID),
 		Name:       item.Name,
 		KeyPrefix:  item.KeyPrefix,
 		LastUsedAt: item.LastUsedAt,
@@ -109,16 +109,16 @@ func mapPermissionGrant(item domain.PermissionGrant) PermissionGrant {
 	return PermissionGrant{
 		Resource:   PermissionResource(item.Resource),
 		Action:     PermissionAction(item.Action),
-		LocationId: idPointer(item.LocationID),
+		LocationID: idPointer(item.LocationID),
 		AssetType:  assetTypeOpenAPIPointer(item.AssetType),
 	}
 }
 
-func idFromUUID(value uuid.UUID) Id {
+func idFromUUID(value uuid.UUID) uuid.UUID {
 	return value
 }
 
-func idPointer(value *uuid.UUID) *Id {
+func idPointer(value *uuid.UUID) *uuid.UUID {
 	if value == nil {
 		return nil
 	}
@@ -126,19 +126,19 @@ func idPointer(value *uuid.UUID) *Id {
 	return &id
 }
 
-func idSlice(values []uuid.UUID) []Id {
+func idSlice(values []uuid.UUID) []uuid.UUID {
 	if len(values) == 0 {
-		return []Id{}
+		return []uuid.UUID{}
 	}
 
-	ids := make([]Id, 0, len(values))
+	ids := make([]uuid.UUID, 0, len(values))
 	for _, value := range values {
 		ids = append(ids, idFromUUID(value))
 	}
 	return ids
 }
 
-func uuidPointer(value *Id) *uuid.UUID {
+func uuidPointer(value *uuid.UUID) *uuid.UUID {
 	if value == nil {
 		return nil
 	}
@@ -146,7 +146,7 @@ func uuidPointer(value *Id) *uuid.UUID {
 	return &id
 }
 
-func uuidSlice(values []Id) []uuid.UUID {
+func uuidSlice(values []uuid.UUID) []uuid.UUID {
 	if len(values) == 0 {
 		return []uuid.UUID{}
 	}

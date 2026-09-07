@@ -1,6 +1,7 @@
 package httpapi
 
 import (
+	"context"
 	"net/http"
 	"strings"
 
@@ -9,112 +10,104 @@ import (
 	"github.com/woodleighschool/woodgate/internal/domain"
 )
 
-func (handler *Server) ListCheckins(writer http.ResponseWriter, request *http.Request, params ListCheckinsParams) {
-	listOptions, err := parseListOptions(params.Limit, params.Offset, params.Search, params.Sort, params.Order)
+func (handler *Server) listCheckins(ctx context.Context, input *ListCheckinsParams) (*response[CheckinListResponse], error) {
+	params := input
+
+	listOptions, err := parseListOptions(params.Limit.Value, params.Offset.Value, params.Search.Value, params.Sort.Value, params.Order.Value)
 	if err != nil {
-		writeClassifiedError(writer, err, apiErrorOptions{})
-		return
+		return nil, classifiedError(err, apiErrorOptions{})
 	}
 
 	locationScope, err := checkinScope(
-		request.Context(),
+		ctx,
 		handler.authorizer,
 		domain.PermissionActionRead,
 	)
 	if err != nil {
-		writeClassifiedError(writer, err, apiErrorOptions{})
-		return
+		return nil, classifiedError(err, apiErrorOptions{})
 	}
 	var allowedLocationIDs []uuid.UUID
 	if !locationScope.All {
 		allowedLocationIDs = locationScope.Values
 	}
 
-	items, total, err := handler.admin.ListCheckins(request.Context(), domain.CheckinListOptions{
+	items, total, err := handler.admin.ListCheckins(ctx, domain.CheckinListOptions{
 		ListOptions: listOptions,
-		LocationID:  uuidPointer(params.LocationId),
-		UserID:      uuidPointer(params.UserId),
-		Direction:   checkinDirectionPointer(params.Direction),
-		Department:  optionalString(params.Department),
-		CreatedFrom: timePointer(params.CreatedFrom),
-		CreatedTo:   timePointer(params.CreatedTo),
+		LocationID:  uuidPointer(params.LocationID.Value),
+		UserID:      uuidPointer(params.UserID.Value),
+		Direction:   checkinDirectionPointer(params.Direction.Value),
+		Department:  optionalString(params.Department.Value),
+		CreatedFrom: timePointer(params.CreatedFrom.Value),
+		CreatedTo:   timePointer(params.CreatedTo.Value),
 	}, allowedLocationIDs)
 	if err != nil {
-		writeClassifiedError(writer, err, apiErrorOptions{})
-		return
+		return nil, classifiedError(err, apiErrorOptions{})
 	}
 
-	writeJSON(writer, http.StatusOK, CheckinListResponse{Rows: mapSliceValue(items, mapCheckin), Total: total})
+	return &response[CheckinListResponse]{Body: CheckinListResponse{Rows: mapSliceValue(items, mapCheckin), Total: total}}, nil
 }
 
-func (handler *Server) ListCheckinDepartments(writer http.ResponseWriter, request *http.Request) {
+func (handler *Server) listCheckinDepartments(ctx context.Context, _ *struct{}) (*response[DepartmentOptionListResponse], error) {
 	locationScope, err := checkinScope(
-		request.Context(),
+		ctx,
 		handler.authorizer,
 		domain.PermissionActionRead,
 	)
 	if err != nil {
-		writeClassifiedError(writer, err, apiErrorOptions{})
-		return
+		return nil, classifiedError(err, apiErrorOptions{})
 	}
 	var allowedLocationIDs []uuid.UUID
 	if !locationScope.All {
 		allowedLocationIDs = locationScope.Values
 	}
 
-	items, err := handler.admin.ListCheckinDepartments(request.Context(), allowedLocationIDs)
+	items, err := handler.admin.ListCheckinDepartments(ctx, allowedLocationIDs)
 	if err != nil {
-		writeClassifiedError(writer, err, apiErrorOptions{})
-		return
+		return nil, classifiedError(err, apiErrorOptions{})
 	}
 
-	writeJSON(writer, http.StatusOK, DepartmentOptionListResponse{
+	return &response[DepartmentOptionListResponse]{Body: DepartmentOptionListResponse{
 		Rows:  mapSliceValue(items, mapDepartmentOption),
 		Total: safeInt32(len(items)),
-	})
+	}}, nil
 }
 
-func (handler *Server) CreateCheckin(writer http.ResponseWriter, request *http.Request) {
+func (handler *Server) createCheckin(ctx context.Context, input *RequestInput) (*response[Checkin], error) {
+	writer, request := input.writer, input.request
+
 	body, err := parseCheckinCreateRequest(writer, request)
 	if err != nil {
-		writeClassifiedError(writer, err, apiErrorOptions{})
-		return
+		return nil, classifiedError(err, apiErrorOptions{})
 	}
 
-	principal, err := principalFromContext(request.Context())
+	principal, err := principalFromContext(ctx)
 	if err != nil {
-		writeClassifiedError(writer, err, apiErrorOptions{})
-		return
+		return nil, classifiedError(err, apiErrorOptions{})
 	}
 	if principal.Bootstrap {
-		writeClassifiedError(writer, domain.ErrPermissionDenied, apiErrorOptions{})
-		return
+		return nil, classifiedError(domain.ErrPermissionDenied, apiErrorOptions{})
 	}
 
 	subjectKind, subjectID, err := principalSubject(principal)
 	if err != nil {
-		writeClassifiedError(writer, err, apiErrorOptions{})
-		return
+		return nil, classifiedError(err, apiErrorOptions{})
 	}
 
 	locationScope, err := checkinScope(
-		request.Context(),
+		ctx,
 		handler.authorizer,
 		domain.PermissionActionCreate,
 	)
 	if err != nil {
-		writeClassifiedError(writer, err, apiErrorOptions{})
-		return
+		return nil, classifiedError(err, apiErrorOptions{})
 	}
 	if !locationScope.Contains(body.LocationID) {
-		writeClassifiedError(writer, domain.ErrPermissionDenied, apiErrorOptions{})
-		return
+		return nil, classifiedError(domain.ErrPermissionDenied, apiErrorOptions{})
 	}
 
-	location, err := handler.admin.GetLocation(request.Context(), body.LocationID)
+	location, err := handler.admin.GetLocation(ctx, body.LocationID)
 	if err != nil {
-		writeClassifiedError(writer, err, apiErrorOptions{NotFoundMessage: "location not found"})
-		return
+		return nil, classifiedError(err, apiErrorOptions{NotFoundMessage: "location not found"})
 	}
 
 	validationErr := &domain.ValidationError{Code: "validation_error", Detail: "Checkin is invalid."}
@@ -128,12 +121,11 @@ func (handler *Server) CreateCheckin(writer http.ResponseWriter, request *http.R
 		validationErr.Add("notes", "must be empty when notes are disabled for the location", "invalid")
 	}
 	if validationErr.HasFieldErrors() {
-		writeClassifiedError(writer, validationErr, apiErrorOptions{})
-		return
+		return nil, classifiedError(validationErr, apiErrorOptions{})
 	}
 
 	item, err := handler.admin.CreateCheckin(
-		request.Context(),
+		ctx,
 		body.UserID,
 		body.LocationID,
 		body.Direction,
@@ -143,35 +135,34 @@ func (handler *Server) CreateCheckin(writer http.ResponseWriter, request *http.R
 		subjectID,
 	)
 	if err != nil {
-		writeClassifiedError(writer, err, apiErrorOptions{})
-		return
+		return nil, classifiedError(err, apiErrorOptions{})
 	}
 
-	writeJSON(writer, http.StatusCreated, mapCheckin(item))
+	return &response[Checkin]{Body: mapCheckin(item)}, nil
 }
 
-func (handler *Server) GetCheckin(writer http.ResponseWriter, request *http.Request, id Id) {
+func (handler *Server) getCheckin(ctx context.Context, input *ItemInput) (*response[Checkin], error) {
+	id := input.ID
+
 	locationScope, err := checkinScope(
-		request.Context(),
+		ctx,
 		handler.authorizer,
 		domain.PermissionActionRead,
 	)
 	if err != nil {
-		writeClassifiedError(writer, err, apiErrorOptions{})
-		return
+		return nil, classifiedError(err, apiErrorOptions{})
 	}
 	var allowedLocationIDs []uuid.UUID
 	if !locationScope.All {
 		allowedLocationIDs = locationScope.Values
 	}
 
-	item, err := handler.admin.GetCheckin(request.Context(), id, allowedLocationIDs)
+	item, err := handler.admin.GetCheckin(ctx, id, allowedLocationIDs)
 	if err != nil {
-		writeClassifiedError(writer, err, apiErrorOptions{NotFoundMessage: "checkin not found"})
-		return
+		return nil, classifiedError(err, apiErrorOptions{NotFoundMessage: "checkin not found"})
 	}
 
-	writeJSON(writer, http.StatusOK, mapCheckin(item))
+	return &response[Checkin]{Body: mapCheckin(item)}, nil
 }
 
 type checkinCreateRequest struct {

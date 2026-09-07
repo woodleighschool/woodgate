@@ -29,6 +29,9 @@ env:
 
 jobs:
   workflow-lint:
+    if: >-
+      ${{ !(startsWith(github.head_ref, 'release-please--')
+      && github.event.pull_request.head.repo.full_name == github.repository) }}
     name: Workflow Lint
     runs-on: ubuntu-24.04
     permissions:
@@ -57,6 +60,9 @@ jobs:
           zizmor-version: ${{ steps.tools.outputs.zizmor }}
 
   backend:
+    if: >-
+      ${{ !(startsWith(github.head_ref, 'release-please--')
+      && github.event.pull_request.head.repo.full_name == github.repository) }}
     name: Backend
     runs-on: ubuntu-24.04
     timeout-minutes: 20
@@ -100,6 +106,9 @@ jobs:
         run: mise run test
 
   frontend:
+    if: >-
+      ${{ !(startsWith(github.head_ref, 'release-please--')
+      && github.event.pull_request.head.repo.full_name == github.repository) }}
     name: Frontend
     runs-on: ubuntu-24.04
     timeout-minutes: 20
@@ -113,7 +122,7 @@ jobs:
         uses: jdx/mise-action@c2a87611a18de5b3828c5652fe268e992400cb5c # v4.3.0
         with:
           experimental: true
-          install_args: --locked go node pnpm oxfmt oxlint
+          install_args: --locked go node pnpm oxfmt
 
       - name: Cache Go modules and build
         uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
@@ -141,19 +150,21 @@ jobs:
       - name: Lint frontend
         run: mise run //web:lint
 
-      - name: Regenerate API and SQL code
+      - name: Test frontend behavior
+        run: mise run //web:test
+
+      - name: Regenerate API contracts and SQL code
         run: mise run generate
 
       - name: Check generated code is committed
         run: |
           generated_status=$(git status --short --untracked-files=all -- \
-            api \
-            internal/store \
-            internal/transport/http/httpapi/openapi.go \
-            web/src/api/openapi.ts)
+            internal/store/db \
+            web/openapi.yaml \
+            web/src/lib/api-client)
           test -z "$generated_status" || {
             printf '%s\n' "$generated_status"
-            git diff -- api internal/store internal/transport/http/httpapi/openapi.go web/src/api/openapi.ts
+            git diff -- internal/store/db web/openapi.yaml web/src/lib/api-client
             exit 1
           }
 
@@ -161,6 +172,9 @@ jobs:
         run: mise run build
 
   app:
+    if: >-
+      ${{ !(startsWith(github.head_ref, 'release-please--')
+      && github.event.pull_request.head.repo.full_name == github.repository) }}
     name: App
     runs-on: macos-26
     timeout-minutes: 20

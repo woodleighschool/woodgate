@@ -45,6 +45,9 @@ func main() {
 }
 
 func run() error {
+	if len(os.Args) > 1 && os.Args[1] == "openapi" {
+		return exportOpenAPI(os.Args[2:])
+	}
 	cfg, err := config.LoadFromEnv()
 	if err != nil {
 		return fmt.Errorf("load config: %w", err)

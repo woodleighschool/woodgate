@@ -1,0 +1,2486 @@
+components:
+  schemas:
+    APIKey:
+      additionalProperties: false
+      properties:
+        access:
+          items:
+            $ref: "#/components/schemas/PermissionGrant"
+          type: array
+        admin:
+          type: boolean
+        created_at:
+          format: date-time
+          type: string
+        expires_at:
+          format: date-time
+          type:
+            - string
+            - "null"
+        id:
+          format: uuid
+          type: string
+        key_prefix:
+          type: string
+        last_used_at:
+          format: date-time
+          type:
+            - string
+            - "null"
+        name:
+          type: string
+      required:
+        - access
+        - admin
+        - created_at
+        - id
+        - key_prefix
+        - name
+      type: object
+    APIKeyAccessWriteRequest:
+      additionalProperties: false
+      properties:
+        access:
+          items:
+            $ref: "#/components/schemas/PermissionGrant"
+          type: array
+        admin:
+          type: boolean
+      required:
+        - access
+        - admin
+      type: object
+    APIKeyCreateRequest:
+      additionalProperties: false
+      properties:
+        expires_at:
+          format: date-time
+          type:
+            - string
+            - "null"
+        name:
+          type: string
+      required:
+        - name
+      type: object
+    APIKeyListResponse:
+      additionalProperties: false
+      properties:
+        rows:
+          items:
+            $ref: "#/components/schemas/APIKey"
+          type: array
+        total:
+          format: int32
+          type: integer
+      required:
+        - rows
+        - total
+      type: object
+    Asset:
+      additionalProperties: false
+      properties:
+        created_at:
+          format: date-time
+          type: string
+        id:
+          format: uuid
+          type: string
+        name:
+          type:
+            - string
+            - "null"
+        type:
+          $ref: "#/components/schemas/AssetType"
+        updated_at:
+          format: date-time
+          type: string
+        url:
+          format: uri-reference
+          type: string
+      required:
+        - created_at
+        - id
+        - type
+        - updated_at
+        - url
+      type: object
+    AssetCreateRequest:
+      additionalProperties: false
+      properties:
+        file:
+          contentMediaType: application/octet-stream
+          format: binary
+          type: string
+        name:
+          type: string
+      required:
+        - file
+      type: object
+    AssetListResponse:
+      additionalProperties: false
+      properties:
+        rows:
+          items:
+            $ref: "#/components/schemas/Asset"
+          type: array
+        total:
+          format: int32
+          type: integer
+      required:
+        - rows
+        - total
+      type: object
+    AssetType:
+      enum:
+        - asset
+        - photo
+      type: string
+    AssetUpdateRequest:
+      additionalProperties: false
+      properties:
+        file:
+          contentMediaType: application/octet-stream
+          format: binary
+          type: string
+        name:
+          type: string
+      type: object
+    Checkin:
+      additionalProperties: false
+      properties:
+        asset_id:
+          format: uuid
+          type:
+            - string
+            - "null"
+        created_at:
+          format: date-time
+          type: string
+        created_by_id:
+          format: uuid
+          type: string
+        created_by_kind:
+          $ref: "#/components/schemas/PermissionSubjectKind"
+        department:
+          type: string
+        direction:
+          $ref: "#/components/schemas/CheckinDirection"
+        id:
+          format: uuid
+          type: string
+        location_id:
+          format: uuid
+          type: string
+        location_name:
+          type: string
+        notes:
+          type: string
+        photo_url:
+          type:
+            - string
+            - "null"
+        user_display_name:
+          type: string
+        user_id:
+          format: uuid
+          type: string
+      required:
+        - created_at
+        - created_by_id
+        - created_by_kind
+        - department
+        - direction
+        - id
+        - location_id
+        - location_name
+        - notes
+        - user_display_name
+        - user_id
+      type: object
+    CheckinCreateRequest:
+      additionalProperties: false
+      properties:
+        direction:
+          $ref: "#/components/schemas/CheckinDirection"
+        location_id:
+          format: uuid
+          type: string
+        notes:
+          type: string
+        photo:
+          contentMediaType: application/octet-stream
+          format: binary
+          type: string
+        user_id:
+          format: uuid
+          type: string
+      required:
+        - direction
+        - location_id
+        - user_id
+      type: object
+    CheckinDirection:
+      enum:
+        - check_in
+        - check_out
+      type: string
+    CheckinListResponse:
+      additionalProperties: false
+      properties:
+        rows:
+          items:
+            $ref: "#/components/schemas/Checkin"
+          type: array
+        total:
+          format: int32
+          type: integer
+      required:
+        - rows
+        - total
+      type: object
+    CreateAPIKeyData:
+      additionalProperties: false
+      properties:
+        access:
+          items:
+            $ref: "#/components/schemas/PermissionGrant"
+          type: array
+        admin:
+          type: boolean
+        created_at:
+          format: date-time
+          type: string
+        expires_at:
+          format: date-time
+          type:
+            - string
+            - "null"
+        id:
+          format: uuid
+          type: string
+        key_prefix:
+          type: string
+        last_used_at:
+          format: date-time
+          type:
+            - string
+            - "null"
+        name:
+          type: string
+        secret:
+          type: string
+      required:
+        - access
+        - admin
+        - created_at
+        - id
+        - key_prefix
+        - name
+        - secret
+      type: object
+    DepartmentOption:
+      additionalProperties: false
+      properties:
+        id:
+          type: string
+        name:
+          type: string
+      required:
+        - id
+        - name
+      type: object
+    DepartmentOptionListResponse:
+      additionalProperties: false
+      properties:
+        rows:
+          items:
+            $ref: "#/components/schemas/DepartmentOption"
+          type: array
+        total:
+          format: int32
+          type: integer
+      required:
+        - rows
+        - total
+      type: object
+    FieldError:
+      additionalProperties: false
+      properties:
+        code:
+          type: string
+        field:
+          type: string
+        message:
+          type: string
+      required:
+        - field
+        - message
+      type: object
+    Group:
+      additionalProperties: false
+      properties:
+        created_at:
+          format: date-time
+          type: string
+        description:
+          type: string
+        id:
+          format: uuid
+          type: string
+        member_count:
+          format: int32
+          type: integer
+        name:
+          type: string
+        updated_at:
+          format: date-time
+          type: string
+      required:
+        - created_at
+        - description
+        - id
+        - member_count
+        - name
+        - updated_at
+      type: object
+    GroupListResponse:
+      additionalProperties: false
+      properties:
+        rows:
+          items:
+            $ref: "#/components/schemas/Group"
+          type: array
+        total:
+          format: int32
+          type: integer
+      required:
+        - rows
+        - total
+      type: object
+    GroupMembership:
+      additionalProperties: false
+      properties:
+        created_at:
+          format: date-time
+          type: string
+        group_id:
+          format: uuid
+          type: string
+        id:
+          format: uuid
+          type: string
+        updated_at:
+          format: date-time
+          type: string
+        user_id:
+          format: uuid
+          type: string
+      required:
+        - created_at
+        - group_id
+        - id
+        - updated_at
+        - user_id
+      type: object
+    GroupMembershipListResponse:
+      additionalProperties: false
+      properties:
+        rows:
+          items:
+            $ref: "#/components/schemas/GroupMembership"
+          type: array
+        total:
+          format: int32
+          type: integer
+      required:
+        - rows
+        - total
+      type: object
+    Location:
+      additionalProperties: false
+      properties:
+        background_asset_id:
+          format: uuid
+          type:
+            - string
+            - "null"
+        created_at:
+          format: date-time
+          type: string
+        description:
+          type: string
+        enabled:
+          type: boolean
+        group_ids:
+          items:
+            format: uuid
+            type: string
+          type: array
+        id:
+          format: uuid
+          type: string
+        logo_asset_id:
+          format: uuid
+          type:
+            - string
+            - "null"
+        name:
+          type: string
+        notes:
+          type: boolean
+        photo:
+          type: boolean
+        updated_at:
+          format: date-time
+          type: string
+      required:
+        - created_at
+        - description
+        - enabled
+        - group_ids
+        - id
+        - name
+        - notes
+        - photo
+        - updated_at
+      type: object
+    LocationListResponse:
+      additionalProperties: false
+      properties:
+        rows:
+          items:
+            $ref: "#/components/schemas/Location"
+          type: array
+        total:
+          format: int32
+          type: integer
+      required:
+        - rows
+        - total
+      type: object
+    LocationWriteRequest:
+      additionalProperties: false
+      properties:
+        background_asset_id:
+          format: uuid
+          type:
+            - string
+            - "null"
+        description:
+          type: string
+        enabled:
+          type: boolean
+        group_ids:
+          items:
+            format: uuid
+            type: string
+          type: array
+        logo_asset_id:
+          format: uuid
+          type:
+            - string
+            - "null"
+        name:
+          type: string
+        notes:
+          type: boolean
+        photo:
+          type: boolean
+      required:
+        - description
+        - enabled
+        - group_ids
+        - name
+        - notes
+        - photo
+      type: object
+    PermissionAction:
+      enum:
+        - read
+        - create
+        - write
+        - delete
+      type: string
+    PermissionGrant:
+      additionalProperties: false
+      properties:
+        action:
+          $ref: "#/components/schemas/PermissionAction"
+        asset_type:
+          anyOf:
+            - $ref: "#/components/schemas/AssetType"
+            - type: "null"
+        location_id:
+          format: uuid
+          type:
+            - string
+            - "null"
+        resource:
+          $ref: "#/components/schemas/PermissionResource"
+      required:
+        - action
+        - resource
+      type: object
+    PermissionResource:
+      enum:
+        - users
+        - groups
+        - locations
+        - checkins
+        - assets
+        - api_keys
+      type: string
+    PermissionSubjectKind:
+      enum:
+        - user
+        - api_key
+      type: string
+    Problem:
+      additionalProperties: false
+      properties:
+        code:
+          type: string
+        detail:
+          type: string
+        field_errors:
+          items:
+            $ref: "#/components/schemas/FieldError"
+          type: array
+        status:
+          format: int32
+          type: integer
+        title:
+          type: string
+        type:
+          type: string
+      required:
+        - code
+        - detail
+        - status
+        - title
+        - type
+      type: object
+    Source:
+      enum:
+        - entra
+        - local
+      type: string
+    User:
+      additionalProperties: false
+      properties:
+        access:
+          items:
+            $ref: "#/components/schemas/PermissionGrant"
+          type: array
+        admin:
+          type: boolean
+        created_at:
+          format: date-time
+          type: string
+        department:
+          type: string
+        display_name:
+          type: string
+        id:
+          format: uuid
+          type: string
+        source:
+          $ref: "#/components/schemas/Source"
+        updated_at:
+          format: date-time
+          type: string
+        upn:
+          type: string
+      required:
+        - access
+        - admin
+        - created_at
+        - department
+        - display_name
+        - id
+        - source
+        - updated_at
+        - upn
+      type: object
+    UserAccessWriteRequest:
+      additionalProperties: false
+      properties:
+        access:
+          items:
+            $ref: "#/components/schemas/PermissionGrant"
+          type: array
+        admin:
+          type: boolean
+      required:
+        - access
+        - admin
+      type: object
+    UserListResponse:
+      additionalProperties: false
+      properties:
+        rows:
+          items:
+            $ref: "#/components/schemas/User"
+          type: array
+        total:
+          format: int32
+          type: integer
+      required:
+        - rows
+        - total
+      type: object
+  securitySchemes:
+    apiKeyAuth:
+      in: header
+      name: X-API-Key
+      type: apiKey
+    sessionAuth:
+      in: cookie
+      name: woodgate_session
+      type: apiKey
+info:
+  title: WoodGate API
+  version: 0.1.0
+openapi: 3.1.0
+paths:
+  /api-keys:
+    get:
+      operationId: listAPIKeys
+      parameters:
+        - explode: false
+          in: query
+          name: limit
+          schema:
+            format: int32
+            minimum: 1
+            type: integer
+        - explode: false
+          in: query
+          name: offset
+          schema:
+            format: int32
+            minimum: 0
+            type: integer
+        - explode: false
+          in: query
+          name: search
+          schema:
+            type: string
+        - explode: false
+          in: query
+          name: sort
+          schema:
+            type: string
+        - explode: false
+          in: query
+          name: order
+          schema:
+            enum:
+              - asc
+              - desc
+            type: string
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/APIKeyListResponse"
+          description: OK
+        "400":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Problem"
+          description: Bad Request
+        "401":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Problem"
+          description: Unauthorized
+        "403":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Problem"
+          description: Forbidden
+        "404":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Problem"
+          description: Not Found
+        "409":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Problem"
+          description: Conflict
+        "422":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Problem"
+          description: Unprocessable Entity
+        "500":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Problem"
+          description: Internal Server Error
+    post:
+      operationId: createAPIKey
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/APIKeyCreateRequest"
+        required: true
+      responses:
+        "201":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/CreateAPIKeyData"
+          description: Created
+        "400":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Problem"
+          description: Bad Request
+        "401":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Problem"
+          description: Unauthorized
+        "403":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Problem"
+          description: Forbidden
+        "404":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Problem"
+          description: Not Found
+        "409":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Problem"
+          description: Conflict
+        "422":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Problem"
+          description: Unprocessable Entity
+        "500":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Problem"
+          description: Internal Server Error
+  /api-keys/{id}:
+    delete:
+      operationId: deleteAPIKey
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            format: uuid
+            type: string
+      responses:
+        "204":
+          description: No Content
+        "400":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Problem"
+          description: Bad Request
+        "401":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Problem"
+          description: Unauthorized
+        "403":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Problem"
+          description: Forbidden
+        "404":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Problem"
+          description: Not Found
+        "409":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Problem"
+          description: Conflict
+        "422":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Problem"
+          description: Unprocessable Entity
+        "500":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Problem"
+          description: Internal Server Error
+    get:
+      operationId: getAPIKey
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            format: uuid
+            type: string
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/APIKey"
+          description: OK
+        "400":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Problem"
+          description: Bad Request
+        "401":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Problem"
+          description: Unauthorized
+        "403":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Problem"
+          description: Forbidden
+        "404":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Problem"
+          description: Not Found
+        "409":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Problem"
+          description: Conflict
+        "422":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Problem"
+          description: Unprocessable Entity
+        "500":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Problem"
+          description: Internal Server Error
+    patch:
+      operationId: patchAPIKey
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            format: uuid
+            type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/APIKeyAccessWriteRequest"
+        required: true
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/APIKey"
+          description: OK
+        "400":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Problem"
+          description: Bad Request
+        "401":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Problem"
+          description: Unauthorized
+        "403":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Problem"
+          description: Forbidden
+        "404":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Problem"
+          description: Not Found
+        "409":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Problem"
+          description: Conflict
+        "422":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Problem"
+          description: Unprocessable Entity
+        "500":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Problem"
+          description: Internal Server Error
+  /assets:
+    get:
+      operationId: listAssets
+      parameters:
+        - explode: false
+          in: query
+          name: limit
+          schema:
+            format: int32
+            minimum: 1
+            type: integer
+        - explode: false
+          in: query
+          name: offset
+          schema:
+            format: int32
+            minimum: 0
+            type: integer
+        - explode: false
+          in: query
+          name: search
+          schema:
+            type: string
+        - explode: false
+          in: query
+          name: sort
+          schema:
+            type: string
+        - explode: false
+          in: query
+          name: order
+          schema:
+            enum:
+              - asc
+              - desc
+            type: string
+        - explode: false
+          in: query
+          name: type
+          schema:
+            $ref: "#/components/schemas/AssetType"
+            enum:
+              - asset
+              - photo
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/AssetListResponse"
+          description: OK
+        "400":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Problem"
+          description: Bad Request
+        "401":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Problem"
+          description: Unauthorized
+        "403":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Problem"
+          description: Forbidden
+        "404":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Problem"
+          description: Not Found
+        "409":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Problem"
+          description: Conflict
+        "422":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Problem"
+          description: Unprocessable Entity
+        "500":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Problem"
+          description: Internal Server Error
+    post:
+      operationId: createAsset
+      requestBody:
+        content:
+          multipart/form-data:
+            schema:
+              $ref: "#/components/schemas/AssetCreateRequest"
+        required: true
+      responses:
+        "201":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Asset"
+          description: Created
+        "400":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Problem"
+          description: Bad Request
+        "401":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Problem"
+          description: Unauthorized
+        "403":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Problem"
+          description: Forbidden
+        "404":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Problem"
+          description: Not Found
+        "409":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Problem"
+          description: Conflict
+        "422":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Problem"
+          description: Unprocessable Entity
+        "500":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Problem"
+          description: Internal Server Error
+  /assets/{id}:
+    delete:
+      operationId: deleteAsset
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            format: uuid
+            type: string
+      responses:
+        "204":
+          description: No Content
+        "400":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Problem"
+          description: Bad Request
+        "401":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Problem"
+          description: Unauthorized
+        "403":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Problem"
+          description: Forbidden
+        "404":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Problem"
+          description: Not Found
+        "409":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Problem"
+          description: Conflict
+        "422":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Problem"
+          description: Unprocessable Entity
+        "500":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Problem"
+          description: Internal Server Error
+    get:
+      operationId: getAsset
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            format: uuid
+            type: string
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Asset"
+          description: OK
+        "400":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Problem"
+          description: Bad Request
+        "401":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Problem"
+          description: Unauthorized
+        "403":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Problem"
+          description: Forbidden
+        "404":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Problem"
+          description: Not Found
+        "409":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Problem"
+          description: Conflict
+        "422":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Problem"
+          description: Unprocessable Entity
+        "500":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Problem"
+          description: Internal Server Error
+    patch:
+      operationId: patchAsset
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            format: uuid
+            type: string
+      requestBody:
+        content:
+          multipart/form-data:
+            schema:
+              $ref: "#/components/schemas/AssetUpdateRequest"
+        required: true
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Asset"
+          description: OK
+        "400":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Problem"
+          description: Bad Request
+        "401":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Problem"
+          description: Unauthorized
+        "403":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Problem"
+          description: Forbidden
+        "404":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Problem"
+          description: Not Found
+        "409":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Problem"
+          description: Conflict
+        "422":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Problem"
+          description: Unprocessable Entity
+        "500":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Problem"
+          description: Internal Server Error
+  /assets/{id}/content:
+    get:
+      operationId: getAssetContent
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            format: uuid
+            type: string
+      responses:
+        "200":
+          content:
+            application/octet-stream:
+              schema:
+                contentMediaType: application/octet-stream
+                format: binary
+                type: string
+          description: OK
+        "400":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Problem"
+          description: Bad Request
+        "401":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Problem"
+          description: Unauthorized
+        "403":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Problem"
+          description: Forbidden
+        "404":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Problem"
+          description: Not Found
+        "409":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Problem"
+          description: Conflict
+        "422":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Problem"
+          description: Unprocessable Entity
+        "500":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Problem"
+          description: Internal Server Error
+  /checkins:
+    get:
+      operationId: listCheckins
+      parameters:
+        - explode: false
+          in: query
+          name: limit
+          schema:
+            format: int32
+            minimum: 1
+            type: integer
+        - explode: false
+          in: query
+          name: offset
+          schema:
+            format: int32
+            minimum: 0
+            type: integer
+        - explode: false
+          in: query
+          name: search
+          schema:
+            type: string
+        - explode: false
+          in: query
+          name: sort
+          schema:
+            type: string
+        - explode: false
+          in: query
+          name: order
+          schema:
+            enum:
+              - asc
+              - desc
+            type: string
+        - explode: false
+          in: query
+          name: location_id
+          schema:
+            format: uuid
+            type: string
+        - explode: false
+          in: query
+          name: user_id
+          schema:
+            format: uuid
+            type: string
+        - explode: false
+          in: query
+          name: direction
+          schema:
+            $ref: "#/components/schemas/CheckinDirection"
+            enum:
+              - check_in
+              - check_out
+        - explode: false
+          in: query
+          name: department
+          schema:
+            type: string
+        - explode: false
+          in: query
+          name: created_from
+          schema:
+            format: date-time
+            type: string
+        - explode: false
+          in: query
+          name: created_to
+          schema:
+            format: date-time
+            type: string
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/CheckinListResponse"
+          description: OK
+        "400":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Problem"
+          description: Bad Request
+        "401":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Problem"
+          description: Unauthorized
+        "403":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Problem"
+          description: Forbidden
+        "404":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Problem"
+          description: Not Found
+        "409":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Problem"
+          description: Conflict
+        "422":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Problem"
+          description: Unprocessable Entity
+        "500":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Problem"
+          description: Internal Server Error
+    post:
+      operationId: createCheckin
+      requestBody:
+        content:
+          multipart/form-data:
+            schema:
+              $ref: "#/components/schemas/CheckinCreateRequest"
+        required: true
+      responses:
+        "201":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Checkin"
+          description: Created
+        "400":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Problem"
+          description: Bad Request
+        "401":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Problem"
+          description: Unauthorized
+        "403":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Problem"
+          description: Forbidden
+        "404":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Problem"
+          description: Not Found
+        "409":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Problem"
+          description: Conflict
+        "422":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Problem"
+          description: Unprocessable Entity
+        "500":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Problem"
+          description: Internal Server Error
+  /checkins/departments:
+    get:
+      operationId: listCheckinDepartments
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/DepartmentOptionListResponse"
+          description: OK
+        "400":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Problem"
+          description: Bad Request
+        "401":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Problem"
+          description: Unauthorized
+        "403":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Problem"
+          description: Forbidden
+        "404":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Problem"
+          description: Not Found
+        "409":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Problem"
+          description: Conflict
+        "422":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Problem"
+          description: Unprocessable Entity
+        "500":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Problem"
+          description: Internal Server Error
+  /checkins/{id}:
+    get:
+      operationId: getCheckin
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            format: uuid
+            type: string
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Checkin"
+          description: OK
+        "400":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Problem"
+          description: Bad Request
+        "401":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Problem"
+          description: Unauthorized
+        "403":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Problem"
+          description: Forbidden
+        "404":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Problem"
+          description: Not Found
+        "409":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Problem"
+          description: Conflict
+        "422":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Problem"
+          description: Unprocessable Entity
+        "500":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Problem"
+          description: Internal Server Error
+  /group-memberships:
+    get:
+      operationId: listGroupMemberships
+      parameters:
+        - explode: false
+          in: query
+          name: limit
+          schema:
+            format: int32
+            minimum: 1
+            type: integer
+        - explode: false
+          in: query
+          name: offset
+          schema:
+            format: int32
+            minimum: 0
+            type: integer
+        - explode: false
+          in: query
+          name: search
+          schema:
+            type: string
+        - explode: false
+          in: query
+          name: sort
+          schema:
+            type: string
+        - explode: false
+          in: query
+          name: order
+          schema:
+            enum:
+              - asc
+              - desc
+            type: string
+        - explode: false
+          in: query
+          name: group_id
+          schema:
+            format: uuid
+            type: string
+        - explode: false
+          in: query
+          name: user_id
+          schema:
+            format: uuid
+            type: string
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/GroupMembershipListResponse"
+          description: OK
+        "400":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Problem"
+          description: Bad Request
+        "401":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Problem"
+          description: Unauthorized
+        "403":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Problem"
+          description: Forbidden
+        "404":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Problem"
+          description: Not Found
+        "409":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Problem"
+          description: Conflict
+        "422":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Problem"
+          description: Unprocessable Entity
+        "500":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Problem"
+          description: Internal Server Error
+  /group-memberships/{id}:
+    get:
+      operationId: getGroupMembership
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            format: uuid
+            type: string
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/GroupMembership"
+          description: OK
+        "400":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Problem"
+          description: Bad Request
+        "401":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Problem"
+          description: Unauthorized
+        "403":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Problem"
+          description: Forbidden
+        "404":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Problem"
+          description: Not Found
+        "409":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Problem"
+          description: Conflict
+        "422":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Problem"
+          description: Unprocessable Entity
+        "500":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Problem"
+          description: Internal Server Error
+  /groups:
+    get:
+      operationId: listGroups
+      parameters:
+        - explode: false
+          in: query
+          name: limit
+          schema:
+            format: int32
+            minimum: 1
+            type: integer
+        - explode: false
+          in: query
+          name: offset
+          schema:
+            format: int32
+            minimum: 0
+            type: integer
+        - explode: false
+          in: query
+          name: search
+          schema:
+            type: string
+        - explode: false
+          in: query
+          name: sort
+          schema:
+            type: string
+        - explode: false
+          in: query
+          name: order
+          schema:
+            enum:
+              - asc
+              - desc
+            type: string
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/GroupListResponse"
+          description: OK
+        "400":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Problem"
+          description: Bad Request
+        "401":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Problem"
+          description: Unauthorized
+        "403":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Problem"
+          description: Forbidden
+        "404":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Problem"
+          description: Not Found
+        "409":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Problem"
+          description: Conflict
+        "422":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Problem"
+          description: Unprocessable Entity
+        "500":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Problem"
+          description: Internal Server Error
+  /groups/{id}:
+    get:
+      operationId: getGroup
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            format: uuid
+            type: string
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Group"
+          description: OK
+        "400":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Problem"
+          description: Bad Request
+        "401":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Problem"
+          description: Unauthorized
+        "403":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Problem"
+          description: Forbidden
+        "404":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Problem"
+          description: Not Found
+        "409":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Problem"
+          description: Conflict
+        "422":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Problem"
+          description: Unprocessable Entity
+        "500":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Problem"
+          description: Internal Server Error
+  /locations:
+    get:
+      operationId: listLocations
+      parameters:
+        - explode: false
+          in: query
+          name: limit
+          schema:
+            format: int32
+            minimum: 1
+            type: integer
+        - explode: false
+          in: query
+          name: offset
+          schema:
+            format: int32
+            minimum: 0
+            type: integer
+        - explode: false
+          in: query
+          name: search
+          schema:
+            type: string
+        - explode: false
+          in: query
+          name: sort
+          schema:
+            type: string
+        - explode: false
+          in: query
+          name: order
+          schema:
+            enum:
+              - asc
+              - desc
+            type: string
+        - explode: false
+          in: query
+          name: enabled
+          schema:
+            type: boolean
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/LocationListResponse"
+          description: OK
+        "400":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Problem"
+          description: Bad Request
+        "401":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Problem"
+          description: Unauthorized
+        "403":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Problem"
+          description: Forbidden
+        "404":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Problem"
+          description: Not Found
+        "409":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Problem"
+          description: Conflict
+        "422":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Problem"
+          description: Unprocessable Entity
+        "500":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Problem"
+          description: Internal Server Error
+    post:
+      operationId: createLocation
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/LocationWriteRequest"
+        required: true
+      responses:
+        "201":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Location"
+          description: Created
+        "400":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Problem"
+          description: Bad Request
+        "401":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Problem"
+          description: Unauthorized
+        "403":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Problem"
+          description: Forbidden
+        "404":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Problem"
+          description: Not Found
+        "409":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Problem"
+          description: Conflict
+        "422":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Problem"
+          description: Unprocessable Entity
+        "500":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Problem"
+          description: Internal Server Error
+  /locations/{id}:
+    delete:
+      operationId: deleteLocation
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            format: uuid
+            type: string
+      responses:
+        "204":
+          description: No Content
+        "400":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Problem"
+          description: Bad Request
+        "401":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Problem"
+          description: Unauthorized
+        "403":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Problem"
+          description: Forbidden
+        "404":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Problem"
+          description: Not Found
+        "409":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Problem"
+          description: Conflict
+        "422":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Problem"
+          description: Unprocessable Entity
+        "500":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Problem"
+          description: Internal Server Error
+    get:
+      operationId: getLocation
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            format: uuid
+            type: string
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Location"
+          description: OK
+        "400":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Problem"
+          description: Bad Request
+        "401":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Problem"
+          description: Unauthorized
+        "403":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Problem"
+          description: Forbidden
+        "404":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Problem"
+          description: Not Found
+        "409":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Problem"
+          description: Conflict
+        "422":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Problem"
+          description: Unprocessable Entity
+        "500":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Problem"
+          description: Internal Server Error
+    patch:
+      operationId: patchLocation
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            format: uuid
+            type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/LocationWriteRequest"
+        required: true
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Location"
+          description: OK
+        "400":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Problem"
+          description: Bad Request
+        "401":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Problem"
+          description: Unauthorized
+        "403":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Problem"
+          description: Forbidden
+        "404":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Problem"
+          description: Not Found
+        "409":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Problem"
+          description: Conflict
+        "422":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Problem"
+          description: Unprocessable Entity
+        "500":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Problem"
+          description: Internal Server Error
+  /users:
+    get:
+      operationId: listUsers
+      parameters:
+        - explode: false
+          in: query
+          name: limit
+          schema:
+            format: int32
+            minimum: 1
+            type: integer
+        - explode: false
+          in: query
+          name: offset
+          schema:
+            format: int32
+            minimum: 0
+            type: integer
+        - explode: false
+          in: query
+          name: search
+          schema:
+            type: string
+        - explode: false
+          in: query
+          name: sort
+          schema:
+            type: string
+        - explode: false
+          in: query
+          name: order
+          schema:
+            enum:
+              - asc
+              - desc
+            type: string
+        - explode: false
+          in: query
+          name: location_id
+          schema:
+            format: uuid
+            type: string
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/UserListResponse"
+          description: OK
+        "400":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Problem"
+          description: Bad Request
+        "401":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Problem"
+          description: Unauthorized
+        "403":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Problem"
+          description: Forbidden
+        "404":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Problem"
+          description: Not Found
+        "409":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Problem"
+          description: Conflict
+        "422":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Problem"
+          description: Unprocessable Entity
+        "500":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Problem"
+          description: Internal Server Error
+  /users/{id}:
+    get:
+      operationId: getUser
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            format: uuid
+            type: string
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/User"
+          description: OK
+        "400":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Problem"
+          description: Bad Request
+        "401":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Problem"
+          description: Unauthorized
+        "403":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Problem"
+          description: Forbidden
+        "404":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Problem"
+          description: Not Found
+        "409":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Problem"
+          description: Conflict
+        "422":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Problem"
+          description: Unprocessable Entity
+        "500":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Problem"
+          description: Internal Server Error
+    patch:
+      operationId: patchUser
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            format: uuid
+            type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/UserAccessWriteRequest"
+        required: true
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/User"
+          description: OK
+        "400":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Problem"
+          description: Bad Request
+        "401":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Problem"
+          description: Unauthorized
+        "403":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Problem"
+          description: Forbidden
+        "404":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Problem"
+          description: Not Found
+        "409":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Problem"
+          description: Conflict
+        "422":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Problem"
+          description: Unprocessable Entity
+        "500":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Problem"
+          description: Internal Server Error
+security:
+  - apiKeyAuth: []
+  - sessionAuth: []
+servers:
+  - url: /api/v1

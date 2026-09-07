@@ -1,5 +1,6 @@
 import path from "node:path";
 
+import tailwindcss from "@tailwindcss/vite";
 import react from "@vitejs/plugin-react";
 import { defineConfig } from "vite";
 
@@ -10,22 +11,22 @@ export default defineConfig({
     react({
       jsxRuntime: "automatic",
     }),
+    tailwindcss(),
   ],
   resolve: {
     alias: {
-      "@": path.resolve(projectDirectory, "./src"),
+      "@components": path.resolve(projectDirectory, "./src/components"),
+      "@features": path.resolve(projectDirectory, "./src/features"),
+      "@hooks": path.resolve(projectDirectory, "./src/hooks"),
+      "@lib": path.resolve(projectDirectory, "./src/lib"),
     },
   },
-  envPrefix: ["APP_"],
   server: {
     port: 5173,
     strictPort: true,
     proxy: {
+      "/auth": { changeOrigin: true, target: "http://localhost:8080" },
       "/api": {
-        changeOrigin: true,
-        target: "http://localhost:8080",
-      },
-      "/auth": {
         changeOrigin: true,
         target: "http://localhost:8080",
       },
