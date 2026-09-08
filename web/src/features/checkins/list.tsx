@@ -2,6 +2,7 @@ import { getRouteApi } from "@tanstack/react-router";
 import { format, subMonths } from "date-fns";
 import { ClipboardCheck } from "lucide-react";
 
+import type { DataTableExportOptions } from "@components/data-table/data-table-export";
 import type { DataTableColumnDef } from "@components/data-table/types";
 import { useDataTableSearch } from "@components/data-table/use-data-table-search";
 import { DateRangePicker } from "@components/date-range-picker";
@@ -18,6 +19,7 @@ import {
   useCheckinDepartments,
   useCheckinLocations,
   useCheckinUser,
+  listAllCheckins,
 } from "@features/resources/queries";
 import type { Checkin } from "@lib/api";
 import { formatDateTime, nonEmpty } from "@lib/utils";
@@ -33,6 +35,19 @@ const DIRECTION_OPTIONS = [
   { value: "check_in", label: "Check in" },
   { value: "check_out", label: "Check out" },
 ] as const;
+
+const exportColumns: DataTableExportOptions<Checkin>["columns"] = [
+  { header: "Person", value: (checkin) => checkinPersonLabel(checkin.person) },
+  { header: "Email", value: (checkin) => checkin.person.email },
+  { header: "Department", value: (checkin) => checkin.person.department },
+  { header: "Location", value: (checkin) => checkin.location.name },
+  {
+    header: "Direction",
+    value: (checkin) => (checkin.direction === "check_in" ? "Check in" : "Check out"),
+  },
+  { header: "Time", value: (checkin) => checkin.created_at },
+  { header: "Notes", value: (checkin) => checkin.notes },
+];
 
 const columns: DataTableColumnDef<Checkin>[] = [
   {
@@ -107,7 +122,7 @@ export function CheckinListPage() {
   const dateRange = checkinDateRange(search);
   const today = !search.from && search.period !== "all";
   const bounds = checkinBounds(dateRange);
-  const query = useCheckins({
+  const queryParams = {
     q: tableSearch.q,
     page: tableSearch.page,
     per_page: tableSearch.per_page,
@@ -118,7 +133,13 @@ export function CheckinListPage() {
     direction: search.direction,
     created_from: bounds.createdFrom,
     created_before: bounds.createdBefore,
-  });
+  };
+  const query = useCheckins(queryParams);
+  const exportOptions: DataTableExportOptions<Checkin> = {
+    filename: "checkins",
+    columns: exportColumns,
+    loadRows: () => listAllCheckins(queryParams),
+  };
   const updateFilters = (next: Partial<typeof search>) => {
     void navigate({
       replace: true,
@@ -145,6 +166,7 @@ export function CheckinListPage() {
         count={query.data?.count ?? 0}
         columns={columns}
         tableSearch={tableSearch}
+        exportOptions={exportOptions}
         onRowClick={(checkin) =>
           void navigate({ to: "/checkins/$id", params: { id: String(checkin.id) } })
         }

@@ -43,7 +43,7 @@ import {
   updateAuthzRole,
   unwrap,
 } from "@lib/api";
-import { baseListParams, MAX_PAGE_SIZE } from "@lib/pagination";
+import { baseListParams, collectAllPages, MAX_PAGE_SIZE } from "@lib/pagination";
 
 const keys = {
   locations: ["locations"] as const,
@@ -208,6 +208,17 @@ export function useCheckins(params: CheckinListParams = {}) {
       ),
     placeholderData: keepPreviousData,
   });
+}
+
+export function listAllCheckins(params: CheckinListParams = {}): Promise<Checkin[]> {
+  return collectAllPages((page, perPage) =>
+    unwrap(
+      listCheckins({
+        query: checkinQueryParams({ ...params, page, per_page: perPage }),
+        querySerializer: { array: { style: "form", explode: true } },
+      }),
+    ),
+  );
 }
 
 export function useCheckinDepartments() {

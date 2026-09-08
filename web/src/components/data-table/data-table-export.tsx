@@ -8,12 +8,12 @@ import { toast } from "@components/ui/toast";
 
 type CSVValue = string | number | boolean | null | undefined;
 
-interface DataTableExportData {
+export interface DataTableExportData {
   fields: string[];
   data: CSVValue[][];
 }
 
-interface DataTableExportColumn<TData extends DataTableRowData> {
+export interface DataTableExportColumn<TData extends DataTableRowData> {
   header: string;
   value: (row: TData) => CSVValue;
 }
