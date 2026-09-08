@@ -111,7 +111,7 @@ type CheckinListParams struct {
 	LocationID    int64     `validate:"gte=0"`
 	UserID        int64     `validate:"gte=0"`
 	Direction     Direction `validate:"omitempty,oneof=check_in check_out"`
-	Department    string
+	Departments   []string
 	CreatedFrom   *time.Time
 	CreatedBefore *time.Time
 }
@@ -166,7 +166,6 @@ func attachmentURL(basePath string, objectID *int64) string {
 
 func (params *CheckinListParams) normalize() {
 	params.ListParams = listing.Normalize(params.ListParams)
-	params.Department = strings.TrimSpace(params.Department)
 }
 
 func (params *CheckinListParams) validate() error {

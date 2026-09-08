@@ -99,6 +99,21 @@ func (s *Service) ListCheckins(ctx context.Context, params CheckinListParams) ([
 	return s.store.ListCheckins(ctx, params)
 }
 
+// ListCheckinDepartments returns departments represented in check-in history.
+func (s *Service) ListCheckinDepartments(ctx context.Context) ([]string, error) {
+	return s.store.ListCheckinDepartments(ctx)
+}
+
+// ListCheckinLocations includes disabled locations with existing history.
+func (s *Service) ListCheckinLocations(ctx context.Context) ([]LocationSummary, error) {
+	return s.store.ListCheckinLocations(ctx)
+}
+
+// GetCheckinUser resolves the person used to scope check-in history.
+func (s *Service) GetCheckinUser(ctx context.Context, id int64) (*PersonSummary, error) {
+	return s.store.GetCheckinUser(ctx, id)
+}
+
 // GetCheckin returns one check-in event.
 func (s *Service) GetCheckin(ctx context.Context, id int64) (*Checkin, error) {
 	return s.store.GetCheckin(ctx, id)

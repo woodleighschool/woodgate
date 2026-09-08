@@ -28,6 +28,9 @@ import {
   deleteAuthzRole,
   getAuthzRole,
   getCheckin,
+  getCheckinUser,
+  listCheckinDepartments,
+  listCheckinLocations,
   getLocation,
   listLocationBackgrounds,
   listLocationGroups,
@@ -61,7 +64,7 @@ function checkinQueryParams(params: CheckinListParams = {}) {
     location_id: params.location_id,
     user_id: params.user_id,
     direction: params.direction,
-    department: params.department,
+    departments: params.departments,
     created_from: params.created_from,
     created_before: params.created_before,
   };
@@ -195,8 +198,37 @@ export function useCheckins(params: CheckinListParams = {}) {
   const query = checkinQueryParams(params);
   return useQuery<Page<Checkin>, ApiError>({
     queryKey: [...keys.checkins, "list", query],
-    queryFn: ({ signal }) => unwrap(listCheckins({ query, signal })),
+    queryFn: ({ signal }) =>
+      unwrap(
+        listCheckins({
+          query,
+          signal,
+          querySerializer: { array: { style: "form", explode: true } },
+        }),
+      ),
     placeholderData: keepPreviousData,
+  });
+}
+
+export function useCheckinDepartments() {
+  return useQuery({
+    queryKey: [...keys.checkins, "departments"],
+    queryFn: ({ signal }) => unwrap(listCheckinDepartments({ signal })).then((data) => data.items),
+  });
+}
+
+export function useCheckinLocations() {
+  return useQuery({
+    queryKey: [...keys.checkins, "locations"],
+    queryFn: ({ signal }) => unwrap(listCheckinLocations({ signal })).then((data) => data.items),
+  });
+}
+
+export function useCheckinUser(id: number | null) {
+  return useQuery({
+    queryKey: [...keys.checkins, "users", id],
+    queryFn: ({ signal }) => unwrap(getCheckinUser({ path: { id: requireID(id) }, signal })),
+    enabled: id !== null,
   });
 }
 

@@ -1,5 +1,5 @@
 import { useNavigate, useParams } from "@tanstack/react-router";
-import { Pencil, Trash2 } from "lucide-react";
+import { ClipboardCheck, Pencil, Trash2 } from "lucide-react";
 import { useState } from "react";
 
 import { EnumBadge } from "@components/enum-badge";
@@ -26,6 +26,7 @@ export function UserDetailPage() {
   const account = useAccount();
   const canEditUsers = useCan({ resource: "users", access: "edit" });
   const canEditRoles = useCan({ resource: "authz.roles", access: "edit" });
+  const canViewCheckins = useCan({ resource: "checkins", access: "view" });
   const currentUser = account.data?.user;
   const id = parseRouteID(userID);
   const query = useUser(id);
@@ -60,25 +61,38 @@ export function UserDetailPage() {
         <PageHeader
           title="User Details"
           actions={
-            isSelf || canManageUsers ? (
-              <>
-                <Button size="sm" render={<Link {...editLink} />} nativeButton={false}>
-                  <Pencil data-icon="inline-start" />
-                  Edit
+            <>
+              {canViewCheckins ? (
+                <Button
+                  variant="outline"
+                  size="sm"
+                  render={<Link to="/checkins" search={{ user_id: user.id }} />}
+                  nativeButton={false}
+                >
+                  <ClipboardCheck data-icon="inline-start" />
+                  View Check-ins
                 </Button>
-                {canManageUsers && !isSelf ? (
-                  <Button
-                    type="button"
-                    variant="destructive"
-                    size="sm"
-                    onClick={() => setDeleteOpen(true)}
-                  >
-                    <Trash2 data-icon="inline-start" />
-                    Delete
+              ) : null}
+              {isSelf || canManageUsers ? (
+                <>
+                  <Button size="sm" render={<Link {...editLink} />} nativeButton={false}>
+                    <Pencil data-icon="inline-start" />
+                    Edit
                   </Button>
-                ) : null}
-              </>
-            ) : null
+                  {canManageUsers && !isSelf ? (
+                    <Button
+                      type="button"
+                      variant="destructive"
+                      size="sm"
+                      onClick={() => setDeleteOpen(true)}
+                    >
+                      <Trash2 data-icon="inline-start" />
+                      Delete
+                    </Button>
+                  ) : null}
+                </>
+              ) : null}
+            </>
           }
         />
 

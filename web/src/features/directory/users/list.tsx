@@ -137,6 +137,7 @@ export function UserListPage() {
   const account = useAccount();
   const canEditUsers = useCan({ resource: "users", access: "edit" });
   const canEditRoles = useCan({ resource: "authz.roles", access: "edit" });
+  const canViewCheckins = useCan({ resource: "checkins", access: "view" });
   const currentUser = account.data?.user;
   const canEdit = canEditUsers && canEditRoles;
   const [deleting, setDeleting] = React.useState<User | null>(null);
@@ -169,7 +170,7 @@ export function UserListPage() {
   const table = useDataTable({
     tableState: tableSearch,
     data: tableRows,
-    columns: canEdit ? userColumns : userViewerColumns,
+    columns: canEdit || canViewCheckins ? userColumns : userViewerColumns,
     pageCount,
     rowCount: totalCount,
     initialState: { pagination: { pageIndex: 0, pageSize: DEFAULT_PAGE_SIZE } },
@@ -268,6 +269,10 @@ function UserRowActions({
   isSelf: boolean;
   onDelete: (user: User) => void;
 }) {
+  const canEditUsers = useCan({ resource: "users", access: "edit" });
+  const canEditRoles = useCan({ resource: "authz.roles", access: "edit" });
+  const canEdit = canEditUsers && canEditRoles;
+  const canViewCheckins = useCan({ resource: "checkins", access: "view" });
   return (
     <DropdownMenu>
       <DropdownMenuTrigger render={<Button type="button" size="icon" variant="ghost" />}>
@@ -275,10 +280,17 @@ function UserRowActions({
       </DropdownMenuTrigger>
       <DropdownMenuContent align="end">
         <DropdownMenuGroup>
-          <DropdownMenuItem render={<Link {...userEditLink(user.id, isSelf ? user.id : null)} />}>
-            Edit
-          </DropdownMenuItem>
-          {!isSelf ? (
+          {canViewCheckins ? (
+            <DropdownMenuItem render={<Link to="/checkins" search={{ user_id: user.id }} />}>
+              View Check-ins
+            </DropdownMenuItem>
+          ) : null}
+          {canEdit ? (
+            <DropdownMenuItem render={<Link {...userEditLink(user.id, isSelf ? user.id : null)} />}>
+              Edit
+            </DropdownMenuItem>
+          ) : null}
+          {canEdit && !isSelf ? (
             <DropdownMenuItem variant="destructive" onClick={() => onDelete(user)}>
               Delete
             </DropdownMenuItem>

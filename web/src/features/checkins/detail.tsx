@@ -2,6 +2,7 @@ import { useParams } from "@tanstack/react-router";
 
 import { KeyValueRow, KeyValueSection } from "@components/key-value";
 import { PageHeader, PageShell } from "@components/layout/page-layout";
+import { TextLink } from "@components/link";
 import { QueryGate } from "@components/query-gate";
 import { RelativeTime } from "@components/relative-time";
 import { Badge } from "@components/ui/badge";
@@ -39,7 +40,14 @@ export function CheckinDetailPage() {
         </div>
       ) : null}
       <KeyValueSection title="Record">
-        <KeyValueRow label="Person" value={checkinPersonLabel(checkin.person)} />
+        <KeyValueRow
+          label="Person"
+          value={
+            <TextLink to="/checkins" search={{ user_id: checkin.person.id }}>
+              {checkinPersonLabel(checkin.person)}
+            </TextLink>
+          }
+        />
         <KeyValueRow label="Email" value={checkin.person.email} />
         <KeyValueRow label="Department" value={nonEmpty(checkin.person.department) ?? "-"} />
         <KeyValueRow label="Location" value={checkin.location.name} />

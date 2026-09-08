@@ -287,6 +287,16 @@ components:
         - direction
         - notes
       type: object
+    CheckinDepartmentListOutputBody:
+      additionalProperties: false
+      properties:
+        items:
+          items:
+            type: string
+          type: array
+      required:
+        - items
+      type: object
     CheckinDirectUploadTarget:
       additionalProperties: false
       properties:
@@ -370,6 +380,16 @@ components:
         - groups
         - created_at
         - updated_at
+      type: object
+    CheckinLocationListOutputBody:
+      additionalProperties: false
+      properties:
+        items:
+          items:
+            $ref: "#/components/schemas/CheckinLocationSummary"
+          type: array
+      required:
+        - items
       type: object
     CheckinLocationMutation:
       additionalProperties: false
@@ -1807,11 +1827,13 @@ paths:
               - check_in
               - check_out
             type: string
-        - explode: false
+        - explode: true
           in: query
-          name: department
+          name: departments
           schema:
-            type: string
+            items:
+              type: string
+            type: array
         - explode: false
           in: query
           name: created_from
@@ -1887,6 +1909,106 @@ paths:
         - Check-ins
       x-authz:
         access: edit
+        resource: checkins
+  /api/checkins/departments:
+    get:
+      operationId: list-checkin-departments
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/CheckinDepartmentListOutputBody"
+          description: OK
+        "401":
+          content:
+            application/problem+json:
+              schema:
+                $ref: "#/components/schemas/ErrorModel"
+          description: Unauthorized
+        "403":
+          content:
+            application/problem+json:
+              schema:
+                $ref: "#/components/schemas/ErrorModel"
+          description: Forbidden
+      security:
+        - cookieAuth: []
+        - bearerAuth: []
+      summary: List check-in department choices
+      tags:
+        - Check-ins
+      x-authz:
+        access: view
+        resource: checkins
+  /api/checkins/locations:
+    get:
+      operationId: list-checkin-locations
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/CheckinLocationListOutputBody"
+          description: OK
+        "401":
+          content:
+            application/problem+json:
+              schema:
+                $ref: "#/components/schemas/ErrorModel"
+          description: Unauthorized
+        "403":
+          content:
+            application/problem+json:
+              schema:
+                $ref: "#/components/schemas/ErrorModel"
+          description: Forbidden
+      security:
+        - cookieAuth: []
+        - bearerAuth: []
+      summary: List check-in location choices
+      tags:
+        - Check-ins
+      x-authz:
+        access: view
+        resource: checkins
+  /api/checkins/users/{id}:
+    get:
+      operationId: get-checkin-user
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            format: int64
+            type: integer
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/CheckinPersonSummary"
+          description: OK
+        "401":
+          content:
+            application/problem+json:
+              schema:
+                $ref: "#/components/schemas/ErrorModel"
+          description: Unauthorized
+        "403":
+          content:
+            application/problem+json:
+              schema:
+                $ref: "#/components/schemas/ErrorModel"
+          description: Forbidden
+      security:
+        - cookieAuth: []
+        - bearerAuth: []
+      summary: Get a check-in user summary
+      tags:
+        - Check-ins
+      x-authz:
+        access: view
         resource: checkins
   /api/checkins/{id}:
     get:

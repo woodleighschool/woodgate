@@ -85,11 +85,23 @@ type checkinListInput struct {
 	LocationID    int64                        `query:"location_id,omitempty" minimum:"1"`
 	UserID        int64                        `query:"user_id,omitempty" minimum:"1"`
 	Direction     checkin.Direction            `query:"direction,omitempty" enum:"check_in,check_out"`
-	Department    string                       `query:"department,omitempty"`
+	Departments   []string                     `query:"departments,omitempty,explode"`
 	CreatedFrom   api.OptionalParam[time.Time] `query:"created_from,omitempty"`
 	CreatedBefore api.OptionalParam[time.Time] `query:"created_before,omitempty"`
 }
 type checkinListOutput struct{ Body api.Page[checkin.Checkin] }
+type checkinDepartmentListOutput struct {
+	Body struct {
+		Items []string `json:"items"`
+	}
+}
+type checkinLocationListOutput struct {
+	Body struct {
+		Items []checkin.LocationSummary `json:"items"`
+	}
+}
+type checkinUserOutput struct{ Body checkin.PersonSummary }
+
 type checkinOutput struct{ Body checkin.Checkin }
 type checkinCreateInput struct{ Body checkin.CheckinCreate }
 type checkinIDInput struct {
@@ -195,8 +207,42 @@ func registerLocations(routes huma.API, deps Dependencies) {
 }
 
 func registerCheckins(routes huma.API, deps Dependencies) {
+	huma.Register(routes, authhuma.Require(routes, deps.Authorizer, deps.Logger, rbac.ResourceCheckins, authz.View, huma.Operation{
+		OperationID: "list-checkin-departments", Method: http.MethodGet, Path: "/api/checkins/departments", Tags: []string{api.TagCheckins}, Summary: "List check-in department choices",
+	}), func(ctx context.Context, _ *struct{}) (*checkinDepartmentListOutput, error) {
+		items, err := deps.Service.ListCheckinDepartments(ctx)
+		if err != nil {
+			return nil, api.ResourceError(ctx, deps.Logger, "list-checkin-departments", "check-in department choices", err)
+		}
+		output := &checkinDepartmentListOutput{}
+		output.Body.Items = items
+		return output, nil
+	})
+
+	huma.Register(routes, authhuma.Require(routes, deps.Authorizer, deps.Logger, rbac.ResourceCheckins, authz.View, huma.Operation{
+		OperationID: "list-checkin-locations", Method: http.MethodGet, Path: "/api/checkins/locations", Tags: []string{api.TagCheckins}, Summary: "List check-in location choices",
+	}), func(ctx context.Context, _ *struct{}) (*checkinLocationListOutput, error) {
+		items, err := deps.Service.ListCheckinLocations(ctx)
+		if err != nil {
+			return nil, api.ResourceError(ctx, deps.Logger, "list-checkin-locations", "check-in location choices", err)
+		}
+		output := &checkinLocationListOutput{}
+		output.Body.Items = items
+		return output, nil
+	})
+
+	huma.Register(routes, authhuma.Require(routes, deps.Authorizer, deps.Logger, rbac.ResourceCheckins, authz.View, huma.Operation{
+		OperationID: "get-checkin-user", Method: http.MethodGet, Path: "/api/checkins/users/{id}", Tags: []string{api.TagCheckins}, Summary: "Get a check-in user summary",
+	}), func(ctx context.Context, input *checkinIDInput) (*checkinUserOutput, error) {
+		person, err := deps.Service.GetCheckinUser(ctx, input.ID)
+		if err != nil {
+			return nil, api.ResourceError(ctx, deps.Logger, "get-checkin-user", "user", err)
+		}
+		return &checkinUserOutput{Body: *person}, nil
+	})
+
 	huma.Register(routes, authhuma.Require(routes, deps.Authorizer, deps.Logger, rbac.ResourceCheckins, authz.View, huma.Operation{OperationID: "list-checkins", Method: http.MethodGet, Path: "/api/checkins", Tags: []string{api.TagCheckins}, Summary: "List check-ins"}), func(ctx context.Context, input *checkinListInput) (*checkinListOutput, error) {
-		items, count, err := deps.Service.ListCheckins(ctx, checkin.CheckinListParams{ListParams: input.Params(), LocationID: input.LocationID, UserID: input.UserID, Direction: input.Direction, Department: input.Department, CreatedFrom: input.CreatedFrom.Pointer(), CreatedBefore: input.CreatedBefore.Pointer()})
+		items, count, err := deps.Service.ListCheckins(ctx, checkin.CheckinListParams{ListParams: input.Params(), LocationID: input.LocationID, UserID: input.UserID, Direction: input.Direction, Departments: input.Departments, CreatedFrom: input.CreatedFrom.Pointer(), CreatedBefore: input.CreatedBefore.Pointer()})
 		if err != nil {
 			return nil, api.ResourceError(ctx, deps.Logger, "list-checkins", "check-in", err)
 		}

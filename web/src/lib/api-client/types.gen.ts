@@ -106,6 +106,10 @@ export type CheckinCreate = {
     user_id: number;
 };
 
+export type CheckinDepartmentListOutputBody = {
+    items: Array<string>;
+};
+
 export type CheckinDirectUploadTarget = {
     object_id: number;
     upload: {
@@ -132,6 +136,10 @@ export type CheckinLocation = {
     notes: boolean;
     photo: boolean;
     updated_at: string;
+};
+
+export type CheckinLocationListOutputBody = {
+    items: Array<CheckinLocationSummary>;
 };
 
 export type CheckinLocationMutation = {
@@ -977,7 +985,7 @@ export type ListCheckinsData = {
         location_id?: number;
         user_id?: number;
         direction?: 'check_in' | 'check_out';
-        department?: string;
+        departments?: Array<string>;
         created_from?: string;
         created_before?: string;
     };
@@ -1034,6 +1042,95 @@ export type CreateCheckinResponses = {
 };
 
 export type CreateCheckinResponse = CreateCheckinResponses[keyof CreateCheckinResponses];
+
+export type ListCheckinDepartmentsData = {
+    body?: never;
+    path?: never;
+    query?: never;
+    url: '/api/checkins/departments';
+};
+
+export type ListCheckinDepartmentsErrors = {
+    /**
+     * Unauthorized
+     */
+    401: ErrorModel;
+    /**
+     * Forbidden
+     */
+    403: ErrorModel;
+};
+
+export type ListCheckinDepartmentsError = ListCheckinDepartmentsErrors[keyof ListCheckinDepartmentsErrors];
+
+export type ListCheckinDepartmentsResponses = {
+    /**
+     * OK
+     */
+    200: CheckinDepartmentListOutputBody;
+};
+
+export type ListCheckinDepartmentsResponse = ListCheckinDepartmentsResponses[keyof ListCheckinDepartmentsResponses];
+
+export type ListCheckinLocationsData = {
+    body?: never;
+    path?: never;
+    query?: never;
+    url: '/api/checkins/locations';
+};
+
+export type ListCheckinLocationsErrors = {
+    /**
+     * Unauthorized
+     */
+    401: ErrorModel;
+    /**
+     * Forbidden
+     */
+    403: ErrorModel;
+};
+
+export type ListCheckinLocationsError = ListCheckinLocationsErrors[keyof ListCheckinLocationsErrors];
+
+export type ListCheckinLocationsResponses = {
+    /**
+     * OK
+     */
+    200: CheckinLocationListOutputBody;
+};
+
+export type ListCheckinLocationsResponse = ListCheckinLocationsResponses[keyof ListCheckinLocationsResponses];
+
+export type GetCheckinUserData = {
+    body?: never;
+    path: {
+        id: number;
+    };
+    query?: never;
+    url: '/api/checkins/users/{id}';
+};
+
+export type GetCheckinUserErrors = {
+    /**
+     * Unauthorized
+     */
+    401: ErrorModel;
+    /**
+     * Forbidden
+     */
+    403: ErrorModel;
+};
+
+export type GetCheckinUserError = GetCheckinUserErrors[keyof GetCheckinUserErrors];
+
+export type GetCheckinUserResponses = {
+    /**
+     * OK
+     */
+    200: CheckinPersonSummary;
+};
+
+export type GetCheckinUserResponse = GetCheckinUserResponses[keyof GetCheckinUserResponses];
 
 export type GetCheckinData = {
     body?: never;

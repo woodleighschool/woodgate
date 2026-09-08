@@ -11,7 +11,7 @@ import { Separator } from "@components/ui/separator";
 export function DateRangePicker({
   value,
   onValueChange,
-  label = "Date",
+  label = "Date Range",
   disabled,
   defaultMonth,
 }: {
@@ -55,7 +55,7 @@ export function DateRangePicker({
           variant="outline"
           size="icon-sm"
           className="size-8"
-          aria-label={`Clear ${label.toLowerCase()} range`}
+          aria-label={`Clear ${label.toLowerCase()}`}
           onClick={() => onValueChange(undefined)}
         >
           <X />

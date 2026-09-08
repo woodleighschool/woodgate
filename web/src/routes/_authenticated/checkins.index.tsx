@@ -4,8 +4,17 @@ import { z } from "zod";
 import { CheckinListPage } from "@features/checkins/list";
 import { createTableSearchSchema, TABLE_SEARCH_DEFAULTS } from "@lib/table-search";
 
-const searchSchema = createTableSearchSchema(["user", "location", "direction", "created_at"])
+const searchSchema = createTableSearchSchema([
+  "user",
+  "department",
+  "location",
+  "direction",
+  "created_at",
+])
   .extend({
+    departments: z.array(z.string()).optional().catch(undefined),
+    location_id: z.coerce.number().int().positive().optional().catch(undefined),
+    user_id: z.coerce.number().int().positive().optional().catch(undefined),
     direction: z.enum(["check_in", "check_out"]).optional().catch(undefined),
     from: z.iso.date().optional().catch(undefined),
     to: z.iso.date().optional().catch(undefined),

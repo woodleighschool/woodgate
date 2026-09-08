@@ -386,8 +386,8 @@ func (s *Store) ListCheckins(ctx context.Context, params CheckinListParams) ([]C
 	if params.Direction != "" {
 		where.Addf("c.direction=%s", params.Direction)
 	}
-	if params.Department != "" {
-		where.Addf("u.department=%s", params.Department)
+	if len(params.Departments) > 0 {
+		where.Addf("u.department=ANY(%s::text[])", params.Departments)
 	}
 	if params.CreatedFrom != nil {
 		where.Addf("c.created_at >= %s", *params.CreatedFrom)
@@ -407,6 +407,31 @@ func (s *Store) ListCheckins(ctx context.Context, params CheckinListParams) ([]C
 		items[i] = checkinFromRow(row)
 	}
 	return items, count, nil
+}
+
+func (s *Store) ListCheckinDepartments(ctx context.Context) ([]string, error) {
+	rows, err := s.pool.Query(ctx, `SELECT DISTINCT u.department
+FROM users u WHERE btrim(u.department) <> ''
+AND EXISTS (SELECT 1 FROM checkins c WHERE c.user_id=u.id)
+ORDER BY u.department`)
+	if err != nil {
+		return nil, err
+	}
+	return pgx.CollectRows(rows, pgx.RowTo[string])
+}
+
+func (s *Store) ListCheckinLocations(ctx context.Context) ([]LocationSummary, error) {
+	return postgres.GetAll[LocationSummary](ctx, s.pool, `SELECT l.id,l.name
+FROM locations l WHERE EXISTS (SELECT 1 FROM checkins c WHERE c.location_id=l.id)
+ORDER BY l.name,l.id`)
+}
+
+func (s *Store) GetCheckinUser(ctx context.Context, id int64) (*PersonSummary, error) {
+	person, err := postgres.GetOne[PersonSummary](ctx, s.pool, `SELECT id,email,name,COALESCE(department,'') AS department FROM users WHERE id=$1`, id)
+	if err != nil {
+		return nil, err
+	}
+	return &person, nil
 }
 
 func (s *Store) GetCheckin(ctx context.Context, id int64) (*Checkin, error) {

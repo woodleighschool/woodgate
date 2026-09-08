@@ -2,7 +2,7 @@
 
 import type { Client, ClientMeta, Options as Options2, RequestResult, TDataShape } from './client';
 import { client } from './client.gen';
-import type { CreateAppKeyData, CreateAppKeyErrors, CreateAppKeyResponses, CreateCheckinData, CreateCheckinErrors, CreateCheckinResponses, CreateLocationBackgroundUploadData, CreateLocationBackgroundUploadErrors, CreateLocationBackgroundUploadResponses, CreateLocationData, CreateLocationErrors, CreateLocationLogoUploadData, CreateLocationLogoUploadErrors, CreateLocationLogoUploadResponses, CreateLocationResponses, CreateRoleData, CreateRoleErrors, CreateRoleResponses, CreateSessionData, CreateSessionErrors, CreateSessionResponses, CreateUserData, CreateUserErrors, CreateUserResponses, DeleteAppKeyData, DeleteAppKeyErrors, DeleteAppKeyResponses, DeleteLocationData, DeleteLocationErrors, DeleteLocationResponses, DeleteRoleData, DeleteRoleErrors, DeleteRoleResponses, DeleteSessionData, DeleteSessionErrors, DeleteSessionResponses, DeleteUserData, DeleteUserErrors, DeleteUserResponses, GetAccountData, GetAccountErrors, GetAccountResponses, GetAppKeyData, GetAppKeyErrors, GetAppKeyResponses, GetCheckinData, GetCheckinErrors, GetCheckinResponses, GetDirectorySyncData, GetDirectorySyncErrors, GetDirectorySyncResponses, GetGroupData, GetGroupErrors, GetGroupResponses, GetLocationData, GetLocationErrors, GetLocationResponses, GetRoleData, GetRoleErrors, GetRoleResponses, GetSessionData, GetSessionErrors, GetSessionResponses, GetUserData, GetUserErrors, GetUserResponses, ListAppKeyLocationsData, ListAppKeyLocationsErrors, ListAppKeyLocationsResponses, ListAppKeysData, ListAppKeysErrors, ListAppKeysResponses, ListAuthorizationResourcesData, ListAuthorizationResourcesErrors, ListAuthorizationResourcesResponses, ListCheckinsData, ListCheckinsErrors, ListCheckinsResponses, ListGroupsData, ListGroupsErrors, ListGroupsResponses, ListLocationBackgroundsData, ListLocationBackgroundsErrors, ListLocationBackgroundsResponses, ListLocationGroupsData, ListLocationGroupsErrors, ListLocationGroupsResponses, ListLocationLogosData, ListLocationLogosErrors, ListLocationLogosResponses, ListLocationsData, ListLocationsErrors, ListLocationsResponses, ListRolesData, ListRolesErrors, ListRolesResponses, ListUserRolesData, ListUserRolesErrors, ListUserRolesResponses, ListUsersData, ListUsersErrors, ListUsersResponses, RevokeAccountApiKeyData, RevokeAccountApiKeyErrors, RevokeAccountApiKeyResponses, RotateAccountApiKeyData, RotateAccountApiKeyErrors, RotateAccountApiKeyResponses, SetLocationBackgroundData, SetLocationBackgroundErrors, SetLocationBackgroundResponses, SetLocationLogoData, SetLocationLogoErrors, SetLocationLogoResponses, TriggerDirectorySyncData, TriggerDirectorySyncErrors, TriggerDirectorySyncResponses, UpdateAccountData, UpdateAccountErrors, UpdateAccountResponses, UpdateAppKeyData, UpdateAppKeyErrors, UpdateAppKeyResponses, UpdateGroupData, UpdateGroupErrors, UpdateGroupResponses, UpdateLocationData, UpdateLocationErrors, UpdateLocationResponses, UpdateRoleData, UpdateRoleErrors, UpdateRoleResponses, UpdateUserData, UpdateUserErrors, UpdateUserResponses } from './types.gen';
+import type { CreateAppKeyData, CreateAppKeyErrors, CreateAppKeyResponses, CreateCheckinData, CreateCheckinErrors, CreateCheckinResponses, CreateLocationBackgroundUploadData, CreateLocationBackgroundUploadErrors, CreateLocationBackgroundUploadResponses, CreateLocationData, CreateLocationErrors, CreateLocationLogoUploadData, CreateLocationLogoUploadErrors, CreateLocationLogoUploadResponses, CreateLocationResponses, CreateRoleData, CreateRoleErrors, CreateRoleResponses, CreateSessionData, CreateSessionErrors, CreateSessionResponses, CreateUserData, CreateUserErrors, CreateUserResponses, DeleteAppKeyData, DeleteAppKeyErrors, DeleteAppKeyResponses, DeleteLocationData, DeleteLocationErrors, DeleteLocationResponses, DeleteRoleData, DeleteRoleErrors, DeleteRoleResponses, DeleteSessionData, DeleteSessionErrors, DeleteSessionResponses, DeleteUserData, DeleteUserErrors, DeleteUserResponses, GetAccountData, GetAccountErrors, GetAccountResponses, GetAppKeyData, GetAppKeyErrors, GetAppKeyResponses, GetCheckinData, GetCheckinErrors, GetCheckinResponses, GetCheckinUserData, GetCheckinUserErrors, GetCheckinUserResponses, GetDirectorySyncData, GetDirectorySyncErrors, GetDirectorySyncResponses, GetGroupData, GetGroupErrors, GetGroupResponses, GetLocationData, GetLocationErrors, GetLocationResponses, GetRoleData, GetRoleErrors, GetRoleResponses, GetSessionData, GetSessionErrors, GetSessionResponses, GetUserData, GetUserErrors, GetUserResponses, ListAppKeyLocationsData, ListAppKeyLocationsErrors, ListAppKeyLocationsResponses, ListAppKeysData, ListAppKeysErrors, ListAppKeysResponses, ListAuthorizationResourcesData, ListAuthorizationResourcesErrors, ListAuthorizationResourcesResponses, ListCheckinDepartmentsData, ListCheckinDepartmentsErrors, ListCheckinDepartmentsResponses, ListCheckinLocationsData, ListCheckinLocationsErrors, ListCheckinLocationsResponses, ListCheckinsData, ListCheckinsErrors, ListCheckinsResponses, ListGroupsData, ListGroupsErrors, ListGroupsResponses, ListLocationBackgroundsData, ListLocationBackgroundsErrors, ListLocationBackgroundsResponses, ListLocationGroupsData, ListLocationGroupsErrors, ListLocationGroupsResponses, ListLocationLogosData, ListLocationLogosErrors, ListLocationLogosResponses, ListLocationsData, ListLocationsErrors, ListLocationsResponses, ListRolesData, ListRolesErrors, ListRolesResponses, ListUserRolesData, ListUserRolesErrors, ListUserRolesResponses, ListUsersData, ListUsersErrors, ListUsersResponses, RevokeAccountApiKeyData, RevokeAccountApiKeyErrors, RevokeAccountApiKeyResponses, RotateAccountApiKeyData, RotateAccountApiKeyErrors, RotateAccountApiKeyResponses, SetLocationBackgroundData, SetLocationBackgroundErrors, SetLocationBackgroundResponses, SetLocationLogoData, SetLocationLogoErrors, SetLocationLogoResponses, TriggerDirectorySyncData, TriggerDirectorySyncErrors, TriggerDirectorySyncResponses, UpdateAccountData, UpdateAccountErrors, UpdateAccountResponses, UpdateAppKeyData, UpdateAppKeyErrors, UpdateAppKeyResponses, UpdateGroupData, UpdateGroupErrors, UpdateGroupResponses, UpdateLocationData, UpdateLocationErrors, UpdateLocationResponses, UpdateRoleData, UpdateRoleErrors, UpdateRoleResponses, UpdateUserData, UpdateUserErrors, UpdateUserResponses } from './types.gen';
 
 export type Options<TData extends TDataShape = TDataShape, ThrowOnError extends boolean = boolean, TResponse = unknown> = Options2<TData, ThrowOnError, TResponse> & {
     /**
@@ -274,6 +274,45 @@ export const createCheckin = <ThrowOnError extends boolean = false>(options: Opt
         'Content-Type': 'application/json',
         ...options.headers
     }
+});
+
+/**
+ * List check-in department choices
+ */
+export const listCheckinDepartments = <ThrowOnError extends boolean = false>(options?: Options<ListCheckinDepartmentsData, ThrowOnError>): RequestResult<ListCheckinDepartmentsResponses, ListCheckinDepartmentsErrors, ThrowOnError> => (options?.client ?? client).get<ListCheckinDepartmentsResponses, ListCheckinDepartmentsErrors, ThrowOnError>({
+    security: [{
+            in: 'cookie',
+            name: 'woodgate_session',
+            type: 'apiKey'
+        }, { scheme: 'bearer', type: 'http' }],
+    url: '/api/checkins/departments',
+    ...options
+});
+
+/**
+ * List check-in location choices
+ */
+export const listCheckinLocations = <ThrowOnError extends boolean = false>(options?: Options<ListCheckinLocationsData, ThrowOnError>): RequestResult<ListCheckinLocationsResponses, ListCheckinLocationsErrors, ThrowOnError> => (options?.client ?? client).get<ListCheckinLocationsResponses, ListCheckinLocationsErrors, ThrowOnError>({
+    security: [{
+            in: 'cookie',
+            name: 'woodgate_session',
+            type: 'apiKey'
+        }, { scheme: 'bearer', type: 'http' }],
+    url: '/api/checkins/locations',
+    ...options
+});
+
+/**
+ * Get a check-in user summary
+ */
+export const getCheckinUser = <ThrowOnError extends boolean = false>(options: Options<GetCheckinUserData, ThrowOnError>): RequestResult<GetCheckinUserResponses, GetCheckinUserErrors, ThrowOnError> => (options.client ?? client).get<GetCheckinUserResponses, GetCheckinUserErrors, ThrowOnError>({
+    security: [{
+            in: 'cookie',
+            name: 'woodgate_session',
+            type: 'apiKey'
+        }, { scheme: 'bearer', type: 'http' }],
+    url: '/api/checkins/users/{id}',
+    ...options
 });
 
 /**
