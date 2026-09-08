@@ -106,6 +106,7 @@ struct ContentView: View {
                 }
             } else {
                 CheckinHomeView(session: session)
+                    .id(session.location.id)
             }
         } else if AppSettings.shared.hasPairing {
             UnavailableCardView(

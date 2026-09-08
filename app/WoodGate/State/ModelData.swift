@@ -177,6 +177,7 @@ final class ModelData {
     // MARK: - Checkin
 
     func submitCheckin(
+        session: ActiveSession,
         person: PersonSummary,
         direction: CheckinDirectionChoice,
         notes: String,
@@ -184,14 +185,6 @@ final class ModelData {
     ) async throws {
         isBusy = true
         defer { isBusy = false }
-
-        if let refreshInFlightTask {
-            await refreshInFlightTask.value
-        }
-
-        let session = currentSession!
-        let trimmedNotes = notes.trimmingCharacters(in: .whitespacesAndNewlines)
-        let photoJPEGData = session.location.photo ? selfie!.jpegData : nil
 
         let settings = AppSettings.shared
         let client = settings.woodGateClient(
@@ -203,39 +196,23 @@ final class ModelData {
             locationID: session.location.id,
             userID: person.id,
             direction: direction,
-            notes: session.location.notes ? trimmedNotes : nil,
-            photoJPEGData: photoJPEGData
-        )
-
-        var submittedSession = session
-        submittedSession.lastSyncedAt = Date()
-        currentSession = submittedSession
-        alert = AlertItem(
-            title: "Submitted",
-            message: "\(person.displayName) was \(direction == .checkIn ? "checked in" : "checked out")."
+            notes: session.location.notes ? notes : nil,
+            photoJPEGData: session.location.photo ? selfie?.jpegData : nil
         )
     }
 
     func handleSubmissionFailure(_ error: Error) {
         if let state = unavailableState(for: error) {
             unavailableState = state
-            return
         }
-
-        alert = AlertItem(title: "Could Not Submit", message: error.localizedDescription)
     }
 
     // MARK: - People
 
     func searchPeople(matching query: String) -> [PersonSummary] {
-        let q = query.trimmingCharacters(in: .whitespacesAndNewlines)
-        guard !q.isEmpty, let currentSession else {
-            return []
-        }
-
         let predicate = #Predicate<CachedPersonRecord> { person in
-            person.displayName.localizedStandardContains(q)
-                || person.email.localizedStandardContains(q)
+            person.displayName.localizedStandardContains(query)
+                || person.email.localizedStandardContains(query)
         }
         var descriptor = FetchDescriptor<CachedPersonRecord>(
             predicate: predicate,
@@ -512,8 +489,8 @@ final class ModelData {
     }
 
     private func unavailableState(for error: Error) -> UnavailableState? {
-        if error is URLError {
-            return .connectivity
+        if let error = error as? URLError {
+            return error.code == .cancelled ? nil : .connectivity
         }
 
         guard let apiError = error as? WoodGateAPIError else {
@@ -523,8 +500,10 @@ final class ModelData {
         switch apiError.statusCode {
         case 401, 403:
             return .authorization
-        default:
+        case 500 ... 599:
             return .connectivity
+        default:
+            return nil
         }
     }
 }
