@@ -14,20 +14,21 @@ struct LocationBackgroundView: View {
                     .clipped()
             }
             .ignoresSafeArea()
+        } else {
+            Color(uiColor: .systemGroupedBackground)
+                .ignoresSafeArea()
         }
     }
 }
 
 struct WallpaperCard<Content: View>: View {
-    let hasBackground: Bool
     @ViewBuilder let content: Content
 
     var body: some View {
-        if hasBackground {
-            content
-                .glassEffect(in: .rect(cornerRadius: 28))
-        } else {
-            content
-        }
+        content
+            .background(
+                RoundedRectangle(cornerRadius: 28, style: .continuous)
+                    .fill(.regularMaterial)
+            )
     }
 }

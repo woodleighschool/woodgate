@@ -4,10 +4,9 @@ struct UnavailableCardView: View {
     let title: LocalizedStringKey
     let systemImage: String
     let message: LocalizedStringKey
-    let hasBackground: Bool
 
     var body: some View {
-        WallpaperCard(hasBackground: hasBackground) {
+        WallpaperCard {
             VStack(spacing: 16) {
                 Image(systemName: systemImage)
                     .font(.system(size: 56))
@@ -35,8 +34,7 @@ struct UnavailableCardView: View {
     UnavailableCardView(
         title: "Can't Connect Right Now",
         systemImage: "wifi.exclamationmark",
-        message: "The server can't be reached right now.",
-        hasBackground: false
+        message: "The server can't be reached right now."
     )
 }
 
@@ -46,8 +44,7 @@ struct UnavailableCardView: View {
         UnavailableCardView(
             title: "This Location Is Not Currently Accepting Check-Ins",
             systemImage: "mappin.slash.circle.fill",
-            message: "Please see a staff member if you need help.",
-            hasBackground: true
+            message: "Please see a staff member if you need help."
         )
     }
 }

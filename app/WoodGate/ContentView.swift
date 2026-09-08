@@ -89,22 +89,19 @@ struct ContentView: View {
                         title: "Can't Connect Right Now",
                         systemImage: "wifi.exclamationmark",
                         message:
-                        "The server can't be reached right now. You can try refreshing, and this device will keep trying in the background.",
-                        hasBackground: session.backgroundImage != nil
+                        "The server can't be reached right now. You can try refreshing, and this device will keep trying in the background."
                     )
                 case .authorization:
                     UnavailableCardView(
                         title: "This Device Is No Longer Authorized",
                         systemImage: "key.slash.fill",
-                        message: "This device can no longer accept check-ins with its current pairing.",
-                        hasBackground: session.backgroundImage != nil
+                        message: "This device can no longer accept check-ins with its current pairing."
                     )
                 case .locationDisabled:
                     UnavailableCardView(
                         title: "This Location Is Not Currently Accepting Check-Ins",
                         systemImage: "mappin.slash.circle.fill",
-                        message: "Please see a staff member if you need help.",
-                        hasBackground: session.backgroundImage != nil
+                        message: "Please see a staff member if you need help."
                     )
                 }
             } else {
@@ -113,8 +110,7 @@ struct ContentView: View {
         } else if AppSettings.shared.hasPairing {
             UnavailableCardView(
                 title: "Can’t Connect Right Now", systemImage: "wifi.exclamationmark",
-                message: "The saved configuration is unavailable. This device will keep trying in the background.",
-                hasBackground: false
+                message: "The saved configuration is unavailable. This device will keep trying in the background."
             )
         } else {
             WelcomeView(

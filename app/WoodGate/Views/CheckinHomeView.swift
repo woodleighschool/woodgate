@@ -5,6 +5,7 @@ struct CheckinHomeView: View {
     // MARK: - Properties
 
     @Environment(ModelData.self) private var modelData
+    @Environment(\.horizontalSizeClass) private var horizontalSizeClass
 
     let session: ActiveSession
 
@@ -64,36 +65,33 @@ struct CheckinHomeView: View {
         return nil
     }
 
-    private var hasBackground: Bool {
-        session.backgroundImage != nil
+    private var isCompactWidth: Bool {
+        horizontalSizeClass == .compact
     }
 
-    private var inputBackgroundStyle: AnyShapeStyle {
-        if hasBackground {
-            AnyShapeStyle(.thickMaterial)
-        } else {
-            AnyShapeStyle(Color(uiColor: .secondarySystemBackground))
-        }
+    private var stackHorizontalPadding: CGFloat {
+        isCompactWidth ? 16 : 24
+    }
+
+    private var controlFillStyle: some ShapeStyle {
+        Color(uiColor: .secondarySystemGroupedBackground)
     }
 
     // MARK: - Body
 
     var body: some View {
-        VStack(spacing: 0) {
-            VStack {
-                Spacer()
+        ScrollView {
+            VStack(spacing: 24) {
                 logoSection
-                Spacer()
+                checkinCard
             }
-            .frame(maxWidth: .infinity, maxHeight: .infinity)
-
-            checkinCard
-                .padding(.horizontal)
-
-            Color.clear
-                .frame(maxWidth: .infinity, maxHeight: .infinity)
+            .frame(maxWidth: 720)
+            .padding(.horizontal, stackHorizontalPadding)
+            .padding(.vertical, 24)
+            .frame(maxWidth: .infinity)
         }
-        .ignoresSafeArea(.keyboard, edges: .bottom)
+        .defaultScrollAnchor(.center, for: .alignment)
+        .scrollDismissesKeyboard(.interactively)
         .onTapGesture {
             isSearchFocused = false
             isNotesFocused = false
@@ -122,7 +120,7 @@ struct CheckinHomeView: View {
     // MARK: - View Builders
 
     private var checkinCard: some View {
-        WallpaperCard(hasBackground: hasBackground) {
+        WallpaperCard {
             VStack(alignment: .leading, spacing: 20) {
                 headerSection
                 personSelectionSection
@@ -142,11 +140,6 @@ struct CheckinHomeView: View {
                 .resizable()
                 .scaledToFit()
                 .frame(maxWidth: 320, maxHeight: 120)
-                .shadow(
-                    color: hasBackground ? .black.opacity(0.15) : .clear,
-                    radius: 12,
-                    y: 4
-                )
                 .accessibilityHidden(true)
         }
     }
@@ -187,7 +180,7 @@ struct CheckinHomeView: View {
             .padding(.vertical, 12)
             .background(
                 RoundedRectangle(cornerRadius: 18, style: .continuous)
-                    .fill(inputBackgroundStyle)
+                    .fill(controlFillStyle)
             )
             .popover(
                 isPresented: $isSearchPopoverPresented,
@@ -239,7 +232,7 @@ struct CheckinHomeView: View {
                 .padding(12)
                 .background(
                     RoundedRectangle(cornerRadius: 18, style: .continuous)
-                        .fill(inputBackgroundStyle)
+                        .fill(controlFillStyle)
                 )
         }
     }
@@ -282,7 +275,7 @@ struct CheckinHomeView: View {
                     .frame(width: 88, height: 88)
                     .background(
                         RoundedRectangle(cornerRadius: 18, style: .continuous)
-                            .fill(inputBackgroundStyle)
+                            .fill(controlFillStyle)
                     )
                 }
             }
@@ -300,7 +293,9 @@ struct CheckinHomeView: View {
     }
 
     private var submitButtons: some View {
-        HStack(spacing: 12) {
+        let layout = isCompactWidth ? AnyLayout(VStackLayout(spacing: 12)) : AnyLayout(HStackLayout(spacing: 12))
+
+        return layout {
             actionButton(
                 title: "Check In",
                 systemImage: "figure.walk.arrival",
@@ -314,6 +309,7 @@ struct CheckinHomeView: View {
                 direction: .checkOut
             )
         }
+        .controlSize(.large)
     }
 
     // MARK: - Private Helpers
@@ -353,11 +349,12 @@ struct CheckinHomeView: View {
             .frame(maxWidth: .infinity)
             .frame(minHeight: 72)
             .foregroundStyle(.white)
+            .padding(.horizontal, 12)
             .background(
                 RoundedRectangle(cornerRadius: 22, style: .continuous)
                     .fill(tint)
             )
-            .opacity(canSubmit ? 1 : 0.45)
+            .opacity(canSubmit ? 1 : 0.55)
         }
         .buttonStyle(.plain)
         .disabled(!canSubmit)
