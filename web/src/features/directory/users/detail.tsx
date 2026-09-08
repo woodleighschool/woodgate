@@ -66,7 +66,7 @@ export function UserDetailPage() {
                 <Button
                   variant="outline"
                   size="sm"
-                  render={<Link to="/checkins" search={{ user_id: user.id }} />}
+                  render={<Link to="/checkins" search={{ user_id: user.id, period: "all" }} />}
                   nativeButton={false}
                 >
                   <ClipboardCheck data-icon="inline-start" />

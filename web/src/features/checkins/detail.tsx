@@ -43,7 +43,7 @@ export function CheckinDetailPage() {
         <KeyValueRow
           label="Person"
           value={
-            <TextLink to="/checkins" search={{ user_id: checkin.person.id }}>
+            <TextLink to="/checkins" search={{ user_id: checkin.person.id, period: "all" }}>
               {checkinPersonLabel(checkin.person)}
             </TextLink>
           }

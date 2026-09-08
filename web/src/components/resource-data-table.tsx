@@ -23,6 +23,7 @@ export function ResourceDataTable<T extends DataTableRowData>({
   emptyTitle,
   emptyDescription,
   filters,
+  onRowClick,
 }: {
   data: T[];
   count: number;
@@ -36,6 +37,7 @@ export function ResourceDataTable<T extends DataTableRowData>({
   emptyTitle: string;
   emptyDescription: string;
   filters?: ReactNode;
+  onRowClick?: (row: T) => void;
 }) {
   const pageCount = loading ? -1 : Math.ceil(count / tableSearch.per_page);
   const table = useDataTable({
@@ -56,6 +58,7 @@ export function ResourceDataTable<T extends DataTableRowData>({
     <DataTable
       table={table}
       pending={pending}
+      onRowClick={onRowClick}
       empty={
         <DataTableEmpty
           icon={icon}

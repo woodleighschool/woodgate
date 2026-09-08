@@ -14,12 +14,16 @@ export function DateRangePicker({
   label = "Date Range",
   disabled,
   defaultMonth,
+  valueLabel,
+  onToday,
 }: {
   value?: DateRange;
   onValueChange: (value: DateRange | undefined) => void;
   label?: string;
   disabled?: React.ComponentProps<typeof Calendar>["disabled"];
   defaultMonth?: Date;
+  valueLabel?: string;
+  onToday?: () => void;
 }) {
   const selected = value?.from !== undefined;
 
@@ -34,11 +38,18 @@ export function DateRangePicker({
           {selected ? (
             <>
               <Separator orientation="vertical" className="mx-0.5 h-4" />
-              {formatRange(value)}
+              {valueLabel ?? formatRange(value)}
             </>
           ) : null}
         </PopoverTrigger>
         <PopoverContent className="w-auto p-0" align="start">
+          {onToday ? (
+            <div className="border-b p-2">
+              <Button variant="ghost" size="sm" onClick={onToday}>
+                Today
+              </Button>
+            </div>
+          ) : null}
           <Calendar
             mode="range"
             defaultMonth={value?.from ?? defaultMonth}

@@ -16,6 +16,7 @@ const searchSchema = createTableSearchSchema([
     location_id: z.coerce.number().int().positive().optional().catch(undefined),
     user_id: z.coerce.number().int().positive().optional().catch(undefined),
     direction: z.enum(["check_in", "check_out"]).optional().catch(undefined),
+    period: z.literal("all").optional().catch(undefined),
     from: z.iso.date().optional().catch(undefined),
     to: z.iso.date().optional().catch(undefined),
   })

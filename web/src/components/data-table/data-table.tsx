@@ -34,6 +34,7 @@ interface DataTableProps<TData extends DataTableRowData> extends React.Component
   empty?: React.ReactNode;
   exportOptions?: DataTableExportOptions<TData>;
   heading?: React.ReactNode;
+  onRowClick?: (row: TData) => void;
   pageSizeOptions?: readonly number[];
   pending?: boolean;
   renderSubRow?: (row: DataTableRow<TData>) => React.ReactNode;
@@ -46,6 +47,7 @@ export function DataTable<TData extends DataTableRowData>({
   empty,
   exportOptions,
   heading,
+  onRowClick,
   pageSizeOptions,
   pending = false,
   renderSubRow,
@@ -171,8 +173,39 @@ export function DataTable<TData extends DataTableRowData>({
               ? table.getRowModel().rows.map((row) => (
                   <React.Fragment key={row.id}>
                     <TableRow
-                      className="group/row flex w-full"
+                      className={cn(
+                        "group/row flex w-full",
+                        onRowClick &&
+                          "cursor-pointer focus-visible:outline-2 focus-visible:-outline-offset-2 focus-visible:outline-ring",
+                      )}
                       data-state={row.getIsSelected() && "selected"}
+                      tabIndex={onRowClick ? 0 : undefined}
+                      onClick={
+                        onRowClick
+                          ? (event) => {
+                              if (
+                                event.defaultPrevented ||
+                                (event.target instanceof Element &&
+                                  event.target.closest(
+                                    "a, button, input, select, textarea, [role='button'], [role='checkbox'], [contenteditable='true']",
+                                  )) ||
+                                window.getSelection()?.toString()
+                              )
+                                return;
+                              onRowClick(row.original);
+                            }
+                          : undefined
+                      }
+                      onKeyDown={
+                        onRowClick
+                          ? (event) => {
+                              if (event.target === event.currentTarget && event.key === "Enter") {
+                                event.preventDefault();
+                                onRowClick(row.original);
+                              }
+                            }
+                          : undefined
+                      }
                     >
                       {row.getVisibleCells().map((cell) => (
                         <TableCell

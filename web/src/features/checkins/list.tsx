@@ -1,7 +1,6 @@
 import { getRouteApi } from "@tanstack/react-router";
-import { addDays, format, isValid, parseISO, startOfDay, subMonths } from "date-fns";
+import { format, subMonths } from "date-fns";
 import { ClipboardCheck } from "lucide-react";
-import type { DateRange } from "react-day-picker";
 
 import type { DataTableColumnDef } from "@components/data-table/types";
 import { useDataTableSearch } from "@components/data-table/use-data-table-search";
@@ -10,9 +9,9 @@ import { FacetedFilter } from "@components/faceted-filter";
 import { FilterChip } from "@components/filter-controls";
 import { PageHeader, PageShell } from "@components/layout/page-layout";
 import { TextLink } from "@components/link";
-import { RelativeTime } from "@components/relative-time";
 import { ResourceDataTable } from "@components/resource-data-table";
 import { Badge } from "@components/ui/badge";
+import { checkinDateRange, checkinBounds } from "@features/checkins/date-range";
 import { checkinPersonLabel } from "@features/checkins/presentation";
 import {
   useCheckins,
@@ -21,7 +20,7 @@ import {
   useCheckinUser,
 } from "@features/resources/queries";
 import type { Checkin } from "@lib/api";
-import { nonEmpty } from "@lib/utils";
+import { formatDateTime, nonEmpty } from "@lib/utils";
 
 const routeApi = getRouteApi("/_authenticated/checkins/");
 
@@ -41,7 +40,11 @@ const columns: DataTableColumnDef<Checkin>[] = [
     accessorFn: (checkin) => checkinPersonLabel(checkin.person),
     header: "Person",
     cell: ({ row }) => (
-      <TextLink to="/checkins" search={{ user_id: row.original.person.id }} className="font-medium">
+      <TextLink
+        to="/checkins"
+        search={{ user_id: row.original.person.id, period: "all" }}
+        className="font-medium"
+      >
         {checkinPersonLabel(row.original.person)}
       </TextLink>
     ),
@@ -77,9 +80,7 @@ const columns: DataTableColumnDef<Checkin>[] = [
     accessorKey: "created_at",
     header: "Time",
     cell: ({ row }) => (
-      <TextLink to="/checkins/$id" params={{ id: String(row.original.id) }}>
-        <RelativeTime value={row.original.created_at} />
-      </TextLink>
+      <time dateTime={row.original.created_at}>{formatDateTime(row.original.created_at)}</time>
     ),
     meta: { label: "Time" },
   },
@@ -92,7 +93,7 @@ export function CheckinListPage() {
     search,
     onSearchChange: (updater) => void navigate({ search: updater, replace: true }),
     filterKeys: CHECKIN_FILTER_KEYS,
-    scopeKeys: ["user_id", "from", "to"],
+    scopeKeys: ["user_id", "period", "from", "to"],
   });
   const departments = useCheckinDepartments();
   const locations = useCheckinLocations();
@@ -103,7 +104,9 @@ export function CheckinListPage() {
       : user.data
         ? checkinPersonLabel(user.data)
         : "Selected user";
-  const bounds = checkinBounds(search.from, search.to);
+  const dateRange = checkinDateRange(search);
+  const today = !search.from && search.period !== "all";
+  const bounds = checkinBounds(dateRange);
   const query = useCheckins({
     q: tableSearch.q,
     page: tableSearch.page,
@@ -142,6 +145,9 @@ export function CheckinListPage() {
         count={query.data?.count ?? 0}
         columns={columns}
         tableSearch={tableSearch}
+        onRowClick={(checkin) =>
+          void navigate({ to: "/checkins/$id", params: { id: String(checkin.id) } })
+        }
         loading={query.isLoading}
         pending={query.isPlaceholderData}
         error={query.error}
@@ -187,11 +193,14 @@ export function CheckinListPage() {
               }
             />
             <DateRangePicker
-              value={parseDateRange(search.from, search.to)}
+              value={dateRange}
+              valueLabel={today ? "Today" : undefined}
+              onToday={() => updateFilters({ period: undefined, from: undefined, to: undefined })}
               defaultMonth={subMonths(new Date(), 1)}
               disabled={{ after: new Date() }}
               onValueChange={(range) =>
                 updateFilters({
+                  period: range?.from ? undefined : "all",
                   from: range?.from ? format(range.from, "yyyy-MM-dd") : undefined,
                   to: range?.to ? format(range.to, "yyyy-MM-dd") : undefined,
                 })
@@ -202,26 +211,6 @@ export function CheckinListPage() {
       />
     </PageShell>
   );
-}
-
-function parseDateRange(fromValue: string | undefined, toValue: string | undefined): DateRange {
-  return { from: parseDate(fromValue), to: parseDate(toValue) };
-}
-
-function parseDate(value: string | undefined): Date | undefined {
-  if (!value) return undefined;
-  const date = parseISO(value);
-  return isValid(date) ? date : undefined;
-}
-
-function checkinBounds(
-  fromValue: string | undefined,
-  toValue: string | undefined,
-): { createdFrom?: string; createdBefore?: string } {
-  return {
-    createdFrom: fromValue ? startOfDay(parseISO(fromValue)).toISOString() : undefined,
-    createdBefore: toValue ? addDays(startOfDay(parseISO(toValue)), 1).toISOString() : undefined,
-  };
 }
 
 function checkinDirection(value: string | undefined): "check_in" | "check_out" | undefined {

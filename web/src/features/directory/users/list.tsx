@@ -281,7 +281,9 @@ function UserRowActions({
       <DropdownMenuContent align="end">
         <DropdownMenuGroup>
           {canViewCheckins ? (
-            <DropdownMenuItem render={<Link to="/checkins" search={{ user_id: user.id }} />}>
+            <DropdownMenuItem
+              render={<Link to="/checkins" search={{ user_id: user.id, period: "all" }} />}
+            >
               View Check-ins
             </DropdownMenuItem>
           ) : null}
