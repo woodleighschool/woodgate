@@ -29,6 +29,7 @@ struct WallpaperCard<Content: View>: View {
             .background(
                 RoundedRectangle(cornerRadius: 28, style: .continuous)
                     .fill(.regularMaterial)
+                    .strokeBorder(.primary.opacity(0.12), lineWidth: 1)
             )
     }
 }
