@@ -77,7 +77,7 @@ struct SecretMenuSheet: View {
                     dismiss()
                     modelData.forgetPairing()
                 } label: {
-                    Label("Forget Pairing", systemImage: "trash")
+                    Label("Disconnect", systemImage: "network.slash")
                 }
                 .disabled(isRefreshing)
             }
