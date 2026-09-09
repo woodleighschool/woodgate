@@ -13,10 +13,26 @@ struct CheckinActions: View {
         let error: Error?
     }
 
-    @State private var outcome: Outcome?
-    @State private var expanded = false
-    @State private var expansionFinished = false
-    @State private var isVisible = false
+    private enum Phase {
+        case idle
+        case submitting
+        case outcome(Outcome)
+        case collapsing
+
+        var isExpanded: Bool {
+            switch self {
+            case .submitting, .outcome: true
+            case .idle, .collapsing: false
+            }
+        }
+
+        var outcome: Outcome? {
+            guard case let .outcome(outcome) = self else { return nil }
+            return outcome
+        }
+    }
+
+    @State private var phase = Phase.idle
     @ScaledMetric(relativeTo: .headline) private var buttonHeight = 88
 
     private var isVertical: Bool {
@@ -24,7 +40,7 @@ struct CheckinActions: View {
     }
 
     private var showsOutcome: Bool {
-        expansionFinished && outcome != nil
+        phase.outcome != nil
     }
 
     private var animation: Animation? {
@@ -38,18 +54,20 @@ struct CheckinActions: View {
             ZStack(alignment: .topLeading) {
                 ForEach(CheckinDirectionChoice.allCases) { action in
                     let isActive = direction == action
-                    let fillsArea = isActive && expanded
+                    let fillsArea = isActive && phase.isExpanded
                     Button {
                         start(action)
                     } label: {
-                        label(for: action)
-                            .animation(.easeInOut(duration: 0.15), value: showsOutcome)
-                            .frame(maxWidth: .infinity, maxHeight: .infinity)
-                            .padding(.horizontal, 12)
-                            .contentShape(Rectangle())
+                        ZStack {
+                            label(for: action)
+                                .transition(.opacity)
+                        }
+                        .foregroundStyle(.white)
+                        .frame(maxWidth: .infinity, maxHeight: .infinity)
+                        .padding(.horizontal, 12)
+                        .contentShape(Rectangle())
                     }
                     .buttonStyle(.plain)
-                    .foregroundStyle(.white)
                     .frame(
                         width: fillsArea ? width : idleWidth,
                         height: fillsArea ? geometry.size.height : buttonHeight
@@ -62,7 +80,7 @@ struct CheckinActions: View {
                         x: !isVertical && action == .checkOut && !fillsArea ? idleWidth + 12 : 0,
                         y: isVertical && action == .checkOut && !fillsArea ? buttonHeight + 12 : 0
                     )
-                    .opacity(direction == nil ? (canSubmit ? 1 : 0.55) : (isActive ? 1 : (expanded ? 0 : 1)))
+                    .opacity(phase.isExpanded ? (isActive ? 1 : 0) : (canSubmit ? 1 : 0.55))
                     .zIndex(isActive ? 1 : 0)
                     .disabled(direction != nil || !canSubmit)
                     .accessibilityHidden(direction != nil && !isActive)
@@ -71,16 +89,12 @@ struct CheckinActions: View {
             }
         }
         .frame(height: isVertical ? buttonHeight * 2 + 12 : buttonHeight)
-        .onAppear { isVisible = true }
         .onDisappear {
-            isVisible = false
             direction = nil
-            expanded = false
-            expansionFinished = false
-            outcome = nil
+            phase = .idle
         }
         .onChange(of: showsOutcome) { _, shown in
-            if shown, let outcome {
+            if shown, let outcome = phase.outcome {
                 AccessibilityNotification.Announcement(outcome.message).post()
             }
         }
@@ -89,10 +103,14 @@ struct CheckinActions: View {
             do {
                 let message = try await submit(direction)
                 try Task.checkCancellation()
-                outcome = Outcome(message: message, error: nil)
+                withAnimation(animation) {
+                    phase = .outcome(Outcome(message: message, error: nil))
+                }
             } catch {
                 guard !Task.isCancelled else { return }
-                outcome = Outcome(message: error.localizedDescription, error: error)
+                withAnimation(animation) {
+                    phase = .outcome(Outcome(message: error.localizedDescription, error: error))
+                }
             }
         }
         .task(id: showsOutcome) {
@@ -100,13 +118,12 @@ struct CheckinActions: View {
             do {
                 try await Task.sleep(for: .seconds(1.8))
             } catch { return }
-            let error = outcome?.error
-            expansionFinished = false
+            let error = phase.outcome?.error
             withAnimation(animation, completionCriteria: .removed) {
-                expanded = false
+                phase = .collapsing
             } completion: {
-                guard isVisible else { return }
-                outcome = nil
+                guard case .collapsing = phase else { return }
+                phase = .idle
                 direction = nil
                 if let error {
                     onFailure(error)
@@ -117,35 +134,33 @@ struct CheckinActions: View {
 
     @ViewBuilder
     private func label(for action: CheckinDirectionChoice) -> some View {
-        if direction == action, showsOutcome, let outcome {
+        if direction == action, let outcome = phase.outcome {
             Label(outcome.message, systemImage: outcome.error == nil ? "checkmark.circle.fill" : "exclamationmark.circle.fill")
                 .font(.headline)
                 .multilineTextAlignment(.center)
                 .lineLimit(3)
                 .minimumScaleFactor(0.7)
                 .accessibilityLabel(outcome.error == nil ? "Success: \(outcome.message)" : "Error: \(outcome.message)")
-        } else {
+        } else if direction == action, phase.isExpanded {
             HStack(spacing: 10) {
-                if direction == action, expansionFinished {
-                    ProgressView().tint(.white)
-                } else {
-                    Image(systemName: action == .checkIn ? "figure.walk.arrival" : "figure.walk.departure")
-                }
-                Text(direction == action && expansionFinished
-                    ? (action == .checkIn ? "Checking in..." : "Checking out...")
-                    : (action == .checkIn ? "Check In" : "Check Out"))
+                ProgressView().tint(.white)
+                Text(action == .checkIn ? "Checking in..." : "Checking out...")
             }
+            .font(.title3.bold())
+        } else {
+            Label(
+                action == .checkIn ? "Check In" : "Check Out",
+                systemImage: action == .checkIn ? "figure.walk.arrival" : "figure.walk.departure"
+            )
             .font(.title3.bold())
         }
     }
 
     private func start(_ action: CheckinDirectionChoice) {
-        direction = action
-        withAnimation(animation, completionCriteria: .removed) {
-            expanded = true
-        } completion: {
-            guard isVisible else { return }
-            expansionFinished = true
+        guard direction == nil, canSubmit else { return }
+        withAnimation(animation) {
+            direction = action
+            phase = .submitting
         }
     }
 }
