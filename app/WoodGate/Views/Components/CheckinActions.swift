@@ -1,7 +1,6 @@
 import SwiftUI
 
 struct CheckinActions: View {
-    @Environment(\.horizontalSizeClass) private var horizontalSizeClass
     @Environment(\.accessibilityReduceMotion) private var reduceMotion
     @Binding var direction: CheckinDirectionChoice?
     let canSubmit: Bool
@@ -35,10 +34,6 @@ struct CheckinActions: View {
     @State private var phase = Phase.idle
     @ScaledMetric(relativeTo: .headline) private var buttonHeight = 88
 
-    private var isVertical: Bool {
-        horizontalSizeClass == .compact
-    }
-
     private var showsOutcome: Bool {
         phase.outcome != nil
     }
@@ -50,7 +45,7 @@ struct CheckinActions: View {
     var body: some View {
         GeometryReader { geometry in
             let width = geometry.size.width
-            let idleWidth = isVertical ? width : max(0, (width - 12) / 2)
+            let idleWidth = max(0, (width - 12) / 2)
             ZStack(alignment: .topLeading) {
                 ForEach(CheckinDirectionChoice.allCases) { action in
                     let isActive = direction == action
@@ -77,8 +72,7 @@ struct CheckinActions: View {
                         in: .rect(cornerRadius: 22)
                     )
                     .offset(
-                        x: !isVertical && action == .checkOut && !fillsArea ? idleWidth + 12 : 0,
-                        y: isVertical && action == .checkOut && !fillsArea ? buttonHeight + 12 : 0
+                        x: action == .checkOut && !fillsArea ? idleWidth + 12 : 0
                     )
                     .opacity(phase.isExpanded ? (isActive ? 1 : 0) : (canSubmit ? 1 : 0.55))
                     .zIndex(isActive ? 1 : 0)
@@ -88,7 +82,7 @@ struct CheckinActions: View {
                 }
             }
         }
-        .frame(height: isVertical ? buttonHeight * 2 + 12 : buttonHeight)
+        .frame(height: buttonHeight)
         .onDisappear {
             direction = nil
             phase = .idle
