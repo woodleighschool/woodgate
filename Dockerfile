@@ -14,14 +14,13 @@ RUN npm install --global "$(node --print 'require("./package.json").packageManag
 RUN pnpm install --frozen-lockfile
 
 COPY web/ ./
-COPY api/openapi.yaml ../api/openapi.yaml
-RUN pnpm openapi:types
 RUN pnpm build
 
 # ---- Go build -------------------------------------------------------------
 FROM --platform=$BUILDPLATFORM golang:1.27.0-alpine AS builder
 ARG TARGETOS
 ARG TARGETARCH
+ARG VERSION=dev
 
 RUN apk add --no-cache upx
 WORKDIR /workspace
@@ -38,14 +37,16 @@ COPY web/ web/
 COPY --from=web /workspace/web/dist web/dist
 
 RUN CGO_ENABLED=0 GOOS=${TARGETOS:-linux} GOARCH=${TARGETARCH} \
-    go build -trimpath -ldflags "-s -w" -o woodgate ./cmd/woodgate
+    go build -trimpath -ldflags "-s -w -X github.com/woodleighschool/woodgate/internal/buildinfo.Version=${VERSION}" -o woodgate ./cmd/woodgate
 RUN upx --best --lzma woodgate
+RUN mkdir /data
 
 # ---- Runtime --------------------------------------------------------------
 FROM gcr.io/distroless/static:nonroot
 
 WORKDIR /
 COPY --from=builder /workspace/woodgate /woodgate
+COPY --from=builder --chown=65532:65532 /data /data
 EXPOSE 8080
 USER 65532:65532
 ENTRYPOINT ["/woodgate"]

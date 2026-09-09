@@ -1,3 +1,5 @@
+import { appRequest, reviewPairing } from "./app";
+
 const stationSecret = "testing123";
 const stationSubprotocol = "woodgate-station.v1";
 
@@ -29,8 +31,12 @@ export default {
       return Response.json({
         service: "WoodGate development mock",
         station_secret: stationSecret,
+        review_pairing: reviewPairing(url.origin),
       });
     }
+
+    const appResponse = await appRequest(request);
+    if (appResponse) return appResponse;
 
     if (!url.pathname.startsWith("/api/station/v1/")) {
       return problem(404, "Not found.", "not_found");

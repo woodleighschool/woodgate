@@ -1,11 +1,6 @@
 import Foundation
 import UIKit
 
-enum SessionMode: String {
-    case paired
-    case demo
-}
-
 enum CheckinDirectionChoice: String, CaseIterable, Identifiable, Codable {
     case checkIn = "check_in"
     case checkOut = "check_out"
@@ -50,17 +45,12 @@ struct PersonSummary: Identifiable, Hashable {
 }
 
 struct ActiveSession {
-    let mode: SessionMode
     let baseURLString: String
     var location: ActiveLocation
     var people: [PersonSummary]
     var backgroundImage: UIImage?
     var logoImage: UIImage?
     var lastSyncedAt: Date
-
-    var isDemo: Bool {
-        mode == .demo
-    }
 }
 
 struct LocationSelectionState: Identifiable {

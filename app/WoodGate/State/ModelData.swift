@@ -26,10 +26,12 @@ final class ModelData {
 
     // MARK: - Init
 
-    init(modelContext: ModelContext) {
+    init(modelContext: ModelContext, startsServices: Bool = true) {
         self.modelContext = modelContext
-        startBackgroundRefresh()
-        Task { await bootstrap() }
+        if startsServices {
+            startBackgroundRefresh()
+            Task { await bootstrap() }
+        }
     }
 
     // MARK: - Lifecycle
@@ -59,7 +61,6 @@ final class ModelData {
 
             do {
                 currentSession = try await buildSession(
-                    mode: .paired,
                     baseURLString: settings.baseURLString,
                     client: client,
                     locationID: locationID,
@@ -79,59 +80,14 @@ final class ModelData {
         await refreshSession()
     }
 
-    // MARK: - Demo
-
-    func beginDemoMode() {
-        currentSession = DemoCatalog.session()
-        locationSelection = nil
-        unavailableState = nil
-    }
-
-    func exitDemoMode() {
-        guard currentSession?.mode == .demo else { return }
-
-        currentSession = nil
-        locationSelection = nil
-        unavailableState = nil
-    }
-
-    func toggleDemoNotes() {
-        guard var session = currentSession, session.mode == .demo else { return }
-
-        session.location = ActiveLocation(
-            id: session.location.id,
-            name: session.location.name,
-            notes: !session.location.notes,
-            photo: session.location.photo,
-            backgroundAssetID: session.location.backgroundAssetID,
-            logoAssetID: session.location.logoAssetID
-        )
-        currentSession = session
-    }
-
-    func toggleDemoPhoto() {
-        guard var session = currentSession, session.mode == .demo else { return }
-
-        session.location = ActiveLocation(
-            id: session.location.id,
-            name: session.location.name,
-            notes: session.location.notes,
-            photo: !session.location.photo,
-            backgroundAssetID: session.location.backgroundAssetID,
-            logoAssetID: session.location.logoAssetID
-        )
-        currentSession = session
-    }
-
     // MARK: - Pairing
 
-    func beginPairing(with payloadText: String) async {
-        do {
-            let payload = try PairingPayload.parse(json: payloadText)
-            try await fetchPairableLocations(using: payload)
-        } catch {
-            alert = AlertItem(title: "QR Code Not Recognised", message: error.localizedDescription)
-        }
+    func beginPairing(with payload: PairingPayload) async throws {
+        let normalizedPayload = PairingPayload(
+            baseURL: payload.baseURL.trimmingCharacters(in: .whitespacesAndNewlines),
+            apiKey: payload.apiKey.trimmingCharacters(in: .whitespacesAndNewlines)
+        )
+        try await fetchPairableLocations(using: normalizedPayload)
     }
 
     func beginSwitchLocation() async {
@@ -149,7 +105,7 @@ final class ModelData {
     }
 
     func selectLocation(_ option: SessionLocation) async {
-        let payload = locationSelection!.payload
+        guard !isBusy, let payload = locationSelection?.payload else { return }
 
         isBusy = true
         defer { isBusy = false }
@@ -161,7 +117,7 @@ final class ModelData {
                     apiKey: payload.apiKey
                 )
             else {
-                throw WoodGateError(message: "The QR code does not contain a valid server URL.")
+                throw WoodGateError(message: "Enter a valid HTTP or HTTPS server URL.")
             }
             let location = try await client.getLocation(id: option.id)
             guard location.enabled else {
@@ -169,7 +125,6 @@ final class ModelData {
             }
             let people = try await client.listPeople(locationID: location.id)
             let session = await makeSession(
-                mode: .paired,
                 baseURLString: payload.baseURL,
                 location: location,
                 people: people,
@@ -201,7 +156,7 @@ final class ModelData {
     // MARK: - Session Refresh
 
     func refreshSession() async {
-        guard let currentSession, currentSession.mode == .paired else { return }
+        guard let currentSession else { return }
         guard !isBusy, locationSelection == nil else { return }
 
         if let refreshInFlightTask {
@@ -222,6 +177,7 @@ final class ModelData {
     // MARK: - Checkin
 
     func submitCheckin(
+        session: ActiveSession,
         person: PersonSummary,
         direction: CheckinDirectionChoice,
         notes: String,
@@ -229,22 +185,6 @@ final class ModelData {
     ) async throws {
         isBusy = true
         defer { isBusy = false }
-
-        if let refreshInFlightTask {
-            await refreshInFlightTask.value
-        }
-
-        let session = currentSession!
-        let trimmedNotes = notes.trimmingCharacters(in: .whitespacesAndNewlines)
-        let photoJPEGData = session.location.photo ? selfie!.jpegData : nil
-
-        if session.mode == .demo {
-            try await Task.sleep(for: .milliseconds(500))
-            let message =
-                "\(person.displayName) was \(direction == .checkIn ? "checked in" : "checked out") in demo mode."
-            alert = AlertItem(title: "Submitted", message: message)
-            return
-        }
 
         let settings = AppSettings.shared
         let client = settings.woodGateClient(
@@ -256,52 +196,23 @@ final class ModelData {
             locationID: session.location.id,
             userID: person.id,
             direction: direction,
-            notes: session.location.notes ? trimmedNotes : nil,
-            photoJPEGData: photoJPEGData
-        )
-
-        var submittedSession = session
-        submittedSession.lastSyncedAt = Date()
-        currentSession = submittedSession
-        alert = AlertItem(
-            title: "Submitted",
-            message: "\(person.displayName) was \(direction == .checkIn ? "checked in" : "checked out")."
+            notes: session.location.notes ? notes : nil,
+            photoJPEGData: session.location.photo ? selfie?.jpegData : nil
         )
     }
 
     func handleSubmissionFailure(_ error: Error) {
         if let state = unavailableState(for: error) {
             unavailableState = state
-            return
         }
-
-        alert = AlertItem(title: "Could Not Submit", message: error.localizedDescription)
     }
 
     // MARK: - People
 
     func searchPeople(matching query: String) -> [PersonSummary] {
-        let q = query.trimmingCharacters(in: .whitespacesAndNewlines)
-        guard !q.isEmpty, let currentSession else {
-            return []
-        }
-
-        if currentSession.isDemo {
-            return currentSession.people
-                .filter { person in
-                    person.displayName.localizedStandardContains(q)
-                        || person.email.localizedStandardContains(q)
-                }
-                .sorted {
-                    $0.displayName.localizedCaseInsensitiveCompare($1.displayName) == .orderedAscending
-                }
-                .prefix(25)
-                .map(\.self)
-        }
-
         let predicate = #Predicate<CachedPersonRecord> { person in
-            person.displayName.localizedStandardContains(q)
-                || person.email.localizedStandardContains(q)
+            person.displayName.localizedStandardContains(query)
+                || person.email.localizedStandardContains(query)
         }
         var descriptor = FetchDescriptor<CachedPersonRecord>(
             predicate: predicate,
@@ -322,6 +233,9 @@ final class ModelData {
     // MARK: - Private Helpers
 
     private func fetchPairableLocations(using payload: PairingPayload) async throws {
+        guard !isBusy else {
+            throw WoodGateError(message: "The station is busy. Please try again.")
+        }
         isBusy = true
         defer { isBusy = false }
 
@@ -331,12 +245,12 @@ final class ModelData {
                 apiKey: payload.apiKey
             )
         else {
-            throw WoodGateError(message: "The QR code does not contain a valid server URL.")
+            throw WoodGateError(message: "Enter a valid HTTP or HTTPS server URL.")
         }
         let auth = try await client.authenticate()
 
         guard auth.principal.type == "api_key" else {
-            throw WoodGateError(message: "That QR code did not authenticate as an API key.")
+            throw WoodGateError(message: "These credentials did not authenticate as an API key.")
         }
 
         let allowedLocationIDs = Set(
@@ -354,6 +268,7 @@ final class ModelData {
             throw WoodGateError(message: "This API key does not have any enabled locations available.")
         }
 
+        try Task.checkCancellation()
         locationSelection = LocationSelectionState(
             options: locations,
             payload: payload
@@ -377,7 +292,6 @@ final class ModelData {
     ) throws -> ActiveSession {
         let cachedPeople = try loadPeople()
         return ActiveSession(
-            mode: .paired,
             baseURLString: settings.baseURLString,
             location: ActiveLocation(
                 id: locationID,
@@ -464,7 +378,6 @@ final class ModelData {
             }
             let people = try await client.listPeople(locationID: location.id)
             let refreshedSession = await makeSession(
-                mode: .paired,
                 baseURLString: settings.baseURLString,
                 location: location,
                 people: people,
@@ -482,7 +395,6 @@ final class ModelData {
     }
 
     private func buildSession(
-        mode: SessionMode,
         baseURLString: String,
         client: WoodGateAPIClient,
         locationID: UUID,
@@ -496,7 +408,6 @@ final class ModelData {
             }
 
             return await makeSession(
-                mode: mode,
                 baseURLString: baseURLString,
                 location: location,
                 people: [],
@@ -508,7 +419,6 @@ final class ModelData {
 
         let people = try await client.listPeople(locationID: location.id)
         return await makeSession(
-            mode: mode,
             baseURLString: baseURLString,
             location: location,
             people: people,
@@ -519,7 +429,6 @@ final class ModelData {
     }
 
     private func makeSession(
-        mode: SessionMode,
         baseURLString: String,
         location: WoodGateLocationResponse,
         people: [PersonSummary],
@@ -541,7 +450,6 @@ final class ModelData {
         )
 
         return await ActiveSession(
-            mode: mode,
             baseURLString: baseURLString,
             location: ActiveLocation(
                 id: location.id,
@@ -581,8 +489,8 @@ final class ModelData {
     }
 
     private func unavailableState(for error: Error) -> UnavailableState? {
-        if error is URLError {
-            return .connectivity
+        if let error = error as? URLError {
+            return error.code == .cancelled ? nil : .connectivity
         }
 
         guard let apiError = error as? WoodGateAPIError else {
@@ -592,8 +500,10 @@ final class ModelData {
         switch apiError.statusCode {
         case 401, 403:
             return .authorization
-        default:
+        case 500 ... 599:
             return .connectivity
+        default:
+            return nil
         }
     }
 }

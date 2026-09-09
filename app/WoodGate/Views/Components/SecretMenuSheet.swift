@@ -38,20 +38,14 @@ struct SecretMenuSheet: View {
             .navigationBarTitleDisplayMode(.inline)
         }
         .presentationDetents([.medium, .large])
+        .modelAlert()
     }
 
     // MARK: - View Builders
 
     private var actionsSection: some View {
         Section("Actions") {
-            if let session, session.isDemo {
-                Button(role: .destructive) {
-                    dismiss()
-                    modelData.exitDemoMode()
-                } label: {
-                    Label("Exit Demo Mode", systemImage: "xmark.octagon")
-                }
-            } else if session != nil {
+            if session != nil {
                 Button {
                     Task {
                         isRefreshing = true
@@ -94,7 +88,6 @@ struct SecretMenuSheet: View {
     private var debugSection: some View {
         if let session {
             Section("Debug") {
-                Text("Mode: \(session.isDemo ? "Demo" : "Paired")")
                 Text("Location: \(session.location.name)")
                 Text("People cached: \(session.people.count)")
                 Text(

@@ -99,7 +99,7 @@ struct WoodGateAPIClient {
         )
         appendField("direction", value: direction.rawValue, to: &body, boundary: boundary)
 
-        if let notes, notes.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty == false {
+        if let notes {
             appendField("notes", value: notes, to: &body, boundary: boundary)
         }
 

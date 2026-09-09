@@ -6,24 +6,45 @@ struct UnavailableCardView: View {
     let message: LocalizedStringKey
 
     var body: some View {
-        VStack(spacing: 16) {
-            Image(systemName: systemImage)
-                .font(.system(size: 56))
-                .foregroundStyle(.secondary)
-
-            VStack(spacing: 8) {
-                Text(title)
-                    .font(.title2.weight(.bold))
-
-                Text(message)
-                    .font(.subheadline)
+        WallpaperCard {
+            VStack(spacing: 16) {
+                Image(systemName: systemImage)
+                    .font(.system(size: 56))
                     .foregroundStyle(.secondary)
-                    .multilineTextAlignment(.center)
+
+                VStack(spacing: 8) {
+                    Text(title)
+                        .font(.title2.weight(.bold))
+
+                    Text(message)
+                        .font(.subheadline)
+                        .foregroundStyle(.secondary)
+                        .multilineTextAlignment(.center)
+                }
             }
+            .padding(32)
+            .frame(maxWidth: 620)
         }
-        .padding(32)
-        .frame(maxWidth: 620)
-        .glassEffect(in: .rect(cornerRadius: 28))
-        .padding(16)
+        .padding(.horizontal, 16)
+        .frame(maxWidth: .infinity, maxHeight: .infinity)
+    }
+}
+
+#Preview("Unavailable — Plain") {
+    UnavailableCardView(
+        title: "Can't Connect Right Now",
+        systemImage: "wifi.exclamationmark",
+        message: "The server can't be reached right now."
+    )
+}
+
+#Preview("Unavailable — Wallpaper") {
+    ZStack {
+        LocationBackgroundView(image: PreviewFixtures.brandedSession.backgroundImage)
+        UnavailableCardView(
+            title: "This Location Is Not Currently Accepting Check-Ins",
+            systemImage: "mappin.slash.circle.fill",
+            message: "Please see a staff member if you need help."
+        )
     }
 }
