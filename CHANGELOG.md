@@ -1,5 +1,12 @@
 # Changelog
 
+## [2.0.1](https://github.com/woodleighschool/woodgate/compare/2.0.0...2.0.1) (2026-09-09)
+
+
+### Miscellaneous Chores
+
+* **release:** app 2.0.0 ([#137](https://github.com/woodleighschool/woodgate/issues/137)) ([e77434b](https://github.com/woodleighschool/woodgate/commit/e77434b2948e6263a4ad274c346571d0b773dc10))
+
 ## [2.0.0](https://github.com/woodleighschool/woodgate/compare/1.5.0...2.0.0) (2026-09-09)
 
 
