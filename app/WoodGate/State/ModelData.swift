@@ -239,6 +239,9 @@ final class ModelData {
         isBusy = true
         defer { isBusy = false }
 
+        let serverURL = try await ServerURL.resolve(payload.baseURL)
+        let payload = PairingPayload(baseURL: serverURL.absoluteString, apiKey: payload.apiKey)
+
         guard
             let client = AppSettings.shared.woodGateClient(
                 baseURLString: payload.baseURL,
