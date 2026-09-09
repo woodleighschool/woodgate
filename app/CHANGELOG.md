@@ -1,5 +1,12 @@
 # Changelog
 
+## [2.0.1](https://github.com/woodleighschool/woodgate/compare/app-2.0.0...app-2.0.1) (2026-09-09)
+
+
+### Bug Fixes
+
+* **app:** remove location picker spinners ([37a0d7b](https://github.com/woodleighschool/woodgate/commit/37a0d7bbb67830b92107f86f1c1a368827805781))
+
 ## [2.0.0](https://github.com/woodleighschool/woodgate/compare/app-1.3.2...app-2.0.0) (2026-09-09)
 
 
