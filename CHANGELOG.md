@@ -1,5 +1,46 @@
 # Changelog
 
+## [2.0.0](https://github.com/woodleighschool/woodgate/compare/1.5.0...2.0.0) (2026-09-09)
+
+
+### ⚠ BREAKING CHANGES
+
+* adopt Woodstar application foundations ([#159](https://github.com/woodleighschool/woodgate/issues/159))
+
+### Features
+
+* adopt Woodstar application foundations ([#159](https://github.com/woodleighschool/woodgate/issues/159)) ([bae474f](https://github.com/woodleighschool/woodgate/commit/bae474f88844f50f259047626b7514a7f61af7e3))
+* **go:** update module golang.org/x/term (v0.45.0 → v0.46.0) ([#164](https://github.com/woodleighschool/woodgate/issues/164)) ([a87ceed](https://github.com/woodleighschool/woodgate/commit/a87ceed05b651b5c402eda896e82d960da8355ec))
+* **mock:** add station development worker ([cbdaa41](https://github.com/woodleighschool/woodgate/commit/cbdaa4113e74563bd9e61ed824de5ac952443faa))
+* **npm:** update dependency @types/node (26.4.1 → 26.5.0) ([#152](https://github.com/woodleighschool/woodgate/issues/152)) ([ceddbff](https://github.com/woodleighschool/woodgate/commit/ceddbff5bd08adb74583f28ae3ebf633a6156550))
+* **npm:** update dependency oxlint to v1.82.0 ([#165](https://github.com/woodleighschool/woodgate/issues/165)) ([965b7d0](https://github.com/woodleighschool/woodgate/commit/965b7d0905a822af49f9b106c715e2d5a5f7d32a))
+* **npm:** update dependency wrangler (4.127.1 → 4.129.1) ([#150](https://github.com/woodleighschool/woodgate/issues/150)) ([5fea2a9](https://github.com/woodleighschool/woodgate/commit/5fea2a96dd5d6b05f38b4487717d1a8699d02da1))
+
+
+### Bug Fixes
+
+* **container:** update image golang (1.27.0 → 1.27.1) ([#145](https://github.com/woodleighschool/woodgate/issues/145)) ([38f2223](https://github.com/woodleighschool/woodgate/commit/38f22236669f9db38e41be248cdf53b6e24b6a6c))
+* **deps:** align Unicode normalization fixes ([859f922](https://github.com/woodleighschool/woodgate/commit/859f9226a790f871e027eb378b9e2ab9bf7b1365))
+* **npm:** update dependency @cloudflare/vitest-plugin (1.1.2 → 1.1.5) ([#149](https://github.com/woodleighschool/woodgate/issues/149)) ([d59e3f0](https://github.com/woodleighschool/woodgate/commit/d59e3f07bd8b525a0f46ec94b40c17b1f6327a59))
+* **npm:** update dependency cva (1.0.0-beta.9 → 1.0.0-beta.9) ([#163](https://github.com/woodleighschool/woodgate/issues/163)) ([6e4602d](https://github.com/woodleighschool/woodgate/commit/6e4602d11de66b54816bb7d995792c987c07b8fc))
+
+
+### Continuous Integration
+
+* **github-action:** update action jdx/mise-action (v4.2.5 → v4.3.0) ([#128](https://github.com/woodleighschool/woodgate/issues/128)) ([6d9f162](https://github.com/woodleighschool/woodgate/commit/6d9f162ea649fe2c35572e5c7492c9bef4f2ac58))
+* **mock:** deploy with GitHub Actions ([b9114c5](https://github.com/woodleighschool/woodgate/commit/b9114c51416eba16835d6a39f148c0949dbaf7f7))
+
+
+### Miscellaneous Chores
+
+* **mise:** update tool go:golang.org/x/vuln/cmd/govulncheck (1.7.0 → v1.8.0) ([#153](https://github.com/woodleighschool/woodgate/issues/153)) ([5dfc04e](https://github.com/woodleighschool/woodgate/commit/5dfc04e411a5d57d2f5d921fce0face0b021aa71))
+* **mise:** update tool lefthook (2.1.11 → 2.1.12) ([#141](https://github.com/woodleighschool/woodgate/issues/141)) ([c3c3fba](https://github.com/woodleighschool/woodgate/commit/c3c3fbae4c8af17832432c2437676851f89cbb3f))
+* **mock:** validate runtime updates in PR CI ([4a03239](https://github.com/woodleighschool/woodgate/commit/4a03239c50a6091e48efa0a6986cf71ff1d545fc))
+* **npm:** lock file maintenance dependency (npm) ([#127](https://github.com/woodleighschool/woodgate/issues/127)) ([526905e](https://github.com/woodleighschool/woodgate/commit/526905e738f632d75f74a1958ad076679df4beab))
+* **npm:** lock file maintenance dependency (npm) ([#143](https://github.com/woodleighschool/woodgate/issues/143)) ([2f03dd8](https://github.com/woodleighschool/woodgate/commit/2f03dd8e1524fdd8e097875ca99b4a6746cc44c5))
+* **npm:** update dependency pnpm (11.24.0 → 12.3.4) ([#158](https://github.com/woodleighschool/woodgate/issues/158)) ([1a06221](https://github.com/woodleighschool/woodgate/commit/1a06221aace91337560e5858534163aa272b0e52))
+* **release:** app 2.0.0 ([#169](https://github.com/woodleighschool/woodgate/issues/169)) ([d37ffd6](https://github.com/woodleighschool/woodgate/commit/d37ffd6dc1ad5a98770aae31a72ae56bf74868fb))
+
 ## [1.5.0](https://github.com/woodleighschool/woodgate/compare/1.4.0...1.5.0) (2026-08-28)
 
 
