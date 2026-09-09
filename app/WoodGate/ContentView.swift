@@ -9,29 +9,6 @@ struct ContentView: View {
     @State private var isPairingPresented = false
     @State private var isSecretMenuPresented = false
 
-    // MARK: - Computed Properties
-
-    private var pairingPresentationBinding: Binding<Bool> {
-        Binding(
-            get: { isPairingPresented || modelData.locationSelection != nil },
-            set: { presented in
-                isPairingPresented = presented
-                if !presented {
-                    modelData.cancelLocationSelection()
-                }
-            }
-        )
-    }
-
-    private var alertBinding: Binding<AlertItem?> {
-        Binding(
-            get: { modelData.alert },
-            set: { newValue in
-                modelData.alert = newValue
-            }
-        )
-    }
-
     // MARK: - Body
 
     var body: some View {
@@ -41,12 +18,14 @@ struct ContentView: View {
                 rootView
             }
             .overlay(alignment: .bottomTrailing) {
-                Color.clear
-                    .frame(width: 100, height: 100)
-                    .contentShape(Rectangle())
-                    .onTapGesture(count: 10) {
-                        isSecretMenuPresented = true
-                    }
+                if AppSettings.shared.hasPairing {
+                    Color.clear
+                        .frame(width: 100, height: 100)
+                        .contentShape(Rectangle())
+                        .onTapGesture(count: 10) {
+                            isSecretMenuPresented = true
+                        }
+                }
             }
         }
         .onChange(of: scenePhase, initial: true) { _, newValue in
@@ -56,19 +35,22 @@ struct ContentView: View {
                 await modelData.handleSceneActive()
             }
         }
-        .sheet(isPresented: pairingPresentationBinding) {
-            pairingSheet
+        .onOpenURL { url in
+            Task {
+                if await modelData.beginPairing(with: url) {
+                    isPairingPresented = false
+                }
+            }
+        }
+        .sheet(isPresented: $isPairingPresented) {
+            PairingSheet()
+                .presentationDetents([.large])
+                .presentationDragIndicator(.visible)
         }
         .sheet(isPresented: $isSecretMenuPresented) {
             SecretMenuSheet(session: modelData.currentSession)
         }
-        .alert(item: alertBinding) { alert in
-            Alert(
-                title: Text(alert.title),
-                message: Text(alert.message),
-                dismissButton: .default(Text("OK"))
-            )
-        }
+        .modelAlert(isEnabled: !isPairingPresented && !isSecretMenuPresented)
     }
 
     // MARK: - View Builders
@@ -110,8 +92,9 @@ struct ContentView: View {
             }
         } else if AppSettings.shared.hasPairing {
             UnavailableCardView(
-                title: "Can’t Connect Right Now", systemImage: "wifi.exclamationmark",
-                message: "The saved configuration is unavailable. This device will keep trying in the background."
+                title: "Can't Connect Right Now",
+                systemImage: "wifi.exclamationmark",
+                message: "The saved Station configuration is unavailable. This device will keep trying in the background."
             )
         } else {
             WelcomeView(
@@ -121,30 +104,5 @@ struct ContentView: View {
                 }
             )
         }
-    }
-
-    private var pairingSheet: some View {
-        NavigationStack {
-            Group {
-                if let selection = modelData.locationSelection {
-                    LocationSelectionSheet(selection: selection, isBusy: modelData.isBusy) { option in
-                        Task {
-                            await modelData.selectLocation(option)
-                            if modelData.locationSelection == nil {
-                                isPairingPresented = false
-                            }
-                        }
-                    }
-                } else {
-                    PairingScannerSheet(onPayload: modelData.beginPairing)
-                }
-            }
-            .alert(item: alertBinding) { alert in
-                Alert(title: Text(alert.title), message: Text(alert.message))
-            }
-        }
-        .interactiveDismissDisabled(modelData.isBusy)
-        .presentationDetents([.large])
-        .presentationDragIndicator(.visible)
     }
 }

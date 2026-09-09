@@ -13,7 +13,7 @@ enum PreviewFixtures {
     )
 
     static func modelData(session: ActiveSession? = nil) -> ModelData {
-        let schema = Schema([CachedPersonRecord.self])
+        let schema = Schema([CachedStationPersonRecord.self])
         let configuration = ModelConfiguration(schema: schema, isStoredInMemoryOnly: true)
         let container = try! ModelContainer(for: schema, configurations: [configuration])
         let modelData = ModelData(
@@ -24,7 +24,7 @@ enum PreviewFixtures {
         if let session {
             for person in session.people {
                 container.mainContext.insert(
-                    CachedPersonRecord(
+                    CachedStationPersonRecord(
                         userID: person.id,
                         displayName: person.displayName,
                         email: person.email
@@ -39,9 +39,9 @@ enum PreviewFixtures {
     }
 
     private static let people = [
-        PersonSummary(id: UUID(uuidString: "00000000-0000-0000-0000-000000000001")!, displayName: "Avery Example", email: "avery@example.invalid"),
-        PersonSummary(id: UUID(uuidString: "00000000-0000-0000-0000-000000000002")!, displayName: "Jordan Sample", email: "jordan@example.invalid"),
-        PersonSummary(id: UUID(uuidString: "00000000-0000-0000-0000-000000000003")!, displayName: "Morgan Test", email: "morgan@example.invalid"),
+        PersonSummary(id: 1, displayName: "Avery Example", email: "avery@example.invalid"),
+        PersonSummary(id: 2, displayName: "Jordan Sample", email: "jordan@example.invalid"),
+        PersonSummary(id: 3, displayName: "Morgan Test", email: "morgan@example.invalid"),
     ]
 
     private static let wallpaper = UIGraphicsImageRenderer(
@@ -70,13 +70,16 @@ enum PreviewFixtures {
     ) -> ActiveSession {
         ActiveSession(
             baseURLString: "https://woodgate.invalid",
+            stationID: 1,
+            stationName: "Preview Station",
             location: ActiveLocation(
-                id: UUID(uuidString: "00000000-0000-0000-0000-000000000001")!,
+                id: 1,
                 name: "Reception",
+                enabled: true,
                 notes: true,
                 photo: true,
-                backgroundAssetID: backgroundImage == nil ? nil : UUID(uuidString: "00000000-0000-0000-0000-000000000011")!,
-                logoAssetID: logoImage == nil ? nil : UUID(uuidString: "00000000-0000-0000-0000-000000000012")!
+                backgroundObjectID: backgroundImage == nil ? nil : 1,
+                logoObjectID: logoImage == nil ? nil : 1
             ),
             people: people,
             backgroundImage: backgroundImage,

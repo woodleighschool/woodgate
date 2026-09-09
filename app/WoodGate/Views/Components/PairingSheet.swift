@@ -3,71 +3,72 @@ import SwiftUI
 import Vision
 import VisionKit
 
-struct PairingScannerSheet: View {
+struct PairingSheet: View {
     // MARK: - Properties
 
-    let onPayload: (PairingPayload) async throws -> Void
+    @Environment(ModelData.self) private var modelData
+    @Environment(\.dismiss) private var dismiss
 
     @State private var pendingPayload: PairingPayload?
-    @State private var pairingError: String?
 
     private var isBusy: Bool {
-        pendingPayload != nil
+        pendingPayload != nil || modelData.isBusy
     }
 
     @State private var canScan = DataScannerViewController.isSupported && DataScannerViewController.isAvailable
-    @State private var method: PairingMethod = DataScannerViewController.isSupported && DataScannerViewController.isAvailable ? .scan : .manual
+    @State private var method: PairingMethod
     @State private var scannerID = UUID()
+
+    init(initialMethod: PairingMethod = .scan) {
+        _method = State(initialValue: DataScannerViewController.isSupported && DataScannerViewController.isAvailable ? initialMethod : .manual)
+    }
 
     // MARK: - Body
 
     var body: some View {
-        VStack(spacing: 0) {
-            Picker("Pairing Method", selection: $method) {
-                Text("Scan").tag(PairingMethod.scan)
-                Text("Manual").tag(PairingMethod.manual)
-            }
-            .pickerStyle(.segmented)
-            .disabled(isBusy || !canScan)
-            .padding(.horizontal, 24)
-            .padding(.vertical, 16)
+        NavigationStack {
+            VStack(spacing: 0) {
+                Picker("Pairing Method", selection: $method) {
+                    Text("Scan").tag(PairingMethod.scan)
+                    Text("Manual").tag(PairingMethod.manual)
+                }
+                .pickerStyle(.segmented)
+                .disabled(isBusy || !canScan)
+                .padding(.horizontal, 24)
+                .padding(.vertical, 16)
 
-            switch method {
-            case .scan:
-                ScanPairingView(isBusy: isBusy, onPayload: scan, onUnavailable: {
-                    canScan = false
-                    method = .manual
-                })
-                .id(scannerID)
-            case .manual:
-                ManualPairingView(isBusy: isBusy, onPayload: pair)
-            }
-        }
-        .task(id: pendingPayload) {
-            guard let payload = pendingPayload else { return }
-            do {
-                try await onPayload(payload)
-            } catch {
-                guard !Task.isCancelled else { return }
-                pairingError = error.localizedDescription
-            }
-            pendingPayload = nil
-        }
-        .alert("Could Not Pair", isPresented: Binding(
-            get: { pairingError != nil },
-            set: {
-                if !$0 {
-                    pairingError = nil
+                switch method {
+                case .scan:
+                    ScanPairingView(isBusy: isBusy, onPayload: scan, onUnavailable: {
+                        canScan = false
+                        method = .manual
+                    })
+                    .id(scannerID)
+                case .manual:
+                    ManualPairingView(isBusy: isBusy, onPayload: pair)
                 }
             }
-        )) {
-            Button("OK") { scannerID = UUID() }
-        } message: {
-            Text(pairingError ?? "")
+            .task(id: pendingPayload) {
+                guard let payload = pendingPayload else { return }
+                do {
+                    try await modelData.beginPairing(with: payload)
+                    dismiss()
+                } catch {
+                    guard !Task.isCancelled else { return }
+                    modelData.alert = AlertItem(title: "Could Not Pair", message: error.localizedDescription)
+                }
+                pendingPayload = nil
+            }
+            .onChange(of: modelData.alert?.id) { _, alertID in
+                if alertID == nil {
+                    scannerID = UUID()
+                }
+            }
+            .interactiveDismissDisabled(isBusy)
+            .navigationTitle("Pair Device")
+            .navigationBarTitleDisplayMode(.inline)
         }
-        .interactiveDismissDisabled(isBusy)
-        .navigationTitle("Pair Device")
-        .navigationBarTitleDisplayMode(.inline)
+        .modelAlert()
     }
 
     // MARK: - Private Helpers
@@ -75,9 +76,9 @@ struct PairingScannerSheet: View {
     private func scan(_ text: String) {
         guard !isBusy else { return }
         do {
-            try pair(PairingPayload.parse(json: text))
+            try pair(PairingPayload.parse(urlString: text))
         } catch {
-            pairingError = "This QR code does not contain valid pairing details."
+            modelData.alert = AlertItem(title: "Could Not Pair", message: error.localizedDescription)
         }
     }
 
@@ -89,7 +90,7 @@ struct PairingScannerSheet: View {
 
 // MARK: - Private Components
 
-private enum PairingMethod {
+enum PairingMethod {
     case scan
     case manual
 }
@@ -106,7 +107,7 @@ private struct ScanPairingView: View {
                     .font(.title2.weight(.bold))
 
                 Text(
-                    "Scan the API key pairing QR code. Then choose the destination location."
+                    "Scan the Station configuration QR code. Its server and location will be applied automatically."
                 )
                 .font(.callout)
                 .foregroundStyle(.secondary)
@@ -128,7 +129,7 @@ private struct ManualPairingView: View {
     // MARK: - Properties
 
     @State private var baseURL = ""
-    @State private var apiKey = ""
+    @State private var stationKey = ""
 
     let isBusy: Bool
     let onPayload: (PairingPayload) -> Void
@@ -136,7 +137,7 @@ private struct ManualPairingView: View {
     private var isPairingDisabled: Bool {
         isBusy
             || baseURL.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty
-            || apiKey.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty
+            || stationKey.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty
     }
 
     // MARK: - Body
@@ -150,7 +151,7 @@ private struct ManualPairingView: View {
                     .textInputAutocapitalization(.never)
                     .autocorrectionDisabled()
 
-                SecureField("API Key", text: $apiKey)
+                SecureField("Station Key", text: $stationKey)
                     .textContentType(.password)
                     .textInputAutocapitalization(.never)
                     .autocorrectionDisabled()
@@ -158,7 +159,7 @@ private struct ManualPairingView: View {
             } header: {
                 Text("Server and Key")
             } footer: {
-                Text("Enter the server URL and API key to start pairing.")
+                Text("Enter the server URL and Station key to start pairing.")
             }
 
             Section {
@@ -184,7 +185,7 @@ private struct ManualPairingView: View {
             return
         }
 
-        onPayload(PairingPayload(baseURL: baseURL, apiKey: apiKey))
+        onPayload(PairingPayload(baseURL: baseURL, stationKey: stationKey))
     }
 }
 
@@ -275,4 +276,9 @@ private struct QRScannerView: UIViewControllerRepresentable {
             }
         }
     }
+}
+
+#Preview("Pairing - Manual") {
+    PairingSheet(initialMethod: .manual)
+        .environment(PreviewFixtures.modelData())
 }

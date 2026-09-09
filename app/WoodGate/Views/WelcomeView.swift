@@ -8,7 +8,7 @@ struct WelcomeView: View {
         ContentUnavailableView {
             Label("Pair This Device", systemImage: "qrcode.viewfinder")
         } description: {
-            Text("Scan the API key pairing QR code or enter server/key details manually.")
+            Text("Scan a Station pairing code or enter its details manually.")
         } actions: {
             Button(action: onPair) {
                 Label("Pair Device", systemImage: "link")

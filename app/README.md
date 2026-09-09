@@ -1,6 +1,6 @@
 # Companion app
 
-Native iOS client for dedicated check-in terminals. A pairing QR provides the server URL and API key, then the operator selects the terminal's location.
+Native iOS client for dedicated check-in Stations. A configuration QR opens the app with its server URL and Station key; the server owns the Station's location.
 
 ## 🧑‍💻 Development
 
@@ -12,13 +12,15 @@ mise run //app:lint
 mise run //app:build
 ```
 
-For standalone development, run the stateless mock from the repository root:
+For standalone development, run the stateless Station mock from the repository root:
 
 ```bash
 mise run //mock:dev
 ```
 
-The mock's root response includes `review_pairing`, containing its base URL and the public API key `reviewkey`. Encode that object as a QR code, scan it from **Scan QR Code**, and select a location. Review Room accepts optional notes and requires a selfie; Reception exercises check-ins without either. The mock uses synthetic people, supports the app's `/auth/me` and `/api/v1` requests, and discards submissions. Its separate Station endpoints remain available for development.
+On an unpaired device, tap the lower-right corner ten times and manually pair with the URL printed by Wrangler and the Station key `testing123`. The mock uses synthetic people and discards check-ins.
+
+The `/api/v1` companion client uses the root response’s `review_pairing` object instead. Encode that object as a QR code, scan it from **Scan QR Code**, and select a location. Its public API key is `reviewkey`. Review Room accepts optional notes and requires a selfie; Reception exercises check-ins without either.
 
 ## 📦 Releases
 

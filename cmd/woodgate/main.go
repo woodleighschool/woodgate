@@ -24,9 +24,6 @@ import (
 
 	"github.com/woodleighschool/woodgate/internal/account"
 	"github.com/woodleighschool/woodgate/internal/api"
-	"github.com/woodleighschool/woodgate/internal/appkey"
-	appkeyapi "github.com/woodleighschool/woodgate/internal/appkey/httpapi"
-	"github.com/woodleighschool/woodgate/internal/appv1"
 	"github.com/woodleighschool/woodgate/internal/backgroundjobs"
 	"github.com/woodleighschool/woodgate/internal/buildinfo"
 	"github.com/woodleighschool/woodgate/internal/checkin"
@@ -39,6 +36,8 @@ import (
 	"github.com/woodleighschool/woodgate/internal/postgres"
 	"github.com/woodleighschool/woodgate/internal/rbac"
 	authzapi "github.com/woodleighschool/woodgate/internal/rbac/httpapi"
+	"github.com/woodleighschool/woodgate/internal/station"
+	stationapi "github.com/woodleighschool/woodgate/internal/station/httpapi"
 	"github.com/woodleighschool/woodgate/internal/webui"
 	webdist "github.com/woodleighschool/woodgate/web"
 )
@@ -89,6 +88,7 @@ func run(parent context.Context) error {
 	if err != nil {
 		return fmt.Errorf("build services: %w", err)
 	}
+	defer app.close()
 	listener, err := new(net.ListenConfig).Listen(ctx, "tcp", app.server.Addr())
 	if err != nil {
 		return fmt.Errorf("listen %s: %w", app.server.Addr(), err)
@@ -103,7 +103,14 @@ func run(parent context.Context) error {
 
 type application struct {
 	server   *api.Server
+	station  *station.Server
 	starters []starter
+}
+
+func (app *application) close() { app.station.Close() }
+func (app *application) shutdown(ctx context.Context) error {
+	app.close()
+	return app.server.Shutdown(ctx)
 }
 
 func runServer(ctx context.Context, app *application, listener net.Listener) error {
@@ -118,7 +125,7 @@ func runServer(ctx context.Context, app *application, listener net.Listener) err
 	case <-ctx.Done():
 		shutdownCtx, cancel := context.WithTimeout(context.WithoutCancel(ctx), gracefulShutdownTimeout)
 		defer cancel()
-		if err := app.server.Shutdown(shutdownCtx); err != nil {
+		if err := app.shutdown(shutdownCtx); err != nil {
 			return fmt.Errorf("shutdown server: %w", err)
 		}
 		if err := <-errCh; err != nil {
@@ -141,9 +148,16 @@ func buildApplication(ctx context.Context, cfg config.Config, pool *pgxpool.Pool
 		return nil, err
 	}
 	checkinService := checkin.NewService(checkin.NewStore(pool, objects), objects)
-	keys := appkey.NewStore(pool)
+	stationStore := station.NewStore(pool)
+	stationServer, err := station.NewServer(stationStore, station.Dependencies{Locations: checkinService, People: checkinService, Checkins: checkinService, Branding: checkinService}, buildinfo.Version, logger.With("component", "station"))
+	if err != nil {
+		return nil, fmt.Errorf("configure Station protocol: %w", err)
+	}
+	stationService := station.NewService(stationStore, checkinService, stationServer, cfg.ServerURL)
+	checkinService.SetLocationNotifier(stationService)
 	jobs, directorySync, err := newBackgroundJobs(cfg, pool, directoryStore, logger)
 	if err != nil {
+		stationServer.Close()
 		return nil, err
 	}
 	apiLogger := logger.With("component", "api")
@@ -157,17 +171,15 @@ func buildApplication(ctx context.Context, cfg config.Config, pool *pgxpool.Pool
 			directoryapi.RegisterAPI(routes.App, users, directoryStore, directorySync, authzService, apiLogger)
 			authzapi.RegisterAPI(routes.App, roleStore, authzService, apiLogger)
 			checkinapi.RegisterAPI(routes.App, checkinapi.Dependencies{Service: checkinService, Authorizer: authzService, Authenticator: authnService, Logger: apiLogger})
-			appkeyapi.RegisterAPI(routes.App, keys, authzService, apiLogger)
-			appv1.RegisterRoutes(routes.Protocols.Ordinary, routes.Protocols.Transfers, appv1.Dependencies{
-				Store: appv1.NewStore(pool), Keys: keys, Checkins: checkinService, Objects: objects, Logger: apiLogger,
-			})
+			stationapi.RegisterAPI(routes.App, stationService, authzService, apiLogger)
+			stationServer.RegisterRoutes(routes.Protocols.Ordinary, routes.Protocols.WebSockets)
 		},
 	})
 	starters := []starter{storageCleanupStarter(objects)}
 	if jobs != nil {
 		starters = append(starters, backgroundJobsStarter(jobs, logger.With("component", "background_jobs")))
 	}
-	return &application{server: server, starters: starters}, nil
+	return &application{server: server, station: stationServer, starters: starters}, nil
 }
 
 func newBackgroundJobs(cfg config.Config, pool *pgxpool.Pool, store *directory.Store, logger *slog.Logger) (*backgroundjobs.Runtime, *entra.SyncJobs, error) {
