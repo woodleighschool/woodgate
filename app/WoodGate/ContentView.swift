@@ -41,12 +41,14 @@ struct ContentView: View {
                 rootView
             }
             .overlay(alignment: .bottomTrailing) {
-                Color.clear
-                    .frame(width: 100, height: 100)
-                    .contentShape(Rectangle())
-                    .onTapGesture(count: 10) {
-                        isSecretMenuPresented = true
-                    }
+                if modelData.currentSession != nil {
+                    Color.clear
+                        .frame(width: 100, height: 100)
+                        .contentShape(Rectangle())
+                        .onTapGesture(count: 10) {
+                            isSecretMenuPresented = true
+                        }
+                }
             }
         }
         .onChange(of: scenePhase, initial: true) { _, newValue in
@@ -95,7 +97,7 @@ struct ContentView: View {
                     UnavailableCardView(
                         title: "This Device Is No Longer Authorized",
                         systemImage: "key.slash.fill",
-                        message: "This device can no longer accept check-ins with its current pairing."
+                        message: "This device can no longer accept check-ins with its current app key."
                     )
                 case .locationDisabled:
                     UnavailableCardView(

@@ -138,7 +138,7 @@ final class ModelData {
             unavailableState = nil
             locationSelection = nil
         } catch {
-            alert = AlertItem(title: "Could Not Pair", message: error.localizedDescription)
+            alert = AlertItem(title: "Could Not Connect", message: error.localizedDescription)
         }
     }
 
@@ -149,7 +149,7 @@ final class ModelData {
             locationSelection = nil
             unavailableState = nil
         } catch {
-            alert = AlertItem(title: "Could Not Forget Pairing", message: error.localizedDescription)
+            alert = AlertItem(title: "Could Not Disconnect", message: error.localizedDescription)
         }
     }
 
@@ -238,6 +238,9 @@ final class ModelData {
         }
         isBusy = true
         defer { isBusy = false }
+
+        let serverURL = try await ServerURL.resolve(payload.baseURL)
+        let payload = PairingPayload(baseURL: serverURL.absoluteString, apiKey: payload.apiKey)
 
         guard
             let client = AppSettings.shared.woodGateClient(

@@ -23,7 +23,7 @@ struct PairingScannerSheet: View {
 
     var body: some View {
         VStack(spacing: 0) {
-            Picker("Pairing Method", selection: $method) {
+            Picker("Setup Method", selection: $method) {
                 Text("Scan").tag(PairingMethod.scan)
                 Text("Manual").tag(PairingMethod.manual)
             }
@@ -53,7 +53,7 @@ struct PairingScannerSheet: View {
             }
             pendingPayload = nil
         }
-        .alert("Could Not Pair", isPresented: Binding(
+        .alert("Could Not Connect", isPresented: Binding(
             get: { pairingError != nil },
             set: {
                 if !$0 {
@@ -66,7 +66,7 @@ struct PairingScannerSheet: View {
             Text(pairingError ?? "")
         }
         .interactiveDismissDisabled(isBusy)
-        .navigationTitle("Pair Device")
+        .navigationTitle("Set Up")
         .navigationBarTitleDisplayMode(.inline)
     }
 
@@ -77,7 +77,7 @@ struct PairingScannerSheet: View {
         do {
             try pair(PairingPayload.parse(json: text))
         } catch {
-            pairingError = "This QR code does not contain valid pairing details."
+            pairingError = "This QR code does not contain valid server and app key details."
         }
     }
 
@@ -106,7 +106,7 @@ private struct ScanPairingView: View {
                     .font(.title2.weight(.bold))
 
                 Text(
-                    "Scan the API key pairing QR code. Then choose the destination location."
+                    "Scan the app key’s QR code, then choose a location."
                 )
                 .font(.callout)
                 .foregroundStyle(.secondary)
@@ -143,28 +143,24 @@ private struct ManualPairingView: View {
 
     var body: some View {
         Form {
-            Section {
-                TextField("Server URL", text: $baseURL)
+            Section("Connection") {
+                TextField("Server", text: $baseURL)
                     .textContentType(.URL)
                     .keyboardType(.URL)
                     .textInputAutocapitalization(.never)
                     .autocorrectionDisabled()
 
-                SecureField("API Key", text: $apiKey)
-                    .textContentType(.password)
+                TextField("App Key", text: $apiKey)
+                    .textContentType(nil)
                     .textInputAutocapitalization(.never)
                     .autocorrectionDisabled()
                     .onSubmit(pair)
-            } header: {
-                Text("Server and Key")
-            } footer: {
-                Text("Enter the server URL and API key to start pairing.")
             }
 
             Section {
                 Button(action: pair) {
                     HStack {
-                        Label("Pair Device", systemImage: "link")
+                        Text("Continue")
                         Spacer()
                         if isBusy {
                             ProgressView()

@@ -8,7 +8,7 @@ on:
       - main
     paths-ignore:
       - "**.md"
-      - ".release-please-manifest.json"
+      - ".release-please/**"
       - "app/Config/Version.xcconfig"
   pull_request:
     branches:
@@ -160,7 +160,7 @@ jobs:
         uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
         with:
           path: ${{ steps.pnpm.outputs.path }}
-          key: ${{ runner.os }}-pnpm-${{ hashFiles('web/pnpm-lock.yaml') }}
+          key: ${{ runner.os }}-pnpm-${{ hashFiles('web/pnpm-lock.yaml', 'mock/pnpm-lock.yaml') }}
           restore-keys: ${{ runner.os }}-pnpm-
 
       - name: Check frontend formatting
@@ -171,6 +171,15 @@ jobs:
 
       - name: Test frontend behavior
         run: mise run //web:test
+
+      - name: Check mock formatting
+        run: mise run //mock:fmt-check
+
+      - name: Lint mock
+        run: mise run //mock:lint
+
+      - name: Test mock behavior
+        run: mise run //mock:test
 
       - name: Regenerate API contracts
         run: mise run generate

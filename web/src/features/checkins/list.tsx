@@ -13,7 +13,11 @@ import { TextLink } from "@components/link";
 import { ResourceDataTable } from "@components/resource-data-table";
 import { Badge } from "@components/ui/badge";
 import { checkinDateRange, checkinBounds } from "@features/checkins/date-range";
-import { checkinPersonLabel } from "@features/checkins/presentation";
+import {
+  checkinDirectionMetadata,
+  CHECKIN_DIRECTION_OPTIONS,
+  checkinPersonLabel,
+} from "@features/checkins/presentation";
 import {
   useCheckins,
   useCheckinDepartments,
@@ -31,10 +35,6 @@ const CHECKIN_FILTER_KEYS = [
   { id: "location_id" },
   { id: "direction" },
 ] as const;
-const DIRECTION_OPTIONS = [
-  { value: "check_in", label: "Check in" },
-  { value: "check_out", label: "Check out" },
-] as const;
 
 const exportColumns: DataTableExportOptions<Checkin>["columns"] = [
   { header: "Person", value: (checkin) => checkinPersonLabel(checkin.person) },
@@ -43,7 +43,7 @@ const exportColumns: DataTableExportOptions<Checkin>["columns"] = [
   { header: "Location", value: (checkin) => checkin.location.name },
   {
     header: "Direction",
-    value: (checkin) => (checkin.direction === "check_in" ? "Check in" : "Check out"),
+    value: (checkin) => checkinDirectionMetadata(checkin.direction).name,
   },
   { header: "Time", value: (checkin) => checkin.created_at },
   { header: "Notes", value: (checkin) => checkin.notes },
@@ -84,8 +84,8 @@ const columns: DataTableColumnDef<Checkin>[] = [
     accessorKey: "direction",
     header: "Direction",
     cell: ({ row }) => (
-      <Badge variant="secondary">
-        {row.original.direction === "check_in" ? "Check in" : "Check out"}
+      <Badge variant={checkinDirectionMetadata(row.original.direction).variant}>
+        {checkinDirectionMetadata(row.original.direction).name}
       </Badge>
     ),
     meta: { label: "Direction" },
@@ -207,7 +207,7 @@ export function CheckinListPage() {
             />
             <FacetedFilter
               title="Direction"
-              options={[...DIRECTION_OPTIONS]}
+              options={CHECKIN_DIRECTION_OPTIONS}
               value={search.direction ? [search.direction] : []}
               multiple={false}
               onValueChange={(selected) =>

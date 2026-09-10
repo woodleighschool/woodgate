@@ -6,7 +6,7 @@ import { TextLink } from "@components/link";
 import { QueryGate } from "@components/query-gate";
 import { RelativeTime } from "@components/relative-time";
 import { Badge } from "@components/ui/badge";
-import { checkinPersonLabel } from "@features/checkins/presentation";
+import { checkinDirectionMetadata, checkinPersonLabel } from "@features/checkins/presentation";
 import { useCheckin } from "@features/resources/queries";
 import { parseRouteID } from "@lib/route-params";
 import { nonEmpty } from "@lib/utils";
@@ -54,8 +54,8 @@ export function CheckinDetailPage() {
         <KeyValueRow
           label="Direction"
           value={
-            <Badge variant="secondary">
-              {checkin.direction === "check_in" ? "Check in" : "Check out"}
+            <Badge variant={checkinDirectionMetadata(checkin.direction).variant}>
+              {checkinDirectionMetadata(checkin.direction).name}
             </Badge>
           }
         />

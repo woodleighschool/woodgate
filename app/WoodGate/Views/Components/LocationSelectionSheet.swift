@@ -22,13 +22,9 @@ struct LocationSelectionSheet: View {
 
                             Spacer()
 
-                            if isBusy {
-                                ProgressView()
-                            } else {
-                                Image(systemName: "chevron.right")
-                                    .font(.caption.weight(.bold))
-                                    .foregroundStyle(.tertiary)
-                            }
+                            Image(systemName: "chevron.right")
+                                .font(.caption.weight(.bold))
+                                .foregroundStyle(.tertiary)
                         }
                         .contentShape(Rectangle())
                     }

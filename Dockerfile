@@ -5,7 +5,7 @@
 # ---- Web build ------------------------------------------------------------
 # Build the frontend bundle so the Go stage can embed it. The runtime image
 # does not include Node.
-FROM --platform=$BUILDPLATFORM node:26.8.1-alpine AS web
+FROM --platform=$BUILDPLATFORM node:26.8.2-alpine AS web
 WORKDIR /workspace/web
 
 # Install dependencies against the lockfile first for layer caching.
@@ -17,7 +17,7 @@ COPY web/ ./
 RUN pnpm build
 
 # ---- Go build -------------------------------------------------------------
-FROM --platform=$BUILDPLATFORM golang:1.27.0-alpine AS builder
+FROM --platform=$BUILDPLATFORM golang:1.27.1-alpine AS builder
 ARG TARGETOS
 ARG TARGETARCH
 ARG VERSION=dev
