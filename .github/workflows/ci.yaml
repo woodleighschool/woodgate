@@ -8,7 +8,7 @@ on:
       - main
     paths-ignore:
       - "**.md"
-      - ".release-please-manifest.json"
+      - ".release-please/**"
       - "app/Config/Version.xcconfig"
   pull_request:
     branches:
