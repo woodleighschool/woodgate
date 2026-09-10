@@ -1,5 +1,26 @@
 # Changelog
 
+## [2.1.0](https://github.com/woodleighschool/woodgate/compare/2.0.0...2.1.0) (2026-09-10)
+
+
+### Features
+
+* **npm:** update dependency lucide-react (1.42.0 → 1.43.0) ([#172](https://github.com/woodleighschool/woodgate/issues/172)) ([8971d9a](https://github.com/woodleighschool/woodgate/commit/8971d9a5148df38f8aba7316cfdf1b3cbe8f3c58))
+* **npm:** update dependency wrangler (4.129.1 → 4.130.0) ([#174](https://github.com/woodleighschool/woodgate/issues/174)) ([35b0aee](https://github.com/woodleighschool/woodgate/commit/35b0aee00db763ad81d68036ce676a2276cb7ba9))
+
+
+### Bug Fixes
+
+* **container:** update image node (26.8.1 → 26.8.2) ([#175](https://github.com/woodleighschool/woodgate/issues/175)) ([5af8103](https://github.com/woodleighschool/woodgate/commit/5af81034504f14d01c944f51db3643e0546e04bd))
+* distinguish check-in direction badges ([54b84bd](https://github.com/woodleighschool/woodgate/commit/54b84bd04449fa12a4c368ff504df69777c9cacd))
+* **npm:** update dependency @cloudflare/vitest-plugin (1.1.5 → 1.1.6) ([#173](https://github.com/woodleighschool/woodgate/issues/173)) ([788119b](https://github.com/woodleighschool/woodgate/commit/788119b691ac78d0106d7c42fcb9c8829db39177))
+* **release:** isolate release metadata from server changes ([06dc281](https://github.com/woodleighschool/woodgate/commit/06dc2816012c08294134af9f11463555447dfb68))
+
+
+### Miscellaneous Chores
+
+* **release:** app 2.0.1 ([#170](https://github.com/woodleighschool/woodgate/issues/170)) ([7706b70](https://github.com/woodleighschool/woodgate/commit/7706b70b88a816fa1e139317adccaaba43ec817f))
+
 ## [2.0.0](https://github.com/woodleighschool/woodgate/compare/1.5.0...2.0.0) (2026-09-09)
 
 
