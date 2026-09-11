@@ -170,8 +170,8 @@ importers:
         specifier: ^1.4.0
         version: 1.4.0
       zod:
-        specifier: ^4.5.4
-        version: 4.5.4
+        specifier: ^4.6.1
+        version: 4.6.1
     devDependencies:
       '@hey-api/openapi-ts':
         specifier: 0.99.0
@@ -2936,8 +2936,8 @@ packages:
   zod@3.25.76:
     resolution: {integrity: sha512-gzUt/qt81nXsFGKIFcC3YnfEAx5NkunCfnDlvuBSSFS02bcXu4Lmea0AFIUwbLWxWPx3d9p8S5QoaujKcNQxcQ==}
 
-  zod@4.5.4:
-    resolution: {integrity: sha512-sC95tT5iHHH9gtpj6A81kh+NEaRAUFN+qlUPDUbRfOMvNf5QCBqsb3WgvnpVtK5Y+4UfA6KqufotuTvMGiTlsA==}
+  zod@4.6.1:
+    resolution: {integrity: sha512-341aRWQsve0rvronKNTqZpjmzdbUDlFuzHaI/XLg/Ej82qffDJRRfBTCuv7+9q/rMjB6LSLyEBnW4InJeMtt/Q==}
 
 snapshots:
 
@@ -3692,7 +3692,7 @@ snapshots:
       jiti: 2.7.0
       magic-string: 0.30.21
       prettier: 3.9.6
-      zod: 4.5.4
+      zod: 4.6.1
     transitivePeerDependencies:
       - supports-color
 
@@ -3706,7 +3706,7 @@ snapshots:
       '@tanstack/router-utils': 1.162.2(supports-color@7.2.0)
       chokidar: 5.0.0
       unplugin: 3.3.0(rolldown@1.2.7)(vite@8.2.2(@types/node@26.5.1)(jiti@2.7.0))
-      zod: 4.5.4
+      zod: 4.6.1
     optionalDependencies:
       '@tanstack/react-router': 1.170.33(react-dom@19.2.8(react@19.2.8))(react@19.2.8)
       vite: 8.2.2(@types/node@26.5.1)(jiti@2.7.0)
@@ -5437,4 +5437,4 @@ snapshots:
 
   zod@3.25.76: {}
 
-  zod@4.5.4: {}
+  zod@4.6.1: {}
