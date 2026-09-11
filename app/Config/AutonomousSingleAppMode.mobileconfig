@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+    <key>PayloadType</key>
+    <string>Configuration</string>
+    <key>PayloadVersion</key>
+    <integer>1</integer>
+    <key>PayloadIdentifier</key>
+    <string>au.edu.vic.woodleigh.WoodGateApp.autonomous-single-app-mode</string>
+    <key>PayloadUUID</key>
+    <string>2D1E70C4-87B8-42F4-91DA-7CA94652D57D</string>
+    <key>PayloadDisplayName</key>
+    <string>Companion app Single App Mode permission</string>
+    <key>PayloadContent</key>
+    <array>
+        <dict>
+            <key>PayloadType</key>
+            <string>com.apple.applicationaccess</string>
+            <key>PayloadVersion</key>
+            <integer>1</integer>
+            <key>PayloadIdentifier</key>
+            <string>au.edu.vic.woodleigh.WoodGateApp.autonomous-single-app-mode.restrictions</string>
+            <key>PayloadUUID</key>
+            <string>DAAEE245-8B24-4D30-849E-F4F75AFAAD73</string>
+            <key>PayloadDisplayName</key>
+            <string>Autonomous Single App Mode permission</string>
+            <key>autonomousSingleAppModePermittedAppIDs</key>
+            <array>
+                <string>au.edu.vic.woodleigh.WoodGateApp</string>
+            </array>
+        </dict>
+    </array>
+</dict>
+</plist>
