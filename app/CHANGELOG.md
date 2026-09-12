@@ -1,5 +1,12 @@
 # Changelog
 
+## [2.0.2](https://github.com/woodleighschool/woodgate/compare/app-2.0.1...app-2.0.2) (2026-09-12)
+
+
+### Code Refactoring
+
+* remove legacy Keychain migration ([#135](https://github.com/woodleighschool/woodgate/issues/135)) ([5706d33](https://github.com/woodleighschool/woodgate/commit/5706d33b25238fde1e725edd5a1935140a498996))
+
 ## [2.0.1](https://github.com/woodleighschool/woodgate/compare/app-2.0.0...app-2.0.1) (2026-09-09)
 
 
