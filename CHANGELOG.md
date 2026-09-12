@@ -1,5 +1,32 @@
 # Changelog
 
+## [2.2.0](https://github.com/woodleighschool/woodgate/compare/2.1.0...2.2.0) (2026-09-12)
+
+
+### Features
+
+* **npm:** update dependency @cloudflare/workers-types (5.20260908.1 → 5.20260910.1) ([#144](https://github.com/woodleighschool/woodgate/issues/144)) ([d69280b](https://github.com/woodleighschool/woodgate/commit/d69280ba5dc2ae75d13697f88c7c181159574bbd))
+* **npm:** update dependency zod (4.5.4 → 4.6.1) ([#133](https://github.com/woodleighschool/woodgate/issues/133)) ([7a4e72c](https://github.com/woodleighschool/woodgate/commit/7a4e72c2b2eb2a2396123663692075162798ffb4))
+* **npm:** update react monorepo (19.2.18 → 19.3.0) ([#154](https://github.com/woodleighschool/woodgate/issues/154)) ([23e72a4](https://github.com/woodleighschool/woodgate/commit/23e72a42f97dfb60f22cac419c239699a7b58a14))
+* **npm:** update react runtime (19.2.8 → 19.3.0) ([#179](https://github.com/woodleighschool/woodgate/issues/179)) ([9a2893e](https://github.com/woodleighschool/woodgate/commit/9a2893e5edf66117117a5b31969f424e8e84365b))
+
+
+### Bug Fixes
+
+* **npm:** update dependency @types/node (26.5.0 → 26.5.1) ([#180](https://github.com/woodleighschool/woodgate/issues/180)) ([6e5c4d3](https://github.com/woodleighschool/woodgate/commit/6e5c4d3a769dae7e092603d7937fc55d07b62e54))
+* **npm:** update tanstack-router monorepo ([#181](https://github.com/woodleighschool/woodgate/issues/181)) ([436673b](https://github.com/woodleighschool/woodgate/commit/436673b601034f9274f876153aea89c9a1a9c1e8))
+
+
+### Code Refactoring
+
+* **postgres:** share session advisory locking ([#156](https://github.com/woodleighschool/woodgate/issues/156)) ([2f1ad1a](https://github.com/woodleighschool/woodgate/commit/2f1ad1ab1be88d3fd9cd77103a2ebc6983f8ff0f))
+
+
+### Miscellaneous Chores
+
+* **mise:** update tool oxfmt (0.66.0 → 0.67.0) ([#178](https://github.com/woodleighschool/woodgate/issues/178)) ([23633dd](https://github.com/woodleighschool/woodgate/commit/23633dd0e98feb3f6dbb2bb5afe0d381761ee4a6))
+* **mise:** update tool zizmor (1.30.0 → 1.30.1) ([#192](https://github.com/woodleighschool/woodgate/issues/192)) ([cf1aee1](https://github.com/woodleighschool/woodgate/commit/cf1aee157633499316533c1304ddcae6743328c2))
+
 ## [2.1.0](https://github.com/woodleighschool/woodgate/compare/2.0.0...2.1.0) (2026-09-10)
 
 
