@@ -35,20 +35,36 @@ struct ContentView: View {
     // MARK: - Body
 
     var body: some View {
-        NavigationStack {
+        TimelineView(.everyMinute) { timeline in
+            let settings = AppSettings.shared.displaySettings
+            let dimmed = AppSettings.shared.hasPairing && !isSecretMenuPresented && !modelData.isBusy
+                && !pairingPresentationBinding.wrappedValue && !settings.schedule.isOpen(at: timeline.date)
+
             ZStack {
-                backgroundView
-                rootView
+                if dimmed {
+                    Color.black
+                        .ignoresSafeArea()
+                        .accessibilityLabel("Outside opening hours")
+                } else {
+                    terminalView
+                }
             }
             .overlay(alignment: .bottomTrailing) {
-                if modelData.currentSession != nil {
-                    Color.clear
-                        .frame(width: 100, height: 100)
-                        .contentShape(Rectangle())
-                        .onTapGesture(count: 10) {
-                            isSecretMenuPresented = true
-                        }
-                }
+                Color.clear
+                    .frame(width: 100, height: 100)
+                    .contentShape(Rectangle())
+                    .onTapGesture(count: 10) {
+                        isSecretMenuPresented = true
+                    }
+                    .accessibilityHidden(true)
+            }
+            .statusBarHidden(dimmed)
+            .persistentSystemOverlays(dimmed ? .hidden : .automatic)
+            .background {
+                DisplayPowerView(
+                    keepAwake: scenePhase == .active && settings.preventsSleep,
+                    dimmed: scenePhase == .active && dimmed
+                )
             }
         }
         .onChange(of: scenePhase, initial: true) { _, newValue in
@@ -63,6 +79,15 @@ struct ContentView: View {
         }
         .sheet(isPresented: $isSecretMenuPresented) {
             SecretMenuSheet(session: modelData.currentSession)
+        }
+    }
+
+    private var terminalView: some View {
+        NavigationStack {
+            ZStack {
+                backgroundView
+                rootView
+            }
         }
         .alert(item: alertBinding) { alert in
             Alert(

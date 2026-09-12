@@ -222,6 +222,9 @@ jobs:
       - name: Check app formatting
         run: mise run //app:fmt-check
 
+      - name: Test app
+        run: mise run //app:test
+
       - name: Lint app
         run: mise run //app:lint
 

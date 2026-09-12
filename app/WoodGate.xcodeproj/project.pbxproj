@@ -10,15 +10,31 @@
 		E10000012F641BFF0013E5A4 /* SimpleKeychain in Frameworks */ = {isa = PBXBuildFile; productRef = E10000022F641BFF0013E5A4 /* SimpleKeychain */; };
 /* End PBXBuildFile section */
 
+/* Begin PBXContainerItemProxy section */
+		D20000072F641BFF0013E5A4 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 4110F7002F641BFF0013E5A4 /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = 4110F7072F641BFF0013E5A4;
+			remoteInfo = WoodGate;
+		};
+/* End PBXContainerItemProxy section */
+
 /* Begin PBXFileReference section */
 		4110F7082F641BFF0013E5A4 /* WoodGate.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = WoodGate.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		D10000012F641BFF0013E5A4 /* Version.xcconfig */ = {isa = PBXFileReference; lastKnownFileType = text.xcconfig; path = Version.xcconfig; sourceTree = "<group>"; };
+		D20000012F641BFF0013E5A4 /* WoodGateTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = WoodGateTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 /* End PBXFileReference section */
 
 /* Begin PBXFileSystemSynchronizedRootGroup section */
 		4110F70A2F641BFF0013E5A4 /* WoodGate */ = {
 			isa = PBXFileSystemSynchronizedRootGroup;
 			path = WoodGate;
+			sourceTree = "<group>";
+		};
+		D20000022F641BFF0013E5A4 /* WoodGateTests */ = {
+			isa = PBXFileSystemSynchronizedRootGroup;
+			path = WoodGateTests;
 			sourceTree = "<group>";
 		};
 /* End PBXFileSystemSynchronizedRootGroup section */
@@ -30,6 +46,11 @@
 				E10000012F641BFF0013E5A4 /* SimpleKeychain in Frameworks */,
 			);
 		};
+		D20000032F641BFF0013E5A4 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			files = (
+			);
+		};
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
@@ -37,6 +58,7 @@
 			isa = PBXGroup;
 			children = (
 				4110F70A2F641BFF0013E5A4 /* WoodGate */,
+				D20000022F641BFF0013E5A4 /* WoodGateTests */,
 				D10000022F641BFF0013E5A4 /* Config */,
 				4110F7092F641BFF0013E5A4 /* Products */,
 			);
@@ -46,6 +68,7 @@
 			isa = PBXGroup;
 			children = (
 				4110F7082F641BFF0013E5A4 /* WoodGate.app */,
+				D20000012F641BFF0013E5A4 /* WoodGateTests.xctest */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -82,6 +105,27 @@
 			productReference = 4110F7082F641BFF0013E5A4 /* WoodGate.app */;
 			productType = "com.apple.product-type.application";
 		};
+		D20000062F641BFF0013E5A4 /* WoodGateTests */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = D200000B2F641BFF0013E5A4 /* Build configuration list for PBXNativeTarget "WoodGateTests" */;
+			buildPhases = (
+				D20000042F641BFF0013E5A4 /* Sources */,
+				D20000032F641BFF0013E5A4 /* Frameworks */,
+				D20000052F641BFF0013E5A4 /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+				D20000082F641BFF0013E5A4 /* PBXTargetDependency */,
+			);
+			fileSystemSynchronizedGroups = (
+				D20000022F641BFF0013E5A4 /* WoodGateTests */,
+			);
+			name = WoodGateTests;
+			productName = WoodGateTests;
+			productReference = D20000012F641BFF0013E5A4 /* WoodGateTests.xctest */;
+			productType = "com.apple.product-type.bundle.unit-test";
+		};
 /* End PBXNativeTarget section */
 
 /* Begin PBXProject section */
@@ -94,6 +138,10 @@
 				TargetAttributes = {
 					4110F7072F641BFF0013E5A4 = {
 						CreatedOnToolsVersion = 26.3;
+					};
+					D20000062F641BFF0013E5A4 = {
+						CreatedOnToolsVersion = 26.3;
+						TestTargetID = 4110F7072F641BFF0013E5A4;
 					};
 				};
 			};
@@ -115,12 +163,18 @@
 			projectRoot = "";
 			targets = (
 				4110F7072F641BFF0013E5A4 /* WoodGate */,
+				D20000062F641BFF0013E5A4 /* WoodGateTests */,
 			);
 		};
 /* End PBXProject section */
 
 /* Begin PBXResourcesBuildPhase section */
 		4110F7062F641BFF0013E5A4 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			files = (
+			);
+		};
+		D20000052F641BFF0013E5A4 /* Resources */ = {
 			isa = PBXResourcesBuildPhase;
 			files = (
 			);
@@ -133,7 +187,20 @@
 			files = (
 			);
 		};
+		D20000042F641BFF0013E5A4 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			files = (
+			);
+		};
 /* End PBXSourcesBuildPhase section */
+
+/* Begin PBXTargetDependency section */
+		D20000082F641BFF0013E5A4 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = 4110F7072F641BFF0013E5A4 /* WoodGate */;
+			targetProxy = D20000072F641BFF0013E5A4 /* PBXContainerItemProxy */;
+		};
+/* End PBXTargetDependency section */
 
 /* Begin XCBuildConfiguration section */
 		4110F7132F641C000013E5A4 /* Debug configuration for PBXProject "WoodGate" */ = {
@@ -273,7 +340,7 @@
 				INFOPLIST_KEY_ITSAppUsesNonExemptEncryption = NO;
 				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.utilities";
 				INFOPLIST_KEY_NSCameraUsageDescription = "This app needs camera access to scan configuration QR codes and capture verification selfies.";
-				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
+				INFOPLIST_KEY_NSLocalNetworkUsageDescription = "Connect to your server to set up this device and record check-ins.";
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
 				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
 				INFOPLIST_KEY_UISupportedInterfaceOrientations = UIInterfaceOrientationPortrait;
@@ -313,7 +380,7 @@
 				INFOPLIST_KEY_ITSAppUsesNonExemptEncryption = NO;
 				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.utilities";
 				INFOPLIST_KEY_NSCameraUsageDescription = "This app needs camera access to scan configuration QR codes and capture verification selfies.";
-				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
+				INFOPLIST_KEY_NSLocalNetworkUsageDescription = "Connect to your server to set up this device and record check-ins.";
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
 				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
 				INFOPLIST_KEY_UISupportedInterfaceOrientations = UIInterfaceOrientationPortrait;
@@ -339,6 +406,52 @@
 			};
 			name = Release;
 		};
+		D20000092F641BFF0013E5A4 /* Debug configuration for PBXNativeTarget "WoodGateTests" */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				BUNDLE_LOADER = "$(TEST_HOST)";
+				CODE_SIGN_STYLE = Automatic;
+				DEVELOPMENT_TEAM = SMLKBTR495;
+				GENERATE_INFOPLIST_FILE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 26.0;
+				PRODUCT_BUNDLE_IDENTIFIER = au.edu.vic.woodleigh.WoodGateTests;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SDKROOT = iphoneos;
+				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator";
+				SUPPORTS_MACCATALYST = NO;
+				SUPPORTS_MAC_DESIGNED_FOR_IPHONE_IPAD = NO;
+				SUPPORTS_XR_DESIGNED_FOR_IPHONE_IPAD = NO;
+				SWIFT_APPROACHABLE_CONCURRENCY = YES;
+				SWIFT_DEFAULT_ACTOR_ISOLATION = MainActor;
+				SWIFT_VERSION = 6.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/WoodGate.app/$(BUNDLE_EXECUTABLE_FOLDER_PATH)/WoodGate";
+			};
+			name = Debug;
+		};
+		D200000A2F641BFF0013E5A4 /* Release configuration for PBXNativeTarget "WoodGateTests" */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				BUNDLE_LOADER = "$(TEST_HOST)";
+				CODE_SIGN_STYLE = Automatic;
+				DEVELOPMENT_TEAM = SMLKBTR495;
+				GENERATE_INFOPLIST_FILE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 26.0;
+				PRODUCT_BUNDLE_IDENTIFIER = au.edu.vic.woodleigh.WoodGateTests;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SDKROOT = iphoneos;
+				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator";
+				SUPPORTS_MACCATALYST = NO;
+				SUPPORTS_MAC_DESIGNED_FOR_IPHONE_IPAD = NO;
+				SUPPORTS_XR_DESIGNED_FOR_IPHONE_IPAD = NO;
+				SWIFT_APPROACHABLE_CONCURRENCY = YES;
+				SWIFT_DEFAULT_ACTOR_ISOLATION = MainActor;
+				SWIFT_VERSION = 6.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/WoodGate.app/$(BUNDLE_EXECUTABLE_FOLDER_PATH)/WoodGate";
+			};
+			name = Release;
+		};
 /* End XCBuildConfiguration section */
 
 /* Begin XCConfigurationList section */
@@ -355,6 +468,14 @@
 			buildConfigurations = (
 				4110F7162F641C000013E5A4 /* Debug configuration for PBXNativeTarget "WoodGate" */,
 				4110F7172F641C000013E5A4 /* Release configuration for PBXNativeTarget "WoodGate" */,
+			);
+			defaultConfigurationName = Release;
+		};
+		D200000B2F641BFF0013E5A4 /* Build configuration list for PBXNativeTarget "WoodGateTests" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				D20000092F641BFF0013E5A4 /* Debug configuration for PBXNativeTarget "WoodGateTests" */,
+				D200000A2F641BFF0013E5A4 /* Release configuration for PBXNativeTarget "WoodGateTests" */,
 			);
 			defaultConfigurationName = Release;
 		};

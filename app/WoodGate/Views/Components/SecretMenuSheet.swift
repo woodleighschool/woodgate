@@ -24,6 +24,7 @@ struct SecretMenuSheet: View {
         NavigationStack {
             Form {
                 actionsSection
+                DisplaySettingsSection()
                 debugSection
 
                 Section {
