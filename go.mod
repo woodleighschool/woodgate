@@ -25,7 +25,7 @@ require (
 	github.com/riverqueue/river/rivertype v0.47.0
 	github.com/rs/cors v1.11.1
 	github.com/spf13/cobra v1.10.2
-	github.com/woodleighschool/goodies/auth v1.0.0
+	github.com/woodleighschool/goodies/auth v1.1.0
 	github.com/woodleighschool/goodies/bloby v1.0.0
 	github.com/woodleighschool/goodies/pglock v0.1.0
 	golang.org/x/term v0.46.0
