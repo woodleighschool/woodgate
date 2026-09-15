@@ -1,5 +1,52 @@
 # Changelog
 
+## [2.2.0](https://github.com/woodleighschool/woodgate/compare/2.1.0...2.2.0) (2026-09-15)
+
+
+### Features
+
+* **go:** update module github.com/woodleighschool/goodies/auth (v1.0.0 → v1.1.0) ([#194](https://github.com/woodleighschool/woodgate/issues/194)) ([a90d384](https://github.com/woodleighschool/woodgate/commit/a90d384b9726d0d22f37f2e736ebb474cef8f596))
+* **go:** update module github.com/woodleighschool/goodies/bloby (v1.0.0 → v1.1.0) ([#195](https://github.com/woodleighschool/woodgate/issues/195)) ([2f7a63e](https://github.com/woodleighschool/woodgate/commit/2f7a63e0a34da33bdd6c512e1f5ea14b6f1835b7))
+* **npm:** update dependency @cloudflare/workers-types (5.20260908.1 → 5.20260910.1) ([#144](https://github.com/woodleighschool/woodgate/issues/144)) ([d69280b](https://github.com/woodleighschool/woodgate/commit/d69280ba5dc2ae75d13697f88c7c181159574bbd))
+* **npm:** update dependency @cloudflare/workers-types (5.20260910.1 → 5.20260914.1) ([#191](https://github.com/woodleighschool/woodgate/issues/191)) ([b459729](https://github.com/woodleighschool/woodgate/commit/b4597298eff7e68159cb4ad4c1bb038692143cfb))
+* **npm:** update dependency @woodleighschool/authz (1.0.0 → 1.1.0) ([#196](https://github.com/woodleighschool/woodgate/issues/196)) ([dd6aa73](https://github.com/woodleighschool/woodgate/commit/dd6aa733a9c687e1cfa290d7e1f3fcb513ebc3da))
+* **npm:** update dependency @woodleighschool/bloby-client (1.0.0 → 1.1.0) ([#197](https://github.com/woodleighschool/woodgate/issues/197)) ([966da36](https://github.com/woodleighschool/woodgate/commit/966da36d978a5f4efe80e41aabc4cff36b5f779b))
+* **npm:** update dependency cn (0.2.6 → 0.3.0) ([#198](https://github.com/woodleighschool/woodgate/issues/198)) ([9436888](https://github.com/woodleighschool/woodgate/commit/9436888aeae0e8cb0285e25a57f497ee6740522e))
+* **npm:** update dependency lucide-react (1.43.0 → 1.45.0) ([#184](https://github.com/woodleighschool/woodgate/issues/184)) ([684847a](https://github.com/woodleighschool/woodgate/commit/684847a6c938fe6e9a0e8354cfa8011795cd8d4b))
+* **npm:** update dependency oxlint (1.82.0 → 1.83.0) ([#205](https://github.com/woodleighschool/woodgate/issues/205)) ([01722b7](https://github.com/woodleighschool/woodgate/commit/01722b77e44c7aad0c445eb47131f88e35b0c031))
+* **npm:** update dependency tailwind-merge (3.6.0 → 3.7.0) ([#199](https://github.com/woodleighschool/woodgate/issues/199)) ([c058b70](https://github.com/woodleighschool/woodgate/commit/c058b7043b48376fc22a28f757987a56210cabd8))
+* **npm:** update dependency vite (8.2.2 → 8.3.0) ([#185](https://github.com/woodleighschool/woodgate/issues/185)) ([8330a92](https://github.com/woodleighschool/woodgate/commit/8330a92ae76c4c11853d2eceda2ab31460984450))
+* **npm:** update dependency wrangler (4.130.0 → 4.131.1) ([#187](https://github.com/woodleighschool/woodgate/issues/187)) ([a89efe9](https://github.com/woodleighschool/woodgate/commit/a89efe90bcded900e160eee140a52b38032208db))
+* **npm:** update dependency zod (4.5.4 → 4.6.1) ([#133](https://github.com/woodleighschool/woodgate/issues/133)) ([7a4e72c](https://github.com/woodleighschool/woodgate/commit/7a4e72c2b2eb2a2396123663692075162798ffb4))
+* **npm:** update react monorepo (19.2.18 → 19.3.0) ([#154](https://github.com/woodleighschool/woodgate/issues/154)) ([23e72a4](https://github.com/woodleighschool/woodgate/commit/23e72a42f97dfb60f22cac419c239699a7b58a14))
+* **npm:** update react runtime (19.2.8 → 19.3.0) ([#179](https://github.com/woodleighschool/woodgate/issues/179)) ([9a2893e](https://github.com/woodleighschool/woodgate/commit/9a2893e5edf66117117a5b31969f424e8e84365b))
+
+
+### Bug Fixes
+
+* **go:** update module github.com/woodleighschool/goodies/pglock (v0.1.0 → v0.1.1) ([#193](https://github.com/woodleighschool/woodgate/issues/193)) ([51e0966](https://github.com/woodleighschool/woodgate/commit/51e09664508a23c99e6a5ae7a5295a3d86a2c6cf))
+* **npm:** update dependency @cloudflare/vitest-plugin (1.1.6 → 1.1.9) ([#186](https://github.com/woodleighschool/woodgate/issues/186)) ([3a908e9](https://github.com/woodleighschool/woodgate/commit/3a908e9d593f9756836fcf772abb91c9438cb6d4))
+* **npm:** update dependency @tanstack/react-router (1.170.34 → 1.170.35) ([#188](https://github.com/woodleighschool/woodgate/issues/188)) ([7d42557](https://github.com/woodleighschool/woodgate/commit/7d4255757180e67aa4557add97ee33cea2afb42a))
+* **npm:** update dependency @types/node (26.5.0 → 26.5.1) ([#180](https://github.com/woodleighschool/woodgate/issues/180)) ([6e5c4d3](https://github.com/woodleighschool/woodgate/commit/6e5c4d3a769dae7e092603d7937fc55d07b62e54))
+* **npm:** update dependency cva (1.0.0-beta.9 → 1.0.0-beta.10) ([#202](https://github.com/woodleighschool/woodgate/issues/202)) ([0d36da8](https://github.com/woodleighschool/woodgate/commit/0d36da826376cbe6d9f4b5afb94970b89679e1d7))
+* **npm:** update dependency zod (4.6.1 → 4.6.4) ([#189](https://github.com/woodleighschool/woodgate/issues/189)) ([f7c1ae2](https://github.com/woodleighschool/woodgate/commit/f7c1ae2a353ce859eaf8fa71098b08bcf837fc6c))
+* **npm:** update dependency zod (4.6.4 → 4.6.5) ([#201](https://github.com/woodleighschool/woodgate/issues/201)) ([c23f7f1](https://github.com/woodleighschool/woodgate/commit/c23f7f16f8c2b4f347d7e280c55b548364bd4e86))
+* **npm:** update tanstack-router monorepo ([#181](https://github.com/woodleighschool/woodgate/issues/181)) ([436673b](https://github.com/woodleighschool/woodgate/commit/436673b601034f9274f876153aea89c9a1a9c1e8))
+* **npm:** update tanstack-router monorepo ([#200](https://github.com/woodleighschool/woodgate/issues/200)) ([ce0dbad](https://github.com/woodleighschool/woodgate/commit/ce0dbad2225996e8162c243907f940e8005068e3))
+
+
+### Code Refactoring
+
+* **postgres:** share session advisory locking ([#156](https://github.com/woodleighschool/woodgate/issues/156)) ([2f1ad1a](https://github.com/woodleighschool/woodgate/commit/2f1ad1ab1be88d3fd9cd77103a2ebc6983f8ff0f))
+
+
+### Miscellaneous Chores
+
+* **mise:** update tool node (26.8.1 → v26.8.2) ([#190](https://github.com/woodleighschool/woodgate/issues/190)) ([b0f5892](https://github.com/woodleighschool/woodgate/commit/b0f58924663549eff1bb1928fac1662b053412a7))
+* **mise:** update tool oxfmt (0.66.0 → 0.67.0) ([#178](https://github.com/woodleighschool/woodgate/issues/178)) ([23633dd](https://github.com/woodleighschool/woodgate/commit/23633dd0e98feb3f6dbb2bb5afe0d381761ee4a6))
+* **mise:** update tool zizmor (1.30.0 → 1.30.1) ([#192](https://github.com/woodleighschool/woodgate/issues/192)) ([cf1aee1](https://github.com/woodleighschool/woodgate/commit/cf1aee157633499316533c1304ddcae6743328c2))
+* **npm:** update dependency pnpm (12.3.4 → 12.4.1) ([#142](https://github.com/woodleighschool/woodgate/issues/142)) ([f969836](https://github.com/woodleighschool/woodgate/commit/f9698361ddf692e3d5b3ed317b56fbd33253678c))
+
 ## [2.1.0](https://github.com/woodleighschool/woodgate/compare/2.0.0...2.1.0) (2026-09-10)
 
 
