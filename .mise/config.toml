@@ -7,7 +7,7 @@ node = "26.8.2"
 pnpm = "12.4.1"
 golangci-lint = "2.13.2"
 air = "1.67.4"
-lefthook = "2.1.12"
+lefthook = "2.1.14"
 periphery = { version = "3.8.0", os = ["macos"] }
 swiftformat = { version = "0.63.0", no_app = true, rename_exe = "swiftformat" }
 actionlint = "1.7.12"
