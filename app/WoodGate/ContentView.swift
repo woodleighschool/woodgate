@@ -41,14 +41,13 @@ struct ContentView: View {
                 rootView
             }
             .overlay(alignment: .bottomTrailing) {
-                if modelData.currentSession != nil {
-                    Color.clear
-                        .frame(width: 100, height: 100)
-                        .contentShape(Rectangle())
-                        .onTapGesture(count: 10) {
-                            isSecretMenuPresented = true
-                        }
-                }
+                Color.clear
+                    .frame(width: 100, height: 100)
+                    .contentShape(Rectangle())
+                    .onTapGesture(count: 10) {
+                        isSecretMenuPresented = true
+                    }
+                    .accessibilityHidden(true)
             }
         }
         .onChange(of: scenePhase, initial: true) { _, newValue in
