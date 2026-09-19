@@ -9,6 +9,14 @@ final class AppSettings {
 
     static let shared = AppSettings()
 
+    var displaySettings: DisplaySettings {
+        didSet {
+            if let data = try? PropertyListEncoder().encode(displaySettings) {
+                defaults.set(data, forKey: Key.display)
+            }
+        }
+    }
+
     var baseURLString: String {
         didSet {
             defaults.set(baseURLString, forKey: Key.baseURLString)
@@ -72,6 +80,7 @@ final class AppSettings {
     private let defaults = UserDefaults.standard
 
     private enum Key {
+        static let display = "display"
         static let baseURLString = "baseURLString"
         static let apiKey = "apiKey"
         static let locationID = "locationID"
@@ -86,6 +95,8 @@ final class AppSettings {
     // MARK: - Initialization
 
     private init() {
+        displaySettings = defaults.data(forKey: Key.display)
+            .flatMap { try? PropertyListDecoder().decode(DisplaySettings.self, from: $0) } ?? DisplaySettings()
         baseURLString = defaults.string(forKey: Key.baseURLString) ?? ""
         apiKey = KeychainHelper.shared.read(key: Key.apiKey) ?? ""
         locationID = Self.uuid(forKey: Key.locationID, defaults: defaults)

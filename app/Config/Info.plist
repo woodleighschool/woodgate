@@ -9,5 +9,12 @@
 	</dict>
 	<key>NSLocalNetworkUsageDescription</key>
 	<string>Connect to your server to set up this device and record check-ins.</string>
+	<key>UIApplicationSceneManifest</key>
+	<dict>
+		<key>UIApplicationSupportsMultipleScenes</key>
+		<false/>
+		<key>UISceneConfigurations</key>
+		<dict/>
+	</dict>
 </dict>
 </plist>
