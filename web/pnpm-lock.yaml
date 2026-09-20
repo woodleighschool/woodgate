@@ -185,8 +185,8 @@ importers:
         specifier: ^9.2.4
         version: 9.2.4(react-dom@19.3.0(react@19.3.0))(react@19.3.0)
       '@woodleighschool/authz':
-        specifier: ^1.1.0
-        version: 1.1.0(react@19.3.0)
+        specifier: ^1.2.0
+        version: 1.2.0(react@19.3.0)
       '@woodleighschool/bloby-client':
         specifier: ^1.1.0
         version: 1.1.0
@@ -1295,8 +1295,8 @@ packages:
       oxc-transform-react:
         optional: true
 
-  '@woodleighschool/authz@1.1.0':
-    resolution: {integrity: sha512-cG9L4htpQf813eEQTafUPfw65W+r+rnbUCXFnylEZ1uIKlpY3DMRPY5ZU6vm+zDoi217srVqvyEAjHIbHtM2Zw==}
+  '@woodleighschool/authz@1.2.0':
+    resolution: {integrity: sha512-xKUCiTgRvSgdaacN3eL5mYnzS76gNH/4NjkGoX4+3gZuK8mVVSpbMl85XLH56IbzRVZi2qeDtYHnCY3UQRrjUg==}
     peerDependencies:
       react: ^19.0.0
     peerDependenciesMeta:
@@ -4132,7 +4132,7 @@ snapshots:
       '@rolldown/pluginutils': 1.0.1
       vite: 8.3.0(@types/node@26.6.1)(jiti@2.7.0)
 
-  '@woodleighschool/authz@1.1.0(react@19.3.0)':
+  '@woodleighschool/authz@1.2.0(react@19.3.0)':
     optionalDependencies:
       react: 19.3.0
 
