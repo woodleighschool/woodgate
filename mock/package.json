@@ -19,7 +19,7 @@
   "devDependencies": {
     "@cloudflare/vitest-plugin": "1.1.13",
     "@cloudflare/workers-types": "5.20260920.1",
-    "oxlint": "1.83.0",
+    "oxlint": "1.84.0",
     "typescript": "7.0.2",
     "vitest": "4.1.11",
     "wrangler": "4.135.0"
