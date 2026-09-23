@@ -283,12 +283,6 @@ linters:
       patterns:
         - ".*"
 
-    recvcheck:
-      # labelCriteria implements database.Scanner on a pointer while its
-      # driver.Valuer method should remain callable on values.
-      exclusions:
-        - "labelCriteria.Value"
-
     revive:
       # Preserve the useful default checks while declining mandatory comments
       # that only restate exported internal identifiers.
