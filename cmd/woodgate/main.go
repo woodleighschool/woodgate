@@ -236,10 +236,11 @@ func newSessions(pool *pgxpool.Pool, cfg config.Config, logger *slog.Logger) (*s
 
 func storageConfig(cfg config.Config) bloby.Config {
 	return bloby.Config{Kind: bloby.Kind(cfg.StorageKind), TransferTTL: cfg.StorageTransferTTL,
-		// Backgrounds and logos are a library locations pick from; only check-in photos need a reference.
-		ReferencedPrefixes: []string{checkin.PhotoObjectPrefix},
 		File: bloby.FileConfig{Root: cfg.StorageFileRoot, BaseURL: cfg.ServerURL, CapabilityKeyHex: cfg.StorageCapabilityKey},
-		S3:   bloby.S3Config{Bucket: cfg.StorageS3Bucket, Region: cfg.StorageS3Region, Endpoint: cfg.StorageS3Endpoint, AccessKey: cfg.StorageS3AccessKey, SecretKey: cfg.StorageS3SecretKey, PathStyle: cfg.StorageS3PathStyle}}
+		S3:   bloby.S3Config{Bucket: cfg.StorageS3Bucket, Region: cfg.StorageS3Region, Endpoint: cfg.StorageS3Endpoint, AccessKey: cfg.StorageS3AccessKey, SecretKey: cfg.StorageS3SecretKey, PathStyle: cfg.StorageS3PathStyle},
+
+		// Backgrounds and logos are a library locations pick from; only check-in photos need a reference.
+		ReferencedPrefixes: []string{checkin.PhotoObjectPrefix}}
 }
 
 type starter func(context.Context) (func(), error)
