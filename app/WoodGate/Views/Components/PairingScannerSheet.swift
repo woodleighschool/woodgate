@@ -135,7 +135,7 @@ private struct ManualPairingView: View {
 
     private var isPairingDisabled: Bool {
         isBusy
-            || baseURL.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty
+            || AppSettings.serverURL(baseURL) == nil
             || apiKey.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty
     }
 
@@ -144,7 +144,7 @@ private struct ManualPairingView: View {
     var body: some View {
         Form {
             Section("Connection") {
-                TextField("Server", text: $baseURL)
+                TextField("https://woodgate.example.com", text: $baseURL)
                     .textContentType(.URL)
                     .keyboardType(.URL)
                     .textInputAutocapitalization(.never)

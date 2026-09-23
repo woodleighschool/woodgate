@@ -127,8 +127,21 @@ final class AppSettings {
 // MARK: - Client Helpers
 
 extension AppSettings {
+    static func serverURL(_ value: String) -> URL? {
+        guard let url = URL(string: value.trimmingCharacters(in: .whitespacesAndNewlines)),
+              let scheme = url.scheme?.lowercased(),
+              ["http", "https"].contains(scheme),
+              let host = url.host, !host.isEmpty,
+              url.user == nil, url.password == nil,
+              url.query == nil, url.fragment == nil else { return nil }
+        #if !DEBUG
+            guard scheme == "https" else { return nil }
+        #endif
+        return url
+    }
+
     func woodGateClient(session: URLSession = .shared) -> WoodGateAPIClient? {
-        guard let baseURL = ServerURL.parse(baseURLString), apiKey.isEmpty == false else {
+        guard let baseURL = Self.serverURL(baseURLString), apiKey.isEmpty == false else {
             return nil
         }
 
@@ -140,7 +153,7 @@ extension AppSettings {
         apiKey: String,
         session: URLSession = .shared
     ) -> WoodGateAPIClient? {
-        guard let baseURL = ServerURL.parse(baseURLString), apiKey.isEmpty == false else {
+        guard let baseURL = Self.serverURL(baseURLString), apiKey.isEmpty == false else {
             return nil
         }
 

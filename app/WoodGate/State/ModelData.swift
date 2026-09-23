@@ -117,7 +117,11 @@ final class ModelData {
                     apiKey: payload.apiKey
                 )
             else {
-                throw WoodGateError(message: "Enter a valid HTTP or HTTPS server URL.")
+                #if DEBUG
+                    throw WoodGateError(message: "Enter a valid HTTP or HTTPS server URL.")
+                #else
+                    throw WoodGateError(message: "Enter a valid HTTPS server URL.")
+                #endif
             }
             let location = try await client.getLocation(id: option.id)
             guard location.enabled else {
@@ -239,16 +243,17 @@ final class ModelData {
         isBusy = true
         defer { isBusy = false }
 
-        let serverURL = try await ServerURL.resolve(payload.baseURL)
-        let payload = PairingPayload(baseURL: serverURL.absoluteString, apiKey: payload.apiKey)
-
         guard
             let client = AppSettings.shared.woodGateClient(
                 baseURLString: payload.baseURL,
                 apiKey: payload.apiKey
             )
         else {
-            throw WoodGateError(message: "Enter a valid HTTP or HTTPS server URL.")
+            #if DEBUG
+                throw WoodGateError(message: "Enter a valid HTTP or HTTPS server URL.")
+            #else
+                throw WoodGateError(message: "Enter a valid HTTPS server URL.")
+            #endif
         }
         let auth = try await client.authenticate()
 
