@@ -2,6 +2,8 @@
 
 Native iOS client for dedicated check-in terminals. A pairing QR provides the server URL and API key, then the operator selects the terminal's location.
 
+The app supports Single App Mode. Permit `au.edu.vic.woodleigh.WoodGateApp` for Autonomous Single App Mode on supervised devices.
+
 ## 🧑‍💻 Development
 
 Open `WoodGate.xcodeproj` and use the shared `WoodGate` scheme, or run the repository tasks from the parent directory:
