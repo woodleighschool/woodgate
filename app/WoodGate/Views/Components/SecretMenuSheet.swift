@@ -1,4 +1,5 @@
 import SwiftUI
+import UIKit
 
 struct SecretMenuSheet: View {
     // MARK: - Properties
@@ -9,6 +10,8 @@ struct SecretMenuSheet: View {
     let session: ActiveSession?
 
     @State private var isRefreshing = false
+    @State private var singleAppModeEnabled = UIAccessibility.isGuidedAccessEnabled
+    @State private var isChangingSingleAppMode = false
 
     // MARK: - Computed Properties
 
@@ -23,6 +26,7 @@ struct SecretMenuSheet: View {
     var body: some View {
         NavigationStack {
             Form {
+                singleAppModeSection
                 actionsSection
                 debugSection
 
@@ -39,9 +43,41 @@ struct SecretMenuSheet: View {
         }
         .presentationDetents([.medium, .large])
         .modelAlert()
+        .task {
+            let changes = NotificationCenter.default.notifications(named: UIAccessibility.guidedAccessStatusDidChangeNotification)
+                .map { _ in () }
+            singleAppModeEnabled = UIAccessibility.isGuidedAccessEnabled
+            for await _ in changes {
+                guard !Task.isCancelled else { return }
+                singleAppModeEnabled = UIAccessibility.isGuidedAccessEnabled
+            }
+        }
     }
 
     // MARK: - View Builders
+
+    private var singleAppModeSection: some View {
+        Section("Single App Mode") {
+            LabeledContent("Single App Mode", value: singleAppModeEnabled ? "Enabled" : "Disabled")
+            Button(singleAppModeEnabled ? "Disable Single App Mode" : "Enable Single App Mode") {
+                let enabled = !singleAppModeEnabled
+                isChangingSingleAppMode = true
+                UIAccessibility.requestGuidedAccessSession(enabled: enabled) { succeeded in
+                    isChangingSingleAppMode = false
+                    singleAppModeEnabled = UIAccessibility.isGuidedAccessEnabled
+                    if !succeeded {
+                        modelData.alert = AlertItem(
+                            title: "Could Not Change Single App Mode",
+                            message: enabled
+                                ? "Could not enable Single App Mode. Check that a configuration profile permits WoodGate to use Autonomous Single App Mode."
+                                : "Could not disable Single App Mode."
+                        )
+                    }
+                }
+            }
+            .disabled(isChangingSingleAppMode)
+        }
+    }
 
     private var actionsSection: some View {
         Section("Actions") {
