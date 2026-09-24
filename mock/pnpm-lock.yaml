@@ -167,8 +167,8 @@ importers:
   .:
     devDependencies:
       '@cloudflare/vitest-plugin':
-        specifier: 1.2.1
-        version: 1.2.1(@cloudflare/workers-types@5.20260921.1)(@vitest/runner@4.1.11)(@vitest/snapshot@4.1.11)(vitest@4.1.11(vite@8.2.2(esbuild@0.28.1)))
+        specifier: 1.2.4
+        version: 1.2.4(@cloudflare/workers-types@5.20260921.1)(@vitest/runner@4.1.11)(@vitest/snapshot@4.1.11)(vitest@4.1.11(vite@8.2.2(esbuild@0.28.1)))
       '@cloudflare/workers-types':
         specifier: 5.20260921.1
         version: 5.20260921.1
@@ -200,8 +200,8 @@ packages:
       workerd:
         optional: true
 
-  '@cloudflare/vitest-plugin@1.2.1':
-    resolution: {integrity: sha512-k1Y6Z6l1kOh7FYTERL2/MNkED8cp3TbQUxhmhZd+IrkKP59Phhs4Df27iTA1eOKeSTft5EQu4bfdhbyd6GzSmA==}
+  '@cloudflare/vitest-plugin@1.2.4':
+    resolution: {integrity: sha512-Fyxu+LpDXUFvqTlSReg2qtxM4zhT3sqtUaj+jTwEa4WZtN2NohUsg+zXp6w+aJnP1+FJvdxTYHSRQ31AT0fcWQ==}
     peerDependencies:
       '@vitest/runner': ^4.1.0
       '@vitest/snapshot': ^4.1.0
@@ -1368,7 +1368,7 @@ snapshots:
     optionalDependencies:
       workerd: 1.20260921.1
 
-  '@cloudflare/vitest-plugin@1.2.1(@cloudflare/workers-types@5.20260921.1)(@vitest/runner@4.1.11)(@vitest/snapshot@4.1.11)(vitest@4.1.11(vite@8.2.2(esbuild@0.28.1)))':
+  '@cloudflare/vitest-plugin@1.2.4(@cloudflare/workers-types@5.20260921.1)(@vitest/runner@4.1.11)(@vitest/snapshot@4.1.11)(vitest@4.1.11(vite@8.2.2(esbuild@0.28.1)))':
     dependencies:
       '@vitest/runner': 4.1.11
       '@vitest/snapshot': 4.1.11
@@ -1376,7 +1376,7 @@ snapshots:
       esbuild: 0.28.1
       miniflare: 5.20260921.0-alpha
       vitest: 4.1.11(vite@8.2.2(esbuild@0.28.1))
-      wrangler: 4.136.1(@cloudflare/workers-types@5.20260921.1)
+      wrangler: 4.137.0(@cloudflare/workers-types@5.20260921.1)
       zod: 4.4.3
     transitivePeerDependencies:
       - '@cloudflare/workers-types'
