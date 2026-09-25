@@ -22,7 +22,7 @@
     "oxlint": "1.85.0",
     "typescript": "7.0.2",
     "vitest": "4.1.11",
-    "wrangler": "4.138.0"
+    "wrangler": "4.139.0"
   },
   "packageManager": "pnpm@12.6.0"
 }
