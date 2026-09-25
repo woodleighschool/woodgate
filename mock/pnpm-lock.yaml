@@ -182,8 +182,8 @@ importers:
         specifier: 4.1.11
         version: 4.1.11(vite@8.2.2(esbuild@0.28.1))
       wrangler:
-        specifier: 4.137.0
-        version: 4.137.0(@cloudflare/workers-types@5.20260924.1)
+        specifier: 4.138.0
+        version: 4.138.0(@cloudflare/workers-types@5.20260924.1)
 
 packages:
 
