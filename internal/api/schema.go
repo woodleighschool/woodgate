@@ -33,8 +33,8 @@ func capabilityPrefix(pkgPath string) string {
 		return "Authorization"
 	case "checkin":
 		return "Checkin"
-	case "appkey":
-		return "AppKey"
+	case "station":
+		return "Station"
 	default:
 		return ""
 	}

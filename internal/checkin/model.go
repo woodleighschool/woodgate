@@ -87,6 +87,12 @@ type LocationSummary struct {
 	Name string `json:"name"`
 }
 
+// StationSummary is the station identity attached to a check-in.
+type StationSummary struct {
+	ID   int64  `json:"id"`
+	Name string `json:"name"`
+}
+
 // Checkin is an immutable arrival or departure event.
 type Checkin struct {
 	ID            int64                  `json:"id"`
@@ -99,6 +105,7 @@ type Checkin struct {
 	PhotoFile     *AttachmentFile        `json:"photo_file,omitempty"`
 	PhotoURL      string                 `json:"photo_url,omitempty"`
 	ActorName     string                 `json:"actor_name"`
+	Station       *StationSummary        `json:"station,omitempty"`
 	ActorKind     string                 `json:"actor_kind"`
 	ActorAppID    uuid.UUID              `json:"actor_app_id"`
 	CreatedBy     *directory.UserSummary `json:"created_by,omitempty"`
@@ -212,8 +219,9 @@ func pointerIDs(values ...*int64) []int64 {
 
 // Actor keeps attribution independent of the lifetime of an account or credential.
 type Actor struct {
-	Kind     string
-	AppID    uuid.UUID
-	UserID   *int64
-	AppKeyID *int64
+	Kind      string
+	AppID     uuid.UUID
+	UserID    *int64
+	StationID *int64
+	AppKeyID  *int64
 }

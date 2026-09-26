@@ -11,12 +11,12 @@ describe("WoodGate development mock", () => {
     expect(response.status).toBe(200);
     await expect(response.json()).resolves.toEqual({
       service: "WoodGate development mock",
-      station_secret: "testing123",
+      station_key: "testing123",
       review_pairing: { base_url: origin, api_key: "reviewkey" },
     });
   });
 
-  it("requires the Station secret", async () => {
+  it("requires the Station key", async () => {
     const response = await exports.default.fetch(`${origin}/api/station/v1/configuration`);
 
     expect(response.status).toBe(401);
@@ -50,11 +50,10 @@ describe("WoodGate development mock", () => {
     expect(body.items.every((person) => person.email.endsWith(".invalid"))).toBe(true);
   });
 
-  it("accepts and discards a complete check-in", async () => {
+  it("accepts and discards a check-in with optional notes omitted", async () => {
     const form = new FormData();
     form.set("person_id", "2");
     form.set("direction", "check_in");
-    form.set("notes", "Development check-in");
     form.set(
       "photo",
       new File([new Uint8Array([0xff, 0xd8, 0xff, 0xd9])], "selfie.jpg", { type: "image/jpeg" }),

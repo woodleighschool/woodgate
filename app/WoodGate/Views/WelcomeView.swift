@@ -19,7 +19,7 @@ struct WelcomeView: View {
                         .font(.title.bold())
                         .accessibilityAddTraits(.isHeader)
 
-                    Text("To get started, create a new app key on your server.")
+                    Text("To get started, create a Station on your server.")
                         .foregroundStyle(.secondary)
                 }
                 .multilineTextAlignment(.center)
