@@ -1,5 +1,22 @@
 # Changelog
 
+## [2.1.0](https://github.com/woodleighschool/woodgate/compare/app-2.0.1...app-2.1.0) (2026-09-26)
+
+
+### Features
+
+* **app:** add autonomous single app mode ([#182](https://github.com/woodleighschool/woodgate/issues/182)) ([37122b4](https://github.com/woodleighschool/woodgate/commit/37122b4bf27620251e5c11bae59e90016ebad9a7))
+
+
+### Bug Fixes
+
+* **app:** simplify server URL setup ([8cca3fe](https://github.com/woodleighschool/woodgate/commit/8cca3fe1095910e87c5f94c19f3607b48bb9a0cf))
+
+
+### Code Refactoring
+
+* remove legacy Keychain migration ([#135](https://github.com/woodleighschool/woodgate/issues/135)) ([5706d33](https://github.com/woodleighschool/woodgate/commit/5706d33b25238fde1e725edd5a1935140a498996))
+
 ## [2.0.1](https://github.com/woodleighschool/woodgate/compare/app-2.0.0...app-2.0.1) (2026-09-09)
 
 
