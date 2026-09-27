@@ -8,6 +8,9 @@ import { defineConfig } from "vite";
 const projectDirectory = import.meta.dirname;
 
 export default defineConfig({
+  build: {
+    license: { fileName: "THIRD_PARTY_NOTICES.md" },
+  },
   plugins: [
     tanstackRouter({
       target: "react",
