@@ -19,7 +19,7 @@
     "@tanstack/react-form": "^1.33.5",
     "@tanstack/react-query": "^5.104.0",
     "@tanstack/react-router": "^1.170.40",
-    "@tanstack/react-store": "^0.11.1",
+    "@tanstack/react-store": "^0.11.2",
     "@tanstack/react-table": "^9.2.4",
     "@woodleighschool/authz": "^1.2.0",
     "@woodleighschool/bloby-client": "^1.2.0",
