@@ -11,6 +11,7 @@ import { Separator } from "@components/ui/separator";
 export function DateRangePicker({
   value,
   onValueChange,
+  onOpenChange,
   label = "Date Range",
   disabled,
   defaultMonth,
@@ -19,6 +20,7 @@ export function DateRangePicker({
 }: {
   value?: DateRange;
   onValueChange: (value: DateRange | undefined) => void;
+  onOpenChange?: (open: boolean) => void;
   label?: string;
   disabled?: React.ComponentProps<typeof Calendar>["disabled"];
   defaultMonth?: Date;
@@ -29,7 +31,7 @@ export function DateRangePicker({
 
   return (
     <ButtonGroup>
-      <Popover>
+      <Popover onOpenChange={onOpenChange}>
         <PopoverTrigger
           render={<Button variant="outline" size="sm" className="h-8 border-dashed font-normal" />}
         >
