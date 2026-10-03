@@ -1,5 +1,41 @@
 # Changelog
 
+## [2.3.0](https://github.com/woodleighschool/woodgate/compare/2.2.0...v2.3.0) (2026-10-03)
+
+
+### Features
+
+* **go:** update river monorepo (v0.47.0 → v0.48.0) ([#298](https://github.com/woodleighschool/woodgate/issues/298)) ([3d9469a](https://github.com/woodleighschool/woodgate/commit/3d9469a64286c68db57d80fdad269d2cb3dc93f3))
+* **npm:** update dependency @cloudflare/workers-types (5.20260928.1 → 5.20260929.1) ([#286](https://github.com/woodleighschool/woodgate/issues/286)) ([20dd23e](https://github.com/woodleighschool/woodgate/commit/20dd23e2eacae57179d5bacbe06e0d0763418db6))
+* **npm:** update dependency @cloudflare/workers-types (5.20260929.1 → 5.20260930.1) ([#295](https://github.com/woodleighschool/woodgate/issues/295)) ([0fbcf2b](https://github.com/woodleighschool/woodgate/commit/0fbcf2b0528ad5eb73a4f3f380bbf5cbf6a04aef))
+* **npm:** update dependency @cloudflare/workers-types (5.20260930.2 → 5.20261001.1) ([#306](https://github.com/woodleighschool/woodgate/issues/306)) ([67b4d51](https://github.com/woodleighschool/woodgate/commit/67b4d511050d045dea61ad7b29f0c9dd56a5c2b5))
+* **npm:** update dependency @cloudflare/workers-types (5.20261001.1 → 5.20261002.1) ([#313](https://github.com/woodleighschool/woodgate/issues/313)) ([a5335ee](https://github.com/woodleighschool/woodgate/commit/a5335ee0bf9bee8e2c161597ef79bc9be14b7ae8))
+* **npm:** update dependency lucide-react (1.48.0 → 1.49.0) ([#292](https://github.com/woodleighschool/woodgate/issues/292)) ([e62f6ed](https://github.com/woodleighschool/woodgate/commit/e62f6ed72be945257a5a23983469e3310127e673))
+* **npm:** update dependency oxlint (1.85.0 → 1.86.0) ([#281](https://github.com/woodleighschool/woodgate/issues/281)) ([5bdf45b](https://github.com/woodleighschool/woodgate/commit/5bdf45b6dce183833808b60e5bf431e2925ad1c3))
+* **npm:** update dependency wrangler (4.142.0 → 4.143.0) ([#283](https://github.com/woodleighschool/woodgate/issues/283)) ([3dff689](https://github.com/woodleighschool/woodgate/commit/3dff68919efdcee8e9c242c2769d332a624fa3d6))
+* **npm:** update dependency wrangler (4.143.1 → 4.144.0) ([#291](https://github.com/woodleighschool/woodgate/issues/291)) ([9b2fd55](https://github.com/woodleighschool/woodgate/commit/9b2fd557a457acd7252da770ff1e811608501d72))
+* **npm:** update dependency wrangler (4.144.0 → 4.145.0) ([#303](https://github.com/woodleighschool/woodgate/issues/303)) ([1a17a01](https://github.com/woodleighschool/woodgate/commit/1a17a012fc5035ce32cb4e8bb0c20165cd905f8e))
+* **npm:** update dependency wrangler (4.145.0 → 4.146.0) ([#311](https://github.com/woodleighschool/woodgate/issues/311)) ([937c3c8](https://github.com/woodleighschool/woodgate/commit/937c3c882e1244ce6b5bd7fd3765f124739eb101))
+
+
+### Bug Fixes
+
+* **npm:** update dependency @cloudflare/vitest-plugin (1.3.0 → 1.3.1) ([#282](https://github.com/woodleighschool/woodgate/issues/282)) ([cba0d28](https://github.com/woodleighschool/woodgate/commit/cba0d28aed5342a83b8038581f4ad75dcc74bbca))
+* **npm:** update dependency @cloudflare/vitest-plugin (1.3.1 → 1.3.2) ([#288](https://github.com/woodleighschool/woodgate/issues/288)) ([c5a906c](https://github.com/woodleighschool/woodgate/commit/c5a906c3434dba362a2d1c35c6d1de9a3fd86ff2))
+* **npm:** update dependency @cloudflare/vitest-plugin (1.3.2 → 1.3.3) ([#290](https://github.com/woodleighschool/woodgate/issues/290)) ([3cb07fd](https://github.com/woodleighschool/woodgate/commit/3cb07fd07d9cd13908d1321bf2979d835205e92b))
+* **npm:** update dependency @cloudflare/vitest-plugin (1.3.3 → 1.3.4) ([#302](https://github.com/woodleighschool/woodgate/issues/302)) ([213aefc](https://github.com/woodleighschool/woodgate/commit/213aefcae8988824d0c2663e8f47ec326ded5c16))
+* **npm:** update dependency @cloudflare/vitest-plugin (1.3.4 → 1.3.5) ([#310](https://github.com/woodleighschool/woodgate/issues/310)) ([1fd9b41](https://github.com/woodleighschool/woodgate/commit/1fd9b417118e442d02317121c189db406cd6f456))
+* **npm:** update dependency @cloudflare/workers-types (5.20260930.1 → 5.20260930.2) ([#300](https://github.com/woodleighschool/woodgate/issues/300)) ([2f51427](https://github.com/woodleighschool/woodgate/commit/2f51427c281ca1f82718dc45d5b82eb6ba96b53c))
+* **npm:** update dependency @tanstack/react-store (0.11.1 → 0.11.2) ([#287](https://github.com/woodleighschool/woodgate/issues/287)) ([2090b32](https://github.com/woodleighschool/woodgate/commit/2090b324114c73326380183deabe076320f1d6e9))
+* **npm:** update dependency @types/node (26.6.3 → 26.6.4) ([#312](https://github.com/woodleighschool/woodgate/issues/312)) ([f5126c6](https://github.com/woodleighschool/woodgate/commit/f5126c675cf3bb005664bc5257b11a9f48184142))
+* **npm:** update dependency lucide-react (1.49.0 → 1.50.0) ([#318](https://github.com/woodleighschool/woodgate/issues/318)) ([36263a1](https://github.com/woodleighschool/woodgate/commit/36263a16a197d7b84078ca799d9b488467f2b29d))
+* **npm:** update dependency react-day-picker (10.0.1 → 10.0.2) ([#299](https://github.com/woodleighschool/woodgate/issues/299)) ([c343326](https://github.com/woodleighschool/woodgate/commit/c343326ec7699ab58b601d4c92aeb30cd815f606))
+* **npm:** update dependency shadcn (4.21.0 → 4.21.1) ([#307](https://github.com/woodleighschool/woodgate/issues/307)) ([380762f](https://github.com/woodleighschool/woodgate/commit/380762f3aa64053712a83b6d8e3c5a357ca1585c))
+* **npm:** update dependency vite (8.3.1 → 8.3.2) ([#308](https://github.com/woodleighschool/woodgate/issues/308)) ([cfb8f0a](https://github.com/woodleighschool/woodgate/commit/cfb8f0aa0c7274397b6bcb8761326cf3aed37f1c))
+* **npm:** update dependency wrangler (4.143.0 → 4.143.1) ([#289](https://github.com/woodleighschool/woodgate/issues/289)) ([513fdbe](https://github.com/woodleighschool/woodgate/commit/513fdbee6feba40d6e4602ded2e82f007749486e))
+* **npm:** update tanstack-query monorepo (5.104.0 → 5.104.1) ([#316](https://github.com/woodleighschool/woodgate/issues/316)) ([fb065c9](https://github.com/woodleighschool/woodgate/commit/fb065c99fedd02db4f97d0af9bcdc46213d0c97f))
+* **npm:** update tanstack-router monorepo ([#304](https://github.com/woodleighschool/woodgate/issues/304)) ([7e4201d](https://github.com/woodleighschool/woodgate/commit/7e4201dd3e972bc92ac89ab249ab6b0e19154e86))
+
 ## [2.2.0](https://github.com/woodleighschool/woodgate/compare/2.1.0...2.2.0) (2026-09-29)
 
 
