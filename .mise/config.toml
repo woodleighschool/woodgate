@@ -10,7 +10,7 @@ golangci-lint = "2.14.0"
 air = "1.67.4"
 lefthook = "2.1.15"
 periphery = { version = "3.8.0", os = ["macos"] }
-swiftformat = { version = "0.63.0", no_app = true, rename_exe = "swiftformat" }
+swiftformat = { version = "0.63.1", no_app = true, rename_exe = "swiftformat" }
 actionlint = "1.7.12"
 zizmor = "1.30.1"
 oxfmt = "0.71.0"

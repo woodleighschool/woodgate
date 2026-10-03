@@ -181,27 +181,27 @@ url_api = "https://api.github.com/repos/pnpm/pnpm/releases/assets/595935883"
 provenance = "github-attestations"
 
 [[tools.swiftformat]]
-version = "0.63.0"
+version = "0.63.1"
 backend = "github:nicklockwood/SwiftFormat"
-specifiers = ["0.63.0"]
+specifiers = ["0.63.1"]
 
 [tools.swiftformat.options]
 no_app = "true"
 
 [tools.swiftformat."platforms.linux-arm64"]
-checksum = "sha256:b0335af32e2c5944a17b3e6d916ff4552eb757ed88f68b80fd19415824850717"
-url = "https://github.com/nicklockwood/SwiftFormat/releases/download/0.63.0/swiftformat_linux_aarch64.zip"
-url_api = "https://api.github.com/repos/nicklockwood/SwiftFormat/releases/assets/536986531"
+checksum = "sha256:5ef87b1732964b0efc08eb66fc6c2a6ad01e3de26aa7bcccbf2cfbf983fb3ead"
+url = "https://github.com/nicklockwood/SwiftFormat/releases/download/0.63.1/swiftformat_linux_aarch64.zip"
+url_api = "https://api.github.com/repos/nicklockwood/SwiftFormat/releases/assets/600286048"
 
 [tools.swiftformat."platforms.linux-x64"]
-checksum = "sha256:b4a3cbb8c852a0baaf9adf853e221ff1dabf921a3d8957a602e0bda3af8470f1"
-url = "https://github.com/nicklockwood/SwiftFormat/releases/download/0.63.0/swiftformat_linux.zip"
-url_api = "https://api.github.com/repos/nicklockwood/SwiftFormat/releases/assets/536986504"
+checksum = "sha256:9e10090e0213378c68cedb42adc2c6461916a9c8e457cf452b5585b84096c333"
+url = "https://github.com/nicklockwood/SwiftFormat/releases/download/0.63.1/swiftformat_linux.zip"
+url_api = "https://api.github.com/repos/nicklockwood/SwiftFormat/releases/assets/600286049"
 
 [tools.swiftformat."platforms.macos-arm64"]
-checksum = "sha256:28c7802e11fa5ae113d903066439c6bb1be20a8ac1ad9709c42616a7e273fb0f"
-url = "https://github.com/nicklockwood/SwiftFormat/releases/download/0.63.0/swiftformat.zip"
-url_api = "https://api.github.com/repos/nicklockwood/SwiftFormat/releases/assets/536986489"
+checksum = "sha256:385ef1a263ba28685157b98c5536b9c9105e124518f28b7ef8a2bee4b167eaeb"
+url = "https://github.com/nicklockwood/SwiftFormat/releases/download/0.63.1/swiftformat.zip"
+url_api = "https://api.github.com/repos/nicklockwood/SwiftFormat/releases/assets/600286051"
 
 [[tools.zizmor]]
 version = "1.30.1"
