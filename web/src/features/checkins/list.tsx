@@ -1,6 +1,7 @@
 import { getRouteApi } from "@tanstack/react-router";
 import { format, subMonths } from "date-fns";
 import { ClipboardCheck } from "lucide-react";
+import { useState } from "react";
 
 import type { DataTableExportOptions } from "@components/data-table/data-table-export";
 import type { DataTableColumnDef } from "@components/data-table/types";
@@ -102,6 +103,7 @@ const columns: DataTableColumnDef<Checkin>[] = [
 ];
 
 export function CheckinListPage() {
+  const [calendarToday, setCalendarToday] = useState(() => new Date());
   const search = routeApi.useSearch();
   const navigate = routeApi.useNavigate();
   const tableSearch = useDataTableSearch({
@@ -218,8 +220,11 @@ export function CheckinListPage() {
               value={dateRange}
               valueLabel={today ? "Today" : undefined}
               onToday={() => updateFilters({ period: undefined, from: undefined, to: undefined })}
-              defaultMonth={subMonths(new Date(), 1)}
-              disabled={{ after: new Date() }}
+              defaultMonth={subMonths(calendarToday, 1)}
+              disabled={{ after: calendarToday }}
+              onOpenChange={(open) => {
+                if (open) setCalendarToday(new Date());
+              }}
               onValueChange={(range) =>
                 updateFilters({
                   period: range?.from ? undefined : "all",
