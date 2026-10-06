@@ -41,7 +41,7 @@ RUN CGO_ENABLED=0 GOOS=${TARGETOS:-linux} GOARCH=${TARGETARCH} \
     go-licenses save ./cmd/woodgate --save_path third_party_licenses --ignore github.com/woodleighschool/woodgate --force
 
 RUN CGO_ENABLED=0 GOOS=${TARGETOS:-linux} GOARCH=${TARGETARCH} \
-    go build -trimpath -ldflags "-s -w -X github.com/woodleighschool/woodgate/internal/buildinfo.Version=${VERSION}" -o woodgate ./cmd/woodgate
+    go build -trimpath -ldflags "-s -w -X github.com/woodleighschool/woodgate/internal/buildinfo.Version=${VERSION#v}" -o woodgate ./cmd/woodgate
 RUN upx --best --lzma woodgate
 RUN mkdir /data
 
