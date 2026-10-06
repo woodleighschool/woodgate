@@ -1,0 +1,34 @@
+---
+# yaml-language-server: $schema=https://json.schemastore.org/github-workflow.json
+name: App Release
+
+on:
+  release:
+    types:
+      - published
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: false
+
+permissions:
+  contents: read
+
+jobs:
+  release:
+    name: App
+    if: startsWith(github.event.release.tag_name, 'app-')
+    runs-on: ubuntu-26.04
+    permissions:
+      contents: write
+    steps:
+      # Release Please publishes every release as latest and has no per-package
+      # opt-out (googleapis/release-please#2317).
+      - name: Mark the server release as latest
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GH_REPO: ${{ github.repository }}
+        run: |
+          server_tag="$(gh release list --exclude-drafts --exclude-pre-releases --json tagName \
+            --jq 'first(.[].tagName | select(startswith("app-") | not))')"
+          gh release edit "$server_tag" --latest
