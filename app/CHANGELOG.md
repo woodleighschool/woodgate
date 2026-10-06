@@ -1,13 +1,13 @@
 # Changelog
 
-## [2.0.1](https://github.com/woodleighschool/woodgate/compare/app-2.0.0...app-2.0.1) (2026-09-09)
+## [2.0.1](https://github.com/woodleighschool/woodgate/compare/app-v2.0.0...app-v2.0.1) (2026-09-09)
 
 
 ### Bug Fixes
 
 * **app:** remove location picker spinners ([37a0d7b](https://github.com/woodleighschool/woodgate/commit/37a0d7bbb67830b92107f86f1c1a368827805781))
 
-## [2.0.0](https://github.com/woodleighschool/woodgate/compare/app-1.3.2...app-2.0.0) (2026-09-09)
+## [2.0.0](https://github.com/woodleighschool/woodgate/compare/app-v1.3.2...app-v2.0.0) (2026-09-09)
 
 
 ### ⚠ BREAKING CHANGES
@@ -28,7 +28,7 @@
 * **app:** keep check-in actions side by side ([5a2cff7](https://github.com/woodleighschool/woodgate/commit/5a2cff7dcad6d69fb4b73ed67a1dca2055944195))
 * **app:** synchronize submission feedback animations ([6589783](https://github.com/woodleighschool/woodgate/commit/6589783de54383da64c50061b174e0f285051c0d))
 
-## [1.3.2](https://github.com/woodleighschool/woodgate/compare/app-1.3.1...app-1.3.2) (2026-08-28)
+## [1.3.2](https://github.com/woodleighschool/woodgate/compare/app-v1.3.1...app-v1.3.2) (2026-08-28)
 
 
 ### Bug Fixes
@@ -43,7 +43,7 @@
 * normalise icon ([5b98e62](https://github.com/woodleighschool/woodgate/commit/5b98e62f567ccc04df69518754f5f460d6c0d652))
 * sanitise logo svg ([df084c4](https://github.com/woodleighschool/woodgate/commit/df084c40f36ca51537b1a5e549eb50e24afd1a78))
 
-## [1.3.1](https://github.com/woodleighschool/woodgate/compare/app-1.3.0...app-1.3.1) (2026-08-22)
+## [1.3.1](https://github.com/woodleighschool/woodgate/compare/app-1.3.0...app-v1.3.1) (2026-08-22)
 
 
 ### Bug Fixes

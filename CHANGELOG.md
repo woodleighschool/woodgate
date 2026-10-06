@@ -1,6 +1,6 @@
 # Changelog
 
-## [2.2.0](https://github.com/woodleighschool/woodgate/compare/2.1.0...2.2.0) (2026-09-29)
+## [2.2.0](https://github.com/woodleighschool/woodgate/compare/v2.1.0...v2.2.0) (2026-09-29)
 
 
 ### Features
@@ -130,7 +130,7 @@
 * **npm:** update dependency pnpm (12.4.2 → 12.5.1) ([#228](https://github.com/woodleighschool/woodgate/issues/228)) ([e7aca3e](https://github.com/woodleighschool/woodgate/commit/e7aca3e63f83eea640e9da153daa32bcff75535b))
 * **npm:** update dependency pnpm (12.5.1 → 12.6.0) ([#246](https://github.com/woodleighschool/woodgate/issues/246)) ([bb5607e](https://github.com/woodleighschool/woodgate/commit/bb5607e0edd4498ba5dc1a5f093a4127eabf5d8f))
 
-## [2.1.0](https://github.com/woodleighschool/woodgate/compare/2.0.0...2.1.0) (2026-09-10)
+## [2.1.0](https://github.com/woodleighschool/woodgate/compare/v2.0.0...v2.1.0) (2026-09-10)
 
 
 ### Features
@@ -151,7 +151,7 @@
 
 * **release:** app 2.0.1 ([#170](https://github.com/woodleighschool/woodgate/issues/170)) ([7706b70](https://github.com/woodleighschool/woodgate/commit/7706b70b88a816fa1e139317adccaaba43ec817f))
 
-## [2.0.0](https://github.com/woodleighschool/woodgate/compare/1.5.0...2.0.0) (2026-09-09)
+## [2.0.0](https://github.com/woodleighschool/woodgate/compare/v1.5.0...v2.0.0) (2026-09-09)
 
 
 ### ⚠ BREAKING CHANGES
@@ -192,7 +192,7 @@
 * **npm:** update dependency pnpm (11.24.0 → 12.3.4) ([#158](https://github.com/woodleighschool/woodgate/issues/158)) ([1a06221](https://github.com/woodleighschool/woodgate/commit/1a06221aace91337560e5858534163aa272b0e52))
 * **release:** app 2.0.0 ([#169](https://github.com/woodleighschool/woodgate/issues/169)) ([d37ffd6](https://github.com/woodleighschool/woodgate/commit/d37ffd6dc1ad5a98770aae31a72ae56bf74868fb))
 
-## [1.5.0](https://github.com/woodleighschool/woodgate/compare/1.4.0...1.5.0) (2026-08-28)
+## [1.5.0](https://github.com/woodleighschool/woodgate/compare/v1.4.0...v1.5.0) (2026-08-28)
 
 
 ### Features
@@ -225,7 +225,7 @@
 * **npm:** lock file maintenance dependency (npm) ([#110](https://github.com/woodleighschool/woodgate/issues/110)) ([4116c45](https://github.com/woodleighschool/woodgate/commit/4116c45483a99d6f3f0413bc502a172234a97372))
 * **release:** app 1.3.2 ([#109](https://github.com/woodleighschool/woodgate/issues/109)) ([6004dfa](https://github.com/woodleighschool/woodgate/commit/6004dfaa0db1983980190e33e53f84b86900e46d))
 
-## [1.4.0](https://github.com/woodleighschool/woodgate/compare/1.3.0...1.4.0) (2026-08-22)
+## [1.4.0](https://github.com/woodleighschool/woodgate/compare/v1.3.0...v1.4.0) (2026-08-22)
 
 
 ### Features
@@ -286,7 +286,7 @@
 * remove redundant self-references ([e1ca374](https://github.com/woodleighschool/woodgate/commit/e1ca3748fe79cce8715b01dcaa33f5f0ece25ea2))
 * **tooling:** sync shared configuration ([2da92c0](https://github.com/woodleighschool/woodgate/commit/2da92c02e6c7ddf7bc3bc64e13f4c872c46aa408))
 
-## [1.3.0](https://github.com/woodleighschool/woodgate/compare/1.2.1...1.3.0) (2026-08-11)
+## [1.3.0](https://github.com/woodleighschool/woodgate/compare/v1.2.1...v1.3.0) (2026-08-11)
 
 
 ### Features
@@ -302,14 +302,14 @@
 * **hooks:** skip pnpm lockfile formatting ([519bd1e](https://github.com/woodleighschool/woodgate/commit/519bd1ed8c4336ada0b159d831ab49fb2b07c0ec))
 * **renovate:** wait for complete toolchain groups ([6d1f7ec](https://github.com/woodleighschool/woodgate/commit/6d1f7ec2a16b5942a0891db5847e1b054cf069c0))
 
-## [1.2.1](https://github.com/woodleighschool/woodgate/compare/1.2.0...1.2.1) (2026-07-30)
+## [1.2.1](https://github.com/woodleighschool/woodgate/compare/v1.2.0...v1.2.1) (2026-07-30)
 
 
 ### Bug Fixes
 
 * **entra:** request user departments ([f355a6f](https://github.com/woodleighschool/woodgate/commit/f355a6f29635e6135466d22e57e49f43e8df06c0))
 
-## [1.2.0](https://github.com/woodleighschool/woodgate/compare/1.1.0...1.2.0) (2026-07-30)
+## [1.2.0](https://github.com/woodleighschool/woodgate/compare/v1.1.0...v1.2.0) (2026-07-30)
 
 
 ### Features
@@ -324,7 +324,7 @@
 * **ci:** limit Periphery to macOS ([1a3159c](https://github.com/woodleighschool/woodgate/commit/1a3159c34c1147dedd7e865c4e1713a8a5077652))
 * **deps:** update dependency @vitejs/plugin-react (6.0.4 → 6.0.5) ([#77](https://github.com/woodleighschool/woodgate/issues/77)) ([dd451ff](https://github.com/woodleighschool/woodgate/commit/dd451ffbd9ea734af9e32ce2c15a6b71784569c6))
 
-## [1.1.0](https://github.com/woodleighschool/woodgate/compare/1.0.1...1.1.0) (2026-07-30)
+## [1.1.0](https://github.com/woodleighschool/woodgate/compare/v1.0.1...v1.1.0) (2026-07-30)
 
 
 ### Features
