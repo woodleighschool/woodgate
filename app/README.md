@@ -24,7 +24,12 @@ The mock's root response includes `review_pairing`, containing its base URL and 
 
 ## 📦 Releases
 
-App releases use `app-<version>` tags and keep `MARKETING_VERSION` in `Config/Version.xcconfig`. We distribute production builds through App Store Connect as a private Custom App.
+App releases use `app-v<version>` tags and keep `MARKETING_VERSION` in `Config/Version.xcconfig`. GitHub Actions uploads builds to App Store Connect:
+
+- A change to the app on `main` becomes an internal TestFlight build, one patch above `MARKETING_VERSION` because App Store Connect rejects uploads at or below an approved version.
+- A release becomes the build we submit for review, with the tagged version.
+
+The build number is the workflow run number. We distribute production builds through App Store Connect as a private Custom App.
 
 ## 📄 License
 

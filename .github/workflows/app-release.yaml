@@ -3,6 +3,13 @@
 name: App Release
 
 on:
+  push:
+    branches:
+      - main
+    paths:
+      - "app/**"
+      - "!app/**.md"
+      - "!app/Config/Version.xcconfig"
   release:
     types:
       - published
@@ -15,8 +22,8 @@ permissions:
   contents: read
 
 jobs:
-  release:
-    name: App
+  latest:
+    name: Latest
     if: startsWith(github.event.release.tag_name, 'app-')
     runs-on: ubuntu-26.04
     permissions:
@@ -32,3 +39,101 @@ jobs:
           server_tag="$(gh release list --exclude-drafts --exclude-pre-releases --json tagName \
             --jq 'first(.[].tagName | select(startswith("app-") | not))')"
           gh release edit "$server_tag" --latest
+
+  upload:
+    name: ${{ github.event_name == 'release' && 'App Store' || 'TestFlight' }}
+    if: github.event_name == 'push' || startsWith(github.event.release.tag_name, 'app-v')
+    runs-on: xcode-27
+    timeout-minutes: 30
+    environment: ${{ github.event_name == 'release' && 'app-store' || 'testflight' }}
+    defaults:
+      run:
+        working-directory: app
+    env:
+      APP_NAME: WoodGate
+      PROJECT: WoodGate.xcodeproj
+      SCHEME: WoodGate
+      APPSTORE_ISSUER_ID: ${{ vars.APPSTORE_ISSUER_ID }}
+      APPSTORE_API_KEY_ID: ${{ vars.APPSTORE_API_KEY_ID }}
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+
+      - name: Import Apple Distribution certificate
+        uses: apple-actions/import-codesign-certs@5142e029c445c10ffc7149d172e540235a065466 # v7
+        with:
+          p12-file-base64: ${{ secrets.APPLE_DISTRIBUTION_P12_BASE64 }}
+          p12-password: ${{ secrets.APPLE_DISTRIBUTION_P12_PASSWORD }}
+
+      - name: Write App Store Connect key
+        env:
+          APPSTORE_API_PRIVATE_KEY: ${{ secrets.APPSTORE_API_PRIVATE_KEY }}
+        run: |
+          install -m 600 /dev/null "${RUNNER_TEMP}/AuthKey.p8"
+          printf '%s' "${APPSTORE_API_PRIVATE_KEY}" > "${RUNNER_TEMP}/AuthKey.p8"
+
+      - name: Show Xcode version
+        run: xcodebuild -version
+
+      - name: Resolve version
+        id: version
+        env:
+          RELEASE_TAG: ${{ github.event.release.tag_name }}
+        run: |
+          VERSION="$(sed -n 's|^MARKETING_VERSION = \([0-9]*\.[0-9]*\.[0-9]*\) // x-release-please-version$|\1|p' Config/Version.xcconfig)"
+          test -n "${VERSION}"
+
+          if [[ "${GITHUB_EVENT_NAME}" == "release" ]]; then
+            test "${RELEASE_TAG}" = "app-v${VERSION}"
+          else
+            # App Store Connect rejects uploads at or below an approved version,
+            # so a build from main is one patch above the committed release.
+            VERSION="${VERSION%.*}.$((${VERSION##*.} + 1))"
+          fi
+
+          echo "version=${VERSION}" >> "${GITHUB_OUTPUT}"
+
+      - name: Archive app
+        env:
+          VERSION: ${{ steps.version.outputs.version }}
+        run: |
+          xcodebuild \
+            -project "${PROJECT}" \
+            -scheme "${SCHEME}" \
+            -configuration Release \
+            -destination "generic/platform=iOS" \
+            -archivePath "${RUNNER_TEMP}/${APP_NAME}.xcarchive" \
+            -allowProvisioningUpdates \
+            -authenticationKeyPath "${RUNNER_TEMP}/AuthKey.p8" \
+            -authenticationKeyID "${APPSTORE_API_KEY_ID}" \
+            -authenticationKeyIssuerID "${APPSTORE_ISSUER_ID}" \
+            DEVELOPMENT_TEAM="SMLKBTR495" \
+            CODE_SIGN_STYLE="Manual" \
+            CODE_SIGN_IDENTITY="Apple Distribution" \
+            PROVISIONING_PROFILE_SPECIFIER="WoodGate App Store" \
+            MARKETING_VERSION="${VERSION}" \
+            CURRENT_PROJECT_VERSION="${GITHUB_RUN_NUMBER}" \
+            archive
+
+      - name: Upload to App Store Connect
+        run: |
+          EXPORT_OPTIONS="${RUNNER_TEMP}/ExportOptions.plist"
+          cp Config/ExportOptions.plist "${EXPORT_OPTIONS}"
+
+          # Only a build from a release tag may be submitted for review.
+          if [[ "${GITHUB_EVENT_NAME}" == "push" ]]; then
+            plutil -insert testFlightInternalTestingOnly -bool true "${EXPORT_OPTIONS}"
+          fi
+
+          xcodebuild \
+            -exportArchive \
+            -archivePath "${RUNNER_TEMP}/${APP_NAME}.xcarchive" \
+            -exportPath "${RUNNER_TEMP}/export" \
+            -exportOptionsPlist "${EXPORT_OPTIONS}" \
+            -allowProvisioningUpdates \
+            -authenticationKeyPath "${RUNNER_TEMP}/AuthKey.p8" \
+            -authenticationKeyID "${APPSTORE_API_KEY_ID}" \
+            -authenticationKeyIssuerID "${APPSTORE_ISSUER_ID}"

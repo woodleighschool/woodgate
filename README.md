@@ -77,8 +77,8 @@ Run `mise run generate` after changing the API contract. PostgreSQL component te
 
 The server and companion app have independent releases:
 
-- Numeric releases such as `1.4.0` publish the server container through GitHub Actions.
-- App releases such as `app-1.3.1` update `app/Config/Version.xcconfig` for distribution through App Store Connect.
+- Server releases such as `v2.2.0` publish the server container through GitHub Actions.
+- App releases such as `app-v2.0.1` upload the companion to App Store Connect through GitHub Actions.
 
 See the [companion guide](app/README.md) for app release details.
 
