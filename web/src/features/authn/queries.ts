@@ -47,7 +47,7 @@ export function useLogin() {
     onSuccess: async () => {
       sessionTransport.renew();
       await queryClient.invalidateQueries({ queryKey: sessionQueryOptions.queryKey });
-      const account = await queryClient.fetchQuery(accountQueryOptions);
+      const account = await queryClient.query(accountQueryOptions);
       await router.navigate({ to: firstAccessiblePath(account) ?? "/account" });
     },
   });
