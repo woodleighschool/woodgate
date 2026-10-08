@@ -5,7 +5,7 @@ import { LocationCreatePage } from "@features/locations/create";
 
 export const Route = createFileRoute("/_authenticated/locations/new")({
   component: LocationCreatePage,
-  staticData: { breadcrumb: "Create" },
+  staticData: { breadcrumb: "Create Location" },
   beforeLoad: ({ context }) =>
     requirePermission(context.queryClient, { resource: "locations", access: "edit" }),
 });

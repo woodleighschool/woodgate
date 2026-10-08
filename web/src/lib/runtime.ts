@@ -3,6 +3,7 @@ function metadata(name: string): string | undefined {
 }
 
 export const runtime = {
+  name: "WoodGate",
   version: metadata("woodgate-version") ?? "0.0.0-dev",
   serverURL: metadata("woodgate-server-url"),
 };

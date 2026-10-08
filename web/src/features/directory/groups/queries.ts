@@ -1,4 +1,10 @@
-import { keepPreviousData, useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import {
+  keepPreviousData,
+  queryOptions,
+  useMutation,
+  useQuery,
+  useQueryClient,
+} from "@tanstack/react-query";
 
 import { toast } from "@components/ui/toast";
 import type { ApiError, Group, GroupMutation, PageGroup } from "@lib/api";
@@ -41,15 +47,13 @@ export function useGroups(params: GroupListParams = {}, options: { enabled?: boo
 }
 
 export function useGroup(id: number | null) {
-  return useQuery<Group, ApiError>({
+  return useQuery(groupQueryOptions(id));
+}
+
+export function groupQueryOptions(id: number | null) {
+  return queryOptions<Group, ApiError>({
     queryKey: groupKeys.detail(id),
-    queryFn: ({ signal }) =>
-      unwrap(
-        getGroup({
-          path: detailPath(id),
-          signal,
-        }),
-      ),
+    queryFn: ({ signal }) => unwrap(getGroup({ path: detailPath(id), signal })),
     enabled: id !== null,
   });
 }

@@ -3,6 +3,6 @@ import { createFileRoute } from "@tanstack/react-router";
 import { CheckinDetailPage } from "@features/checkins/detail";
 
 export const Route = createFileRoute("/_authenticated/checkins/$id")({
-  staticData: { breadcrumb: "Details" },
+  staticData: { breadcrumb: "Check-in" },
   component: CheckinDetailPage,
 });

@@ -1,4 +1,10 @@
-import { keepPreviousData, useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import {
+  keepPreviousData,
+  queryOptions,
+  useMutation,
+  useQuery,
+  useQueryClient,
+} from "@tanstack/react-query";
 import type { UploadRequest } from "@woodleighschool/bloby-client";
 
 import { toast } from "@components/ui/toast";
@@ -93,7 +99,11 @@ export function useLocationGroups(params: LocationGroupListParams = {}) {
 }
 
 export function useLocation(id: number | null) {
-  return useQuery<Location, ApiError>({
+  return useQuery(locationQueryOptions(id));
+}
+
+export function locationQueryOptions(id: number | null) {
+  return queryOptions<Location, ApiError>({
     queryKey: [...keys.locations, "detail", id],
     queryFn: ({ signal }) => unwrap(getLocation({ path: { id: requireID(id) }, signal })),
     enabled: id !== null,
@@ -266,7 +276,11 @@ export function useAuthzRoles() {
 }
 
 export function useAuthzRole(id: number | null) {
-  return useQuery<AuthzRole, ApiError>({
+  return useQuery(authzRoleQueryOptions(id));
+}
+
+export function authzRoleQueryOptions(id: number | null) {
+  return queryOptions<AuthzRole, ApiError>({
     queryKey: [...keys.roles, "detail", id],
     queryFn: ({ signal }) => unwrap(getAuthzRole({ path: { id: requireID(id) }, signal })),
     enabled: id !== null,

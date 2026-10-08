@@ -1,4 +1,10 @@
-import { keepPreviousData, useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import {
+  keepPreviousData,
+  queryOptions,
+  useMutation,
+  useQuery,
+  useQueryClient,
+} from "@tanstack/react-query";
 
 import { toast } from "@components/ui/toast";
 import {
@@ -30,7 +36,10 @@ export function useAppKeys(params: NonNullable<ListAppKeysData["query"]>) {
   });
 }
 export function useAppKey(id: number | null) {
-  return useQuery({
+  return useQuery(appKeyQueryOptions(id));
+}
+export function appKeyQueryOptions(id: number | null) {
+  return queryOptions({
     queryKey: [...keys, "detail", id],
     queryFn: ({ signal }) => {
       if (id === null) throw new Error("Invalid app key ID");

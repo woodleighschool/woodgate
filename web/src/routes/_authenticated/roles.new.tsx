@@ -5,7 +5,7 @@ import { RoleCreatePage } from "@features/authz/role-create";
 
 export const Route = createFileRoute("/_authenticated/roles/new")({
   component: RoleCreatePage,
-  staticData: { breadcrumb: "Create" },
+  staticData: { breadcrumb: "Create Role" },
   beforeLoad: ({ context }) =>
     requirePermission(context.queryClient, { resource: "authz.roles", access: "edit" }, () => {
       throw redirect({ to: "/roles" });
