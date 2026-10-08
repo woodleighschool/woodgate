@@ -10,8 +10,10 @@ export const queryClient = new QueryClient({
       refetchOnMount: true,
       refetchOnWindowFocus: true,
       refetchOnReconnect: true,
-      retry: (count, error) =>
-        !(error instanceof ApiError && [401, 403].includes(error.status)) && count < 2,
+      // A 4xx response is the server's answer; asking again returns the same one.
+      retry: (failureCount, error) =>
+        !(error instanceof ApiError && error.status >= 400 && error.status < 500) &&
+        failureCount < 2,
       retryOnMount: false,
     },
   },
