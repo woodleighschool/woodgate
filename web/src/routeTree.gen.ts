@@ -12,6 +12,7 @@ import { Route as rootRouteImport } from './routes/__root'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as AuthenticatedRouteImport } from './routes/_authenticated'
 import { Route as LoginRouteImport } from './routes/login'
+import { Route as AuthenticatedSplatRouteImport } from './routes/_authenticated/$'
 import { Route as AuthenticatedAccountRouteImport } from './routes/_authenticated/account'
 import { Route as AuthenticatedAppKeysRouteImport } from './routes/_authenticated/app-keys'
 import { Route as AuthenticatedCheckinsRouteImport } from './routes/_authenticated/checkins'
@@ -61,6 +62,11 @@ const LoginRoute = LoginRouteImport.update({
   id: '/login',
   path: '/login',
   getParentRoute: () => rootRouteImport,
+} as any)
+const AuthenticatedSplatRoute = AuthenticatedSplatRouteImport.update({
+  id: '/$',
+  path: '/$',
+  getParentRoute: () => AuthenticatedRoute,
 } as any)
 const AuthenticatedAccountRoute = AuthenticatedAccountRouteImport.update({
   id: '/account',
@@ -264,6 +270,7 @@ const AuthenticatedDirectoryUsersIdEditRoute =
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/login': typeof LoginRoute
+  '/$': typeof AuthenticatedSplatRoute
   '/account': typeof AuthenticatedAccountRoute
   '/app-keys': typeof AuthenticatedAppKeysRouteWithChildren
   '/checkins': typeof AuthenticatedCheckinsRouteWithChildren
@@ -303,6 +310,7 @@ export interface FileRoutesByFullPath {
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/login': typeof LoginRoute
+  '/$': typeof AuthenticatedSplatRoute
   '/account': typeof AuthenticatedAccountRoute
   '/app-keys/new': typeof AuthenticatedAppKeysNewRoute
   '/checkins/$id': typeof AuthenticatedCheckinsIdRoute
@@ -332,6 +340,7 @@ export interface FileRoutesById {
   '/': typeof IndexRoute
   '/_authenticated': typeof AuthenticatedRouteWithChildren
   '/login': typeof LoginRoute
+  '/_authenticated/$': typeof AuthenticatedSplatRoute
   '/_authenticated/account': typeof AuthenticatedAccountRoute
   '/_authenticated/app-keys': typeof AuthenticatedAppKeysRouteWithChildren
   '/_authenticated/checkins': typeof AuthenticatedCheckinsRouteWithChildren
@@ -373,6 +382,7 @@ export interface FileRouteTypes {
   fullPaths:
     | '/'
     | '/login'
+    | '/$'
     | '/account'
     | '/app-keys'
     | '/checkins'
@@ -412,6 +422,7 @@ export interface FileRouteTypes {
   to:
     | '/'
     | '/login'
+    | '/$'
     | '/account'
     | '/app-keys/new'
     | '/checkins/$id'
@@ -440,6 +451,7 @@ export interface FileRouteTypes {
     | '/'
     | '/_authenticated'
     | '/login'
+    | '/_authenticated/$'
     | '/_authenticated/account'
     | '/_authenticated/app-keys'
     | '/_authenticated/checkins'
@@ -505,6 +517,13 @@ declare module '@tanstack/react-router' {
       fullPath: '/login'
       preLoaderRoute: typeof LoginRouteImport
       parentRoute: typeof rootRouteImport
+    }
+    '/_authenticated/$': {
+      id: '/_authenticated/$'
+      path: '/$'
+      fullPath: '/$'
+      preLoaderRoute: typeof AuthenticatedSplatRouteImport
+      parentRoute: typeof AuthenticatedRoute
     }
     '/_authenticated/account': {
       id: '/_authenticated/account'
@@ -957,6 +976,7 @@ const AuthenticatedRolesRouteWithChildren =
   AuthenticatedRolesRoute._addFileChildren(AuthenticatedRolesRouteChildren)
 
 interface AuthenticatedRouteChildren {
+  AuthenticatedSplatRoute: typeof AuthenticatedSplatRoute
   AuthenticatedAccountRoute: typeof AuthenticatedAccountRoute
   AuthenticatedAppKeysRoute: typeof AuthenticatedAppKeysRouteWithChildren
   AuthenticatedCheckinsRoute: typeof AuthenticatedCheckinsRouteWithChildren
@@ -966,6 +986,7 @@ interface AuthenticatedRouteChildren {
 }
 
 const AuthenticatedRouteChildren: AuthenticatedRouteChildren = {
+  AuthenticatedSplatRoute: AuthenticatedSplatRoute,
   AuthenticatedAccountRoute: AuthenticatedAccountRoute,
   AuthenticatedAppKeysRoute: AuthenticatedAppKeysRouteWithChildren,
   AuthenticatedCheckinsRoute: AuthenticatedCheckinsRouteWithChildren,
