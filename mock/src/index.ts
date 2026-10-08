@@ -1,6 +1,6 @@
 import { appRequest, reviewPairing } from "./app";
 
-const stationSecret = "testing123";
+const stationKey = "testing123";
 const stationSubprotocol = "woodgate-station.v1";
 
 const configuration = {
@@ -30,7 +30,7 @@ export default {
     if (request.method === "GET" && url.pathname === "/") {
       return Response.json({
         service: "WoodGate development mock",
-        station_secret: stationSecret,
+        station_key: stationKey,
         review_pairing: reviewPairing(url.origin),
       });
     }
@@ -42,8 +42,8 @@ export default {
       return problem(404, "Not found.", "not_found");
     }
 
-    if (request.headers.get("Authorization") !== `Bearer ${stationSecret}`) {
-      return problem(401, "The Station secret is invalid.", "unauthorized");
+    if (request.headers.get("Authorization") !== `Bearer ${stationKey}`) {
+      return problem(401, "The Station key is invalid.", "unauthorized");
     }
 
     if (request.method === "GET" && url.pathname === "/api/station/v1/configuration") {
@@ -89,13 +89,17 @@ async function createCheckin(request: Request): Promise<Response> {
   }
 
   const notes = stringField(form, "notes")?.trim();
-  if (!notes) {
-    return problem(400, "Add notes to continue.", "notes_required");
+  if (!configuration.location.notes && notes) {
+    return problem(400, "Notes are disabled for this location.", "notes_disabled");
   }
 
   const photo = form.get("photo");
-  if (!(photo instanceof File) || photo.size === 0 || photo.type !== "image/jpeg") {
-    return problem(400, "Add a JPEG photo to continue.", "photo_required");
+  if (
+    !(photo instanceof File) ||
+    photo.size === 0 ||
+    !["image/jpeg", "image/png"].includes(photo.type)
+  ) {
+    return problem(400, "Add a PNG or JPEG photo to continue.", "photo_required");
   }
 
   return Response.json({

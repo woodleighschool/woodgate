@@ -34,122 +34,6 @@ components:
       required:
         - name
       type: object
-    AppKeyCreatedKey:
-      additionalProperties: false
-      properties:
-        all_locations:
-          type: boolean
-        api_key:
-          type: string
-        app_id:
-          type: string
-        created_at:
-          format: date-time
-          type: string
-        expires_at:
-          format: date-time
-          type: string
-        id:
-          format: int64
-          type: integer
-        key_prefix:
-          type: string
-        last_used_at:
-          format: date-time
-          type: string
-        locations:
-          items:
-            $ref: "#/components/schemas/AppKeyLocationSummary"
-          type: array
-        name:
-          type: string
-        updated_at:
-          format: date-time
-          type: string
-      required:
-        - api_key
-        - id
-        - app_id
-        - name
-        - key_prefix
-        - all_locations
-        - locations
-        - created_at
-        - updated_at
-      type: object
-    AppKeyKey:
-      additionalProperties: false
-      properties:
-        all_locations:
-          type: boolean
-        app_id:
-          type: string
-        created_at:
-          format: date-time
-          type: string
-        expires_at:
-          format: date-time
-          type: string
-        id:
-          format: int64
-          type: integer
-        key_prefix:
-          type: string
-        last_used_at:
-          format: date-time
-          type: string
-        locations:
-          items:
-            $ref: "#/components/schemas/AppKeyLocationSummary"
-          type: array
-        name:
-          type: string
-        updated_at:
-          format: date-time
-          type: string
-      required:
-        - id
-        - app_id
-        - name
-        - key_prefix
-        - all_locations
-        - locations
-        - created_at
-        - updated_at
-      type: object
-    AppKeyLocationSummary:
-      additionalProperties: false
-      properties:
-        id:
-          format: int64
-          type: integer
-        name:
-          type: string
-      required:
-        - id
-        - name
-      type: object
-    AppKeyMutation:
-      additionalProperties: false
-      properties:
-        all_locations:
-          type: boolean
-        expires_at:
-          format: date-time
-          type: string
-        location_ids:
-          items:
-            format: int64
-            type: integer
-          type: array
-        name:
-          minLength: 1
-          type: string
-      required:
-        - name
-        - all_locations
-        - location_ids
-      type: object
     AttachmentUploadInputBody:
       additionalProperties: false
       properties:
@@ -166,7 +50,7 @@ components:
         - directory
         - locations
         - checkins
-        - app_keys
+        - stations
         - authz.roles
       type: string
     Checkin:
@@ -201,6 +85,8 @@ components:
           type: integer
         photo_url:
           type: string
+        station:
+          $ref: "#/components/schemas/CheckinStationSummary"
       required:
         - id
         - person
@@ -455,6 +341,18 @@ components:
         - email
         - name
       type: object
+    CheckinStationSummary:
+      additionalProperties: false
+      properties:
+        id:
+          format: int64
+          type: integer
+        name:
+          type: string
+      required:
+        - id
+        - name
+      type: object
     Definition:
       additionalProperties: false
       properties:
@@ -643,20 +541,6 @@ components:
         - items
         - count
       type: object
-    PageKey:
-      additionalProperties: false
-      properties:
-        count:
-          format: int64
-          type: integer
-        items:
-          items:
-            $ref: "#/components/schemas/AppKeyKey"
-          type: array
-      required:
-        - items
-        - count
-      type: object
     PageLocation:
       additionalProperties: false
       properties:
@@ -671,7 +555,7 @@ components:
         - items
         - count
       type: object
-    PageLocationSummary:
+    PageStation:
       additionalProperties: false
       properties:
         count:
@@ -679,7 +563,7 @@ components:
           type: integer
         items:
           items:
-            $ref: "#/components/schemas/AppKeyLocationSummary"
+            $ref: "#/components/schemas/Station"
           type: array
       required:
         - items
@@ -831,6 +715,104 @@ components:
       required:
         - email
         - password
+      type: object
+    Station:
+      additionalProperties: false
+      properties:
+        created_at:
+          format: date-time
+          type: string
+        enabled:
+          type: boolean
+        id:
+          format: int64
+          type: integer
+        location:
+          $ref: "#/components/schemas/StationLocation"
+        name:
+          type: string
+        protocol_version:
+          format: int64
+          type: integer
+        state:
+          enum:
+            - online
+            - offline
+            - incompatible
+          type: string
+        updated_at:
+          format: date-time
+          type: string
+        version:
+          type: string
+      required:
+        - id
+        - name
+        - location
+        - enabled
+        - state
+        - created_at
+        - updated_at
+      type: object
+    StationLocation:
+      additionalProperties: false
+      properties:
+        id:
+          format: int64
+          type: integer
+        name:
+          type: string
+      required:
+        - id
+        - name
+      type: object
+    StationLocationPage:
+      additionalProperties: false
+      properties:
+        count:
+          format: int64
+          type: integer
+        items:
+          items:
+            $ref: "#/components/schemas/StationLocation"
+          type: array
+      required:
+        - items
+        - count
+      type: object
+    StationMutation:
+      additionalProperties: false
+      properties:
+        enabled:
+          type: boolean
+        location_id:
+          format: int64
+          type: integer
+        name:
+          type: string
+      required:
+        - name
+        - location_id
+        - enabled
+      type: object
+    StationPairing:
+      additionalProperties: false
+      properties:
+        key:
+          type: string
+        server_url:
+          format: uri
+          type: string
+        station:
+          $ref: "#/components/schemas/Station"
+        url:
+          format: uri
+          type: string
+      required:
+        - station
+        - url
+        - server_url
+        - key
       type: object
     SyncRun:
       additionalProperties: false
@@ -1201,273 +1183,6 @@ paths:
       summary: Rotate API key
       tags:
         - Account
-  /api/app-keys:
-    get:
-      operationId: list-app-keys
-      parameters:
-        - explode: false
-          in: query
-          name: q
-          schema:
-            type: string
-        - explode: false
-          in: query
-          name: page
-          schema:
-            format: int32
-            minimum: 1
-            type: integer
-        - explode: false
-          in: query
-          name: per_page
-          schema:
-            format: int32
-            maximum: 1000
-            minimum: 1
-            type: integer
-        - explode: false
-          in: query
-          name: sort
-          schema:
-            type: string
-      responses:
-        "200":
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/PageKey"
-          description: OK
-        "401":
-          content:
-            application/problem+json:
-              schema:
-                $ref: "#/components/schemas/ErrorModel"
-          description: Unauthorized
-        "403":
-          content:
-            application/problem+json:
-              schema:
-                $ref: "#/components/schemas/ErrorModel"
-          description: Forbidden
-      security:
-        - cookieAuth: []
-        - bearerAuth: []
-      summary: List app keys
-      tags:
-        - App keys
-      x-authz:
-        access: view
-        resource: app_keys
-    post:
-      operationId: create-app-key
-      requestBody:
-        content:
-          application/json:
-            schema:
-              $ref: "#/components/schemas/AppKeyMutation"
-        required: true
-      responses:
-        "201":
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/AppKeyCreatedKey"
-          description: Created
-        "401":
-          content:
-            application/problem+json:
-              schema:
-                $ref: "#/components/schemas/ErrorModel"
-          description: Unauthorized
-        "403":
-          content:
-            application/problem+json:
-              schema:
-                $ref: "#/components/schemas/ErrorModel"
-          description: Forbidden
-      security:
-        - cookieAuth: []
-        - bearerAuth: []
-      summary: Create an app key
-      tags:
-        - App keys
-      x-authz:
-        access: edit
-        resource: app_keys
-  /api/app-keys/locations:
-    get:
-      operationId: list-app-key-locations
-      parameters:
-        - explode: false
-          in: query
-          name: q
-          schema:
-            type: string
-        - explode: false
-          in: query
-          name: page
-          schema:
-            format: int32
-            minimum: 1
-            type: integer
-        - explode: false
-          in: query
-          name: per_page
-          schema:
-            format: int32
-            maximum: 1000
-            minimum: 1
-            type: integer
-        - explode: false
-          in: query
-          name: sort
-          schema:
-            type: string
-      responses:
-        "200":
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/PageLocationSummary"
-          description: OK
-        "401":
-          content:
-            application/problem+json:
-              schema:
-                $ref: "#/components/schemas/ErrorModel"
-          description: Unauthorized
-        "403":
-          content:
-            application/problem+json:
-              schema:
-                $ref: "#/components/schemas/ErrorModel"
-          description: Forbidden
-      security:
-        - cookieAuth: []
-        - bearerAuth: []
-      summary: List app key location choices
-      tags:
-        - App keys
-      x-authz:
-        access: view
-        resource: app_keys
-  /api/app-keys/{id}:
-    delete:
-      operationId: delete-app-key
-      parameters:
-        - in: path
-          name: id
-          required: true
-          schema:
-            format: int64
-            minimum: 1
-            type: integer
-      responses:
-        "204":
-          description: No Content
-        "401":
-          content:
-            application/problem+json:
-              schema:
-                $ref: "#/components/schemas/ErrorModel"
-          description: Unauthorized
-        "403":
-          content:
-            application/problem+json:
-              schema:
-                $ref: "#/components/schemas/ErrorModel"
-          description: Forbidden
-      security:
-        - cookieAuth: []
-        - bearerAuth: []
-      summary: Delete an app key
-      tags:
-        - App keys
-      x-authz:
-        access: edit
-        resource: app_keys
-    get:
-      operationId: get-app-key
-      parameters:
-        - in: path
-          name: id
-          required: true
-          schema:
-            format: int64
-            minimum: 1
-            type: integer
-      responses:
-        "200":
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/AppKeyKey"
-          description: OK
-        "401":
-          content:
-            application/problem+json:
-              schema:
-                $ref: "#/components/schemas/ErrorModel"
-          description: Unauthorized
-        "403":
-          content:
-            application/problem+json:
-              schema:
-                $ref: "#/components/schemas/ErrorModel"
-          description: Forbidden
-      security:
-        - cookieAuth: []
-        - bearerAuth: []
-      summary: Get an app key
-      tags:
-        - App keys
-      x-authz:
-        access: view
-        resource: app_keys
-    put:
-      operationId: update-app-key
-      parameters:
-        - in: path
-          name: id
-          required: true
-          schema:
-            format: int64
-            minimum: 1
-            type: integer
-      requestBody:
-        content:
-          application/json:
-            schema:
-              $ref: "#/components/schemas/AppKeyMutation"
-        required: true
-      responses:
-        "200":
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/AppKeyKey"
-          description: OK
-        "401":
-          content:
-            application/problem+json:
-              schema:
-                $ref: "#/components/schemas/ErrorModel"
-          description: Unauthorized
-        "403":
-          content:
-            application/problem+json:
-              schema:
-                $ref: "#/components/schemas/ErrorModel"
-          description: Forbidden
-      security:
-        - cookieAuth: []
-        - bearerAuth: []
-      summary: Update an app key
-      tags:
-        - App keys
-      x-authz:
-        access: edit
-        resource: app_keys
   /api/authz/resources:
     get:
       operationId: list-authorization-resources
@@ -2947,6 +2662,320 @@ paths:
       summary: Create a session
       tags:
         - Session
+  /api/stations:
+    get:
+      operationId: list-stations
+      parameters:
+        - explode: false
+          in: query
+          name: q
+          schema:
+            type: string
+        - explode: false
+          in: query
+          name: page
+          schema:
+            format: int32
+            minimum: 1
+            type: integer
+        - explode: false
+          in: query
+          name: per_page
+          schema:
+            format: int32
+            maximum: 1000
+            minimum: 1
+            type: integer
+        - explode: false
+          in: query
+          name: sort
+          schema:
+            type: string
+        - explode: false
+          in: query
+          name: location_id
+          schema:
+            format: int64
+            minimum: 1
+            type: integer
+        - explode: false
+          in: query
+          name: enabled
+          schema:
+            type: boolean
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/PageStation"
+          description: OK
+        "401":
+          content:
+            application/problem+json:
+              schema:
+                $ref: "#/components/schemas/ErrorModel"
+          description: Unauthorized
+        "403":
+          content:
+            application/problem+json:
+              schema:
+                $ref: "#/components/schemas/ErrorModel"
+          description: Forbidden
+      security:
+        - cookieAuth: []
+        - bearerAuth: []
+      summary: List Stations
+      tags:
+        - Stations
+      x-authz:
+        access: view
+        resource: stations
+    post:
+      operationId: create-station
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/StationMutation"
+        required: true
+      responses:
+        "201":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/StationPairing"
+          description: Created
+        "401":
+          content:
+            application/problem+json:
+              schema:
+                $ref: "#/components/schemas/ErrorModel"
+          description: Unauthorized
+        "403":
+          content:
+            application/problem+json:
+              schema:
+                $ref: "#/components/schemas/ErrorModel"
+          description: Forbidden
+      security:
+        - cookieAuth: []
+        - bearerAuth: []
+      summary: Create a Station
+      tags:
+        - Stations
+      x-authz:
+        access: edit
+        resource: stations
+  /api/stations/locations:
+    get:
+      operationId: list-station-locations
+      parameters:
+        - explode: false
+          in: query
+          name: q
+          schema:
+            type: string
+        - explode: false
+          in: query
+          name: page
+          schema:
+            format: int32
+            minimum: 1
+            type: integer
+        - explode: false
+          in: query
+          name: per_page
+          schema:
+            format: int32
+            maximum: 1000
+            minimum: 1
+            type: integer
+        - explode: false
+          in: query
+          name: sort
+          schema:
+            type: string
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/StationLocationPage"
+          description: OK
+        "401":
+          content:
+            application/problem+json:
+              schema:
+                $ref: "#/components/schemas/ErrorModel"
+          description: Unauthorized
+        "403":
+          content:
+            application/problem+json:
+              schema:
+                $ref: "#/components/schemas/ErrorModel"
+          description: Forbidden
+      security:
+        - cookieAuth: []
+        - bearerAuth: []
+      summary: List Station location choices
+      tags:
+        - Stations
+      x-authz:
+        access: edit
+        resource: stations
+  /api/stations/{id}:
+    delete:
+      operationId: delete-station
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            format: int64
+            type: integer
+      responses:
+        "204":
+          description: No Content
+        "401":
+          content:
+            application/problem+json:
+              schema:
+                $ref: "#/components/schemas/ErrorModel"
+          description: Unauthorized
+        "403":
+          content:
+            application/problem+json:
+              schema:
+                $ref: "#/components/schemas/ErrorModel"
+          description: Forbidden
+      security:
+        - cookieAuth: []
+        - bearerAuth: []
+      summary: Delete a Station
+      tags:
+        - Stations
+      x-authz:
+        access: edit
+        resource: stations
+    get:
+      operationId: get-station
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            format: int64
+            type: integer
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Station"
+          description: OK
+        "401":
+          content:
+            application/problem+json:
+              schema:
+                $ref: "#/components/schemas/ErrorModel"
+          description: Unauthorized
+        "403":
+          content:
+            application/problem+json:
+              schema:
+                $ref: "#/components/schemas/ErrorModel"
+          description: Forbidden
+      security:
+        - cookieAuth: []
+        - bearerAuth: []
+      summary: Get a Station
+      tags:
+        - Stations
+      x-authz:
+        access: view
+        resource: stations
+    put:
+      operationId: update-station
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            format: int64
+            type: integer
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/StationMutation"
+        required: true
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Station"
+          description: OK
+        "401":
+          content:
+            application/problem+json:
+              schema:
+                $ref: "#/components/schemas/ErrorModel"
+          description: Unauthorized
+        "403":
+          content:
+            application/problem+json:
+              schema:
+                $ref: "#/components/schemas/ErrorModel"
+          description: Forbidden
+      security:
+        - cookieAuth: []
+        - bearerAuth: []
+      summary: Update a Station
+      tags:
+        - Stations
+      x-authz:
+        access: edit
+        resource: stations
+  /api/stations/{id}/key:
+    post:
+      operationId: rotate-station-key
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            format: int64
+            type: integer
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/StationPairing"
+          description: OK
+        "401":
+          content:
+            application/problem+json:
+              schema:
+                $ref: "#/components/schemas/ErrorModel"
+          description: Unauthorized
+        "403":
+          content:
+            application/problem+json:
+              schema:
+                $ref: "#/components/schemas/ErrorModel"
+          description: Forbidden
+      security:
+        - cookieAuth: []
+        - bearerAuth: []
+      summary: Rotate a Station key
+      tags:
+        - Stations
+      x-authz:
+        access: edit
+        resource: stations
   /api/users:
     get:
       operationId: list-users
@@ -3322,8 +3351,6 @@ paths:
 tags:
   - name: Account
     x-displayName: Account
-  - name: App keys
-    x-displayName: App keys
   - name: Authorization
     x-displayName: Roles and permissions
   - name: Check-ins
@@ -3338,6 +3365,8 @@ tags:
     x-displayName: Locations
   - name: Session
     x-displayName: Session
+  - name: Stations
+    x-displayName: Stations
 x-tagGroups:
   - name: Account
     tags:
@@ -3351,7 +3380,7 @@ x-tagGroups:
     tags:
       - Check-ins
       - Locations
-      - App keys
+      - Stations
   - name: Authorization
     tags:
       - Authorization

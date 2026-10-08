@@ -2,13 +2,13 @@ import Foundation
 import SwiftData
 
 @Model
-final class CachedPersonRecord {
-    @Attribute(.unique) var userID: UUID
+final class CachedStationPersonRecord {
+    @Attribute(.unique) var userID: Int64
     var displayName: String
     var email: String
 
     init(
-        userID: UUID,
+        userID: Int64,
         displayName: String,
         email: String
     ) {
