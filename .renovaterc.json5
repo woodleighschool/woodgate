@@ -2,4 +2,16 @@
   $schema: "https://docs.renovatebot.com/renovate-schema.json",
   extends: ["local>woodleighschool/renovate-config"],
   postUpdateOptions: ["gomodTidy", "gomodUpdateImportPaths", "pnpmDedupe"],
+  packageRules: [
+    {
+      matchManagers: ["npm"],
+      matchPackageNames: ["wrangler"],
+      postUpgradeTasks: {
+        workingDirTemplate: "mock",
+        commands: ["pnpm install --frozen-lockfile --ignore-scripts", "pnpm run types"],
+        fileFilters: ["mock/worker-configuration.d.ts"],
+        installTools: { node: {}, pnpm: {} },
+      },
+    },
+  ],
 }
