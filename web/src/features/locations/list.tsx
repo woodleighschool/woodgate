@@ -21,11 +21,7 @@ const columns: DataTableColumnDef<Location>[] = [
     accessorKey: "name",
     header: "Name",
     cell: ({ row }) => (
-      <TextLink
-        to="/locations/$id"
-        params={{ id: String(row.original.id) }}
-        className="font-medium"
-      >
+      <TextLink to="/locations/$id" params={{ id: row.original.id }} className="font-medium">
         {row.original.name}
       </TextLink>
     ),

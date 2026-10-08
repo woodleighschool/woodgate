@@ -48,7 +48,7 @@ function UserNameCell({ row }: DataTableCellContext<UserTableRow>) {
   return (
     <TextLink
       to="/directory/users/$id"
-      params={{ id: String(row.original.user.id) }}
+      params={{ id: row.original.user.id }}
       className="font-medium"
     >
       {label}
@@ -143,7 +143,6 @@ export function UserListPage() {
   const [deleting, setDeleting] = React.useState<User | null>(null);
   const source = search.source;
   const groupID = search.group_id;
-  const group = useGroup(groupID ?? null);
   const roles = useUserRoles();
   const query = useUsers({
     q: tableSearch.q,
@@ -165,8 +164,6 @@ export function UserListPage() {
   );
   const totalCount = query.data?.count ?? 0;
   const pageCount = query.data ? Math.ceil(totalCount / tableSearch.per_page) : -1;
-  const groupLabel =
-    groupID === undefined ? undefined : (group.data?.display_name ?? "Selected group");
   const table = useDataTable({
     tableState: tableSearch,
     data: tableRows,
@@ -182,10 +179,9 @@ export function UserListPage() {
         title="Users"
         description="Manage directory and local users."
         context={
-          groupLabel ? (
-            <FilterChip
-              label="Group"
-              value={groupLabel}
+          groupID !== undefined ? (
+            <GroupFilterChip
+              id={groupID}
               onRemove={() => tableSearch.clearSearchKeys(["group_id"])}
             />
           ) : null
@@ -255,10 +251,21 @@ export function UserListPage() {
     </PageShell>
   );
 }
+function GroupFilterChip({ id, onRemove }: { id: number; onRemove: () => void }) {
+  const group = useGroup(id);
+  return (
+    <FilterChip
+      label="Group"
+      value={group.data?.display_name ?? "Selected group"}
+      onRemove={onRemove}
+    />
+  );
+}
+
 function userEditLink(userId: number, currentUserId: number | null) {
   return userId === currentUserId
     ? ({ to: "/account" } as const)
-    : ({ to: "/directory/users/$id/edit", params: { id: String(userId) } } as const);
+    : ({ to: "/directory/users/$id/edit", params: { id: userId } } as const);
 }
 function UserRowActions({
   user,

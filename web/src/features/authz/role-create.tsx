@@ -13,7 +13,7 @@ export function RoleCreatePage() {
       onSubmit={(body) => {
         void create
           .mutateAsync(body)
-          .then((role) => navigate({ to: "/roles/$id", params: { id: String(role.id) } }));
+          .then((role) => navigate({ to: "/roles/$id", params: { id: role.id } }));
       }}
       onCancel={() => void navigate({ to: "/roles" })}
     />

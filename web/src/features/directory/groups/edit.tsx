@@ -8,14 +8,10 @@ import { FieldGroup } from "@components/ui/field";
 import { RolePicker } from "@features/authz/role-picker";
 import { useGroup, useUpdateGroup } from "@features/directory/groups/queries";
 import { usePageFormExitGuard } from "@hooks/use-page-form-exit-guard";
-import { parseRouteID } from "@lib/route-params";
 
 export function GroupEditPage() {
-  const { id: rawID } = useParams({ from: "/_authenticated/directory/groups/$id/edit" });
-  const id = parseRouteID(rawID);
+  const { id } = useParams({ from: "/_authenticated/directory/groups/$id/edit" });
   const query = useGroup(id);
-  if (id === null)
-    return <QueryGate title="Failed to Load Group" error={{ message: "Invalid group." }} />;
   if (query.error || !query.data) {
     return (
       <QueryGate
@@ -45,8 +41,7 @@ function GroupRoleForm({
 }) {
   const navigate = useNavigate();
   const update = useUpdateGroup(groupID);
-  const cancel = () =>
-    void navigate({ to: "/directory/groups/$id", params: { id: String(groupID) } });
+  const cancel = () => void navigate({ to: "/directory/groups/$id", params: { id: groupID } });
   const form = useForm({
     defaultValues: { role_ids: roleIDs },
     validationLogic: revalidateLogic({ mode: "submit", modeAfterSubmission: "change" }),

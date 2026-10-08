@@ -19,7 +19,7 @@ const columns: DataTableColumnDef<AuthzRole>[] = [
     accessorKey: "name",
     header: "Role",
     cell: ({ row }) => (
-      <TextLink to="/roles/$id" params={{ id: String(row.original.id) }} className="font-medium">
+      <TextLink to="/roles/$id" params={{ id: row.original.id }} className="font-medium">
         {row.original.name}
       </TextLink>
     ),

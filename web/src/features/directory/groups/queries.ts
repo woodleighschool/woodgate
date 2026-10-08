@@ -11,7 +11,6 @@ import type { ApiError, Group, GroupMutation, PageGroup } from "@lib/api";
 import { getGroup, listGroups, unwrap, updateGroup } from "@lib/api";
 import type { ListGroupsData } from "@lib/api";
 import { baseListParams } from "@lib/pagination";
-import { detailPath } from "@lib/route-params";
 
 export type GroupListParams = NonNullable<ListGroupsData["query"]>;
 
@@ -20,7 +19,7 @@ type QueryParams = Record<string, unknown>;
 export const groupKeys = {
   all: ["groups"] as const,
   list: (params?: QueryParams) => ["groups", "list", params ?? {}] as const,
-  detail: (id: number | null) => ["groups", "detail", id] as const,
+  detail: (id: number) => ["groups", "detail", id] as const,
 };
 
 function groupQueryParams(params: GroupListParams = {}) {
@@ -46,15 +45,14 @@ export function useGroups(params: GroupListParams = {}, options: { enabled?: boo
   });
 }
 
-export function useGroup(id: number | null) {
+export function useGroup(id: number) {
   return useQuery(groupQueryOptions(id));
 }
 
-export function groupQueryOptions(id: number | null) {
+export function groupQueryOptions(id: number) {
   return queryOptions<Group, ApiError>({
     queryKey: groupKeys.detail(id),
-    queryFn: ({ signal }) => unwrap(getGroup({ path: detailPath(id), signal })),
-    enabled: id !== null,
+    queryFn: ({ signal }) => unwrap(getGroup({ path: { id }, signal })),
   });
 }
 

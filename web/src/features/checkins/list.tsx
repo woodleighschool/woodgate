@@ -114,13 +114,6 @@ export function CheckinListPage() {
   });
   const departments = useCheckinDepartments();
   const locations = useCheckinLocations();
-  const user = useCheckinUser(search.user_id ?? null);
-  const userLabel =
-    search.user_id === undefined
-      ? undefined
-      : user.data
-        ? checkinPersonLabel(user.data)
-        : "Selected user";
   const dateRange = checkinDateRange(search);
   const today = !search.from && search.period !== "all";
   const bounds = checkinBounds(dateRange);
@@ -154,10 +147,9 @@ export function CheckinListPage() {
         title="Check-ins"
         description="Review arrival and departure records."
         context={
-          userLabel ? (
-            <FilterChip
-              label="User"
-              value={userLabel}
+          search.user_id !== undefined ? (
+            <UserFilterChip
+              id={search.user_id}
               onRemove={() => tableSearch.clearSearchKeys(["user_id"])}
             />
           ) : null
@@ -169,9 +161,7 @@ export function CheckinListPage() {
         columns={columns}
         tableSearch={tableSearch}
         exportOptions={exportOptions}
-        onRowClick={(checkin) =>
-          void navigate({ to: "/checkins/$id", params: { id: String(checkin.id) } })
-        }
+        onRowClick={(checkin) => void navigate({ to: "/checkins/$id", params: { id: checkin.id } })}
         loading={query.isLoading}
         pending={query.isPlaceholderData}
         error={query.error}
@@ -237,6 +227,17 @@ export function CheckinListPage() {
         }
       />
     </PageShell>
+  );
+}
+
+function UserFilterChip({ id, onRemove }: { id: number; onRemove: () => void }) {
+  const user = useCheckinUser(id);
+  return (
+    <FilterChip
+      label="User"
+      value={user.data ? checkinPersonLabel(user.data) : "Selected user"}
+      onRemove={onRemove}
+    />
   );
 }
 

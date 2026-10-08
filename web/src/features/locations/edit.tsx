@@ -8,23 +8,16 @@ import {
   useUploadLocationBackground,
   useUploadLocationLogo,
 } from "@features/resources/queries";
-import { parseRouteID } from "@lib/route-params";
 
 export function LocationEditPage() {
   const navigate = useNavigate();
-  const { id: rawID } = useParams({ from: "/_authenticated/locations/$id/edit" });
-  const id = parseRouteID(rawID);
+  const { id } = useParams({ from: "/_authenticated/locations/$id/edit" });
   const query = useLocation(id);
-  const update = useUpdateLocation(id ?? 0);
+  const update = useUpdateLocation(id);
   const backgroundUpload = useUploadLocationBackground();
   const logoUpload = useUploadLocationLogo();
-  if (id === null || query.error || !query.data) {
-    return (
-      <QueryGate
-        title="Failed to Load Location"
-        error={query.error ?? { message: "Invalid location." }}
-      />
-    );
+  if (query.error || !query.data) {
+    return <QueryGate title="Failed to Load Location" error={query.error} />;
   }
   return (
     <LocationForm
@@ -38,10 +31,8 @@ export function LocationEditPage() {
         );
         return (await update.mutateAsync({ ...body, ...attachments })).id;
       }}
-      onSuccess={(savedID) =>
-        void navigate({ to: "/locations/$id", params: { id: String(savedID) } })
-      }
-      onCancel={() => void navigate({ to: "/locations/$id", params: { id: String(id) } })}
+      onSuccess={(savedID) => void navigate({ to: "/locations/$id", params: { id: savedID } })}
+      onCancel={() => void navigate({ to: "/locations/$id", params: { id } })}
     />
   );
 }

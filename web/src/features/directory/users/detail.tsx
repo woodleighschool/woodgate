@@ -15,26 +15,19 @@ import { DIRECTORY_SOURCES } from "@features/directory/source";
 import { UserDeleteDialog } from "@features/directory/users/delete-dialog";
 import { EffectiveRoles } from "@features/directory/users/effective-roles";
 import { useUser } from "@features/directory/users/queries";
-import { parseRouteID } from "@lib/route-params";
 import { nonEmpty } from "@lib/utils";
 
 export function UserDetailPage() {
-  const { id: userID } = useParams({
-    from: "/_authenticated/directory/users/$id",
-  });
+  const { id } = useParams({ from: "/_authenticated/directory/users/$id" });
   const navigate = useNavigate();
   const account = useAccount();
   const canEditUsers = useCan({ resource: "users", access: "edit" });
   const canEditRoles = useCan({ resource: "authz.roles", access: "edit" });
   const canViewCheckins = useCan({ resource: "checkins", access: "view" });
   const currentUser = account.data?.user;
-  const id = parseRouteID(userID);
   const query = useUser(id);
   const [deleteOpen, setDeleteOpen] = useState(false);
 
-  if (id === null) {
-    return <QueryGate title="Failed to Load User" error={{ message: "User route is invalid." }} />;
-  }
   if (query.error || !query.data) {
     return (
       <QueryGate
@@ -52,7 +45,7 @@ export function UserDetailPage() {
     ? ({ to: "/account" } as const)
     : ({
         to: "/directory/users/$id/edit",
-        params: { id: String(user.id) },
+        params: { id: user.id },
       } as const);
 
   return (

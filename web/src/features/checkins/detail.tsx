@@ -8,15 +8,11 @@ import { RelativeTime } from "@components/relative-time";
 import { Badge } from "@components/ui/badge";
 import { checkinDirectionMetadata, checkinPersonLabel } from "@features/checkins/presentation";
 import { useCheckin } from "@features/resources/queries";
-import { parseRouteID } from "@lib/route-params";
 import { nonEmpty } from "@lib/utils";
 
 export function CheckinDetailPage() {
-  const { id: rawID } = useParams({ from: "/_authenticated/checkins/$id" });
-  const id = parseRouteID(rawID);
+  const { id } = useParams({ from: "/_authenticated/checkins/$id" });
   const query = useCheckin(id);
-  if (id === null)
-    return <QueryGate title="Failed to Load Check-in" error={{ message: "Invalid check-in." }} />;
   if (query.error || !query.data) {
     return (
       <QueryGate

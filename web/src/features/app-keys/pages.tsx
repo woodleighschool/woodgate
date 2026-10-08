@@ -34,7 +34,6 @@ import { useCan } from "@features/authz/access";
 import { usePageFormExitGuard } from "@hooks/use-page-form-exit-guard";
 import type { AppKeyKey, AppKeyMutation, AppKeyCreatedKey } from "@lib/api";
 import { requiredString } from "@lib/form-validation";
-import { parseRouteID } from "@lib/route-params";
 import { runtime } from "@lib/runtime";
 
 import { LocationPicker } from "./location-picker";
@@ -53,7 +52,7 @@ const columns: DataTableColumnDef<AppKeyKey>[] = [
     accessorKey: "name",
     header: "Name",
     cell: ({ row }) => (
-      <TextLink to="/app-keys/$id" params={{ id: String(row.original.id) }}>
+      <TextLink to="/app-keys/$id" params={{ id: row.original.id }}>
         {row.original.name}
       </TextLink>
     ),
@@ -143,7 +142,7 @@ export function AppKeyCreatePage() {
           onClose={() => {
             const id = created.id;
             setCreated(null);
-            void navigate({ to: "/app-keys/$id", params: { id: String(id) } });
+            void navigate({ to: "/app-keys/$id", params: { id } });
           }}
         />
       ) : null}
@@ -152,17 +151,10 @@ export function AppKeyCreatePage() {
 }
 
 export function AppKeyEditPage() {
-  const { id: rawID } = useParams({ from: "/_authenticated/app-keys/$id/edit" });
-  const id = parseRouteID(rawID);
+  const { id } = useParams({ from: "/_authenticated/app-keys/$id/edit" });
   const query = useAppKey(id);
-  const update = useUpdateAppKey(id ?? 0);
+  const update = useUpdateAppKey(id);
   const navigate = useNavigate();
-  if (id === null)
-    return (
-      <PageShell>
-        <QueryError error={{ message: "Invalid app key." }} />
-      </PageShell>
-    );
   if (query.isPending)
     return (
       <PageShell>
@@ -180,8 +172,8 @@ export function AppKeyEditPage() {
       key={id}
       initial={query.data}
       onSave={async (body) => (await update.mutateAsync(body)).id}
-      onSaved={(savedID) => navigate({ to: "/app-keys/$id", params: { id: String(savedID) } })}
-      onCancel={() => navigate({ to: "/app-keys/$id", params: { id: String(id) } })}
+      onSaved={(savedID) => navigate({ to: "/app-keys/$id", params: { id: savedID } })}
+      onCancel={() => navigate({ to: "/app-keys/$id", params: { id } })}
     />
   );
 }
@@ -305,22 +297,15 @@ function AppKeyForm({
 }
 
 export function AppKeyDetailPage() {
-  const { id: rawID } = useParams({ from: "/_authenticated/app-keys/$id/" });
-  const id = parseRouteID(rawID);
-  return <AppKeyDetail key={rawID} id={id} />;
+  const { id } = useParams({ from: "/_authenticated/app-keys/$id/" });
+  return <AppKeyDetail key={id} id={id} />;
 }
-function AppKeyDetail({ id }: { id: number | null }) {
+function AppKeyDetail({ id }: { id: number }) {
   const query = useAppKey(id);
   const [confirmDelete, setConfirmDelete] = useState(false);
   const deletion = useDeleteAppKey();
   const navigate = useNavigate();
   const canEdit = useCan({ resource: "app_keys", access: "edit" });
-  if (id === null)
-    return (
-      <PageShell>
-        <QueryError error={{ message: "Invalid app key." }} />
-      </PageShell>
-    );
   if (query.isPending)
     return (
       <PageShell>
@@ -346,7 +331,7 @@ function AppKeyDetail({ id }: { id: number | null }) {
                   size="sm"
                   nativeButton={false}
                   variant="outline"
-                  render={<Link to="/app-keys/$id/edit" params={{ id: String(key.id) }} />}
+                  render={<Link to="/app-keys/$id/edit" params={{ id: key.id }} />}
                 >
                   <Pencil data-icon="inline-start" />
                   Edit

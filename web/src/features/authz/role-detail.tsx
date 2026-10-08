@@ -14,7 +14,6 @@ import { Button } from "@components/ui/button";
 import { useCan } from "@features/authz/access";
 import { PermissionLevelBadge, permissionLabel } from "@features/authz/permission-level";
 import { useAuthzResources, useAuthzRole, useDeleteAuthzRole } from "@features/resources/queries";
-import { parseRouteID } from "@lib/route-params";
 
 interface PermissionRow {
   name: string;
@@ -35,15 +34,12 @@ const columns: DataTableColumnDef<PermissionRow>[] = [
 
 export function RoleDetailPage() {
   const navigate = useNavigate();
-  const { id: rawID } = useParams({ from: "/_authenticated/roles/$id" });
-  const id = parseRouteID(rawID);
+  const { id } = useParams({ from: "/_authenticated/roles/$id" });
   const role = useAuthzRole(id);
   const resources = useAuthzResources();
   const canEditRoles = useCan({ resource: "authz.roles", access: "edit" });
   const remove = useDeleteAuthzRole();
   const [confirmOpen, setConfirmOpen] = useState(false);
-  if (id === null)
-    return <QueryGate title="Failed to Load Role" error={{ message: "Invalid role." }} />;
   if (role.error || !role.data) {
     return (
       <QueryGate
@@ -75,7 +71,7 @@ export function RoleDetailPage() {
               <Button
                 size="sm"
                 variant="outline"
-                render={<Link to="/roles/$id/edit" params={{ id: String(role.data.id) }} />}
+                render={<Link to="/roles/$id/edit" params={{ id: role.data.id }} />}
                 nativeButton={false}
               >
                 <Pencil data-icon="inline-start" />

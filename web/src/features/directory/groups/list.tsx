@@ -25,11 +25,7 @@ const groupColumns: DataTableColumnDef<Group>[] = [
     accessorKey: "display_name",
     header: "Name",
     cell: ({ row }) => (
-      <TextLink
-        to="/directory/groups/$id"
-        params={{ id: String(row.original.id) }}
-        className="font-medium"
-      >
+      <TextLink to="/directory/groups/$id" params={{ id: row.original.id }} className="font-medium">
         {row.original.display_name}
       </TextLink>
     ),

@@ -21,7 +21,6 @@ import {
 } from "@lib/api";
 import type { ListUsersData } from "@lib/api";
 import { baseListParams } from "@lib/pagination";
-import { detailPath } from "@lib/route-params";
 
 export type UserListParams = NonNullable<ListUsersData["query"]>;
 
@@ -38,7 +37,7 @@ type QueryParams = Record<string, unknown>;
 export const userKeys = {
   all: ["users"] as const,
   list: (params?: QueryParams) => ["users", "list", params ?? {}] as const,
-  detail: (id: number | null) => ["users", "detail", id] as const,
+  detail: (id: number) => ["users", "detail", id] as const,
   roles: ["users", "roles"] as const,
 };
 
@@ -91,15 +90,14 @@ export function useCreateUser() {
   });
 }
 
-export function useUser(id: number | null) {
+export function useUser(id: number) {
   return useQuery(userQueryOptions(id));
 }
 
-export function userQueryOptions(id: number | null) {
+export function userQueryOptions(id: number) {
   return queryOptions<User, ApiError>({
     queryKey: userKeys.detail(id),
-    queryFn: ({ signal }) => unwrap(getUser({ path: detailPath(id), signal })),
-    enabled: id !== null,
+    queryFn: ({ signal }) => unwrap(getUser({ path: { id }, signal })),
   });
 }
 

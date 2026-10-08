@@ -12,19 +12,15 @@ import { TokenList } from "@components/token-list";
 import { Button } from "@components/ui/button";
 import { useCan } from "@features/authz/access";
 import { useDeleteLocation, useLocation } from "@features/resources/queries";
-import { parseRouteID } from "@lib/route-params";
 import { nonEmpty } from "@lib/utils";
 
 export function LocationDetailPage() {
   const navigate = useNavigate();
-  const { id: rawID } = useParams({ from: "/_authenticated/locations/$id" });
-  const id = parseRouteID(rawID);
+  const { id } = useParams({ from: "/_authenticated/locations/$id" });
   const query = useLocation(id);
   const canEditLocations = useCan({ resource: "locations", access: "edit" });
   const remove = useDeleteLocation();
   const [confirmOpen, setConfirmOpen] = useState(false);
-  if (id === null)
-    return <QueryGate title="Failed to Load Location" error={{ message: "Invalid location." }} />;
   if (query.error || !query.data) {
     return (
       <QueryGate
@@ -46,7 +42,7 @@ export function LocationDetailPage() {
               <Button
                 size="sm"
                 variant="outline"
-                render={<Link to="/locations/$id/edit" params={{ id: String(location.id) }} />}
+                render={<Link to="/locations/$id/edit" params={{ id: location.id }} />}
                 nativeButton={false}
               >
                 <Pencil data-icon="inline-start" />

@@ -23,7 +23,7 @@ export function LocationCreatePage() {
         );
         return (await create.mutateAsync({ ...body, ...attachments })).id;
       }}
-      onSuccess={(id) => void navigate({ to: "/locations/$id", params: { id: String(id) } })}
+      onSuccess={(id) => void navigate({ to: "/locations/$id", params: { id } })}
       onCancel={() => void navigate({ to: "/locations" })}
     />
   );

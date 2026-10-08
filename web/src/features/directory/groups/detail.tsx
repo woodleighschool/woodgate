@@ -9,17 +9,13 @@ import { TokenList } from "@components/token-list";
 import { Button } from "@components/ui/button";
 import { useCan } from "@features/authz/access";
 import { useGroup } from "@features/directory/groups/queries";
-import { parseRouteID } from "@lib/route-params";
 import { countLabel, nonEmpty } from "@lib/utils";
 
 export function GroupDetailPage() {
-  const { id: rawID } = useParams({ from: "/_authenticated/directory/groups/$id" });
-  const id = parseRouteID(rawID);
+  const { id } = useParams({ from: "/_authenticated/directory/groups/$id" });
   const query = useGroup(id);
   const canEditGroups = useCan({ resource: "groups", access: "edit" });
   const canEditRoles = useCan({ resource: "authz.roles", access: "edit" });
-  if (id === null)
-    return <QueryGate title="Failed to Load Group" error={{ message: "Invalid group." }} />;
   if (query.error || !query.data) {
     return (
       <QueryGate
@@ -39,7 +35,7 @@ export function GroupDetailPage() {
             <Button
               size="sm"
               variant="outline"
-              render={<Link to="/directory/groups/$id/edit" params={{ id: String(group.id) }} />}
+              render={<Link to="/directory/groups/$id/edit" params={{ id: group.id }} />}
               nativeButton={false}
             >
               <Pencil data-icon="inline-start" />

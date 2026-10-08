@@ -35,17 +35,13 @@ export function useAppKeys(params: NonNullable<ListAppKeysData["query"]>) {
     placeholderData: keepPreviousData,
   });
 }
-export function useAppKey(id: number | null) {
+export function useAppKey(id: number) {
   return useQuery(appKeyQueryOptions(id));
 }
-export function appKeyQueryOptions(id: number | null) {
+export function appKeyQueryOptions(id: number) {
   return queryOptions({
     queryKey: [...keys, "detail", id],
-    queryFn: ({ signal }) => {
-      if (id === null) throw new Error("Invalid app key ID");
-      return unwrap(getAppKey({ path: { id }, signal }));
-    },
-    enabled: id !== null,
+    queryFn: ({ signal }) => unwrap(getAppKey({ path: { id }, signal })),
   });
 }
 export function useAppKeyLocations(params: NonNullable<ListAppKeyLocationsData["query"]>) {

@@ -98,15 +98,14 @@ export function useLocationGroups(params: LocationGroupListParams = {}) {
   });
 }
 
-export function useLocation(id: number | null) {
+export function useLocation(id: number) {
   return useQuery(locationQueryOptions(id));
 }
 
-export function locationQueryOptions(id: number | null) {
+export function locationQueryOptions(id: number) {
   return queryOptions<Location, ApiError>({
     queryKey: [...keys.locations, "detail", id],
-    queryFn: ({ signal }) => unwrap(getLocation({ path: { id: requireID(id) }, signal })),
-    enabled: id !== null,
+    queryFn: ({ signal }) => unwrap(getLocation({ path: { id }, signal })),
   });
 }
 
@@ -245,19 +244,21 @@ export function useCheckinLocations() {
   });
 }
 
-export function useCheckinUser(id: number | null) {
+export function useCheckinUser(id: number) {
   return useQuery({
     queryKey: [...keys.checkins, "users", id],
-    queryFn: ({ signal }) => unwrap(getCheckinUser({ path: { id: requireID(id) }, signal })),
-    enabled: id !== null,
+    queryFn: ({ signal }) => unwrap(getCheckinUser({ path: { id }, signal })),
   });
 }
 
-export function useCheckin(id: number | null) {
-  return useQuery<Checkin, ApiError>({
+export function useCheckin(id: number) {
+  return useQuery(checkinQueryOptions(id));
+}
+
+export function checkinQueryOptions(id: number) {
+  return queryOptions<Checkin, ApiError>({
     queryKey: [...keys.checkins, "detail", id],
-    queryFn: ({ signal }) => unwrap(getCheckin({ path: { id: requireID(id) }, signal })),
-    enabled: id !== null,
+    queryFn: ({ signal }) => unwrap(getCheckin({ path: { id }, signal })),
   });
 }
 
@@ -275,15 +276,14 @@ export function useAuthzRoles() {
   });
 }
 
-export function useAuthzRole(id: number | null) {
+export function useAuthzRole(id: number) {
   return useQuery(authzRoleQueryOptions(id));
 }
 
-export function authzRoleQueryOptions(id: number | null) {
+export function authzRoleQueryOptions(id: number) {
   return queryOptions<AuthzRole, ApiError>({
     queryKey: [...keys.roles, "detail", id],
-    queryFn: ({ signal }) => unwrap(getAuthzRole({ path: { id: requireID(id) }, signal })),
-    enabled: id !== null,
+    queryFn: ({ signal }) => unwrap(getAuthzRole({ path: { id }, signal })),
   });
 }
 
@@ -331,9 +331,4 @@ export function useDeleteAuthzRole() {
       toast.add({ title: "Role Deleted", type: "success" });
     },
   });
-}
-
-function requireID(id: number | null): number {
-  if (id === null) throw new Error("detail query ran without an id");
-  return id;
 }
