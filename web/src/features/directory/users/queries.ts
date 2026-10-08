@@ -21,6 +21,7 @@ import {
 } from "@lib/api";
 import type { ListUsersData } from "@lib/api";
 import { baseListParams } from "@lib/pagination";
+import { invalidateAfterDelete } from "@lib/query-invalidation";
 
 export type UserListParams = NonNullable<ListUsersData["query"]>;
 
@@ -134,11 +135,7 @@ export function useDeleteUser() {
         }),
       );
     },
-    onSuccess: async () => {
-      await Promise.all([
-        queryClient.invalidateQueries({ queryKey: userKeys.all }),
-        queryClient.invalidateQueries({ queryKey: groupKeys.all }),
-      ]);
-    },
+    onSuccess: (_, id) =>
+      invalidateAfterDelete(queryClient, userKeys.detail(id), [userKeys.all, groupKeys.all]),
   });
 }

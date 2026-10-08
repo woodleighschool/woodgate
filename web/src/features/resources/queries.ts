@@ -50,6 +50,7 @@ import {
   unwrap,
 } from "@lib/api";
 import { baseListParams, collectAllPages, MAX_PAGE_SIZE } from "@lib/pagination";
+import { invalidateAfterDelete } from "@lib/query-invalidation";
 
 const keys = {
   locations: ["locations"] as const,
@@ -142,11 +143,12 @@ export function useDeleteLocation() {
   const queryClient = useQueryClient();
   return useMutation<void, ApiError, number>({
     mutationFn: (id) => unwrap(deleteLocation({ path: { id } })),
-    onSuccess: async () => {
-      await Promise.all([
-        queryClient.invalidateQueries({ queryKey: keys.locations }),
-        queryClient.invalidateQueries({ queryKey: ["app-keys", "locations"] }),
-      ]);
+    onSuccess: async (_, id) => {
+      await invalidateAfterDelete(
+        queryClient,
+        [...keys.locations, "detail", id],
+        [keys.locations, ["app-keys", "locations"]],
+      );
       toast.add({ title: "Location Deleted", type: "success" });
     },
   });
@@ -320,14 +322,12 @@ export function useDeleteAuthzRole() {
   const queryClient = useQueryClient();
   return useMutation<void, ApiError, number>({
     mutationFn: (id) => unwrap(deleteAuthzRole({ path: { id } })),
-    onSuccess: async () => {
-      await Promise.all([
-        queryClient.invalidateQueries({ queryKey: keys.roles }),
-        queryClient.invalidateQueries({ queryKey: ["users"] }),
-        queryClient.invalidateQueries({ queryKey: ["groups"] }),
-        queryClient.invalidateQueries({ queryKey: ["auth", "session"] }),
-        queryClient.invalidateQueries({ queryKey: ["account"] }),
-      ]);
+    onSuccess: async (_, id) => {
+      await invalidateAfterDelete(
+        queryClient,
+        [...keys.roles, "detail", id],
+        [keys.roles, ["users"], ["groups"], ["auth", "session"], ["account"]],
+      );
       toast.add({ title: "Role Deleted", type: "success" });
     },
   });

@@ -24,6 +24,7 @@ import type {
   AppKeyCreatedKey,
 } from "@lib/api";
 import { baseListParams } from "@lib/pagination";
+import { invalidateAfterDelete } from "@lib/query-invalidation";
 
 const keys = ["app-keys"] as const;
 
@@ -83,8 +84,8 @@ export function useDeleteAppKey() {
   const queryClient = useQueryClient();
   return useMutation({
     mutationFn: (id: number) => unwrap(deleteAppKey({ path: { id } })),
-    onSuccess: async () => {
-      await queryClient.invalidateQueries({ queryKey: keys });
+    onSuccess: async (_, id) => {
+      await invalidateAfterDelete(queryClient, [...keys, "detail", id], [keys]);
       toast.add({ title: "App Key Deleted", type: "success" });
     },
   });
