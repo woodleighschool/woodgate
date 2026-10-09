@@ -16,7 +16,7 @@ export function LocationEditPage() {
   const update = useUpdateLocation(id);
   const backgroundUpload = useUploadLocationBackground();
   const logoUpload = useUploadLocationLogo();
-  if (query.error || !query.data) {
+  if (!query.data) {
     return <QueryGate title="Failed to Load Location" error={query.error} />;
   }
   return (

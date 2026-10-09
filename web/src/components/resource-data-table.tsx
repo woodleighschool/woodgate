@@ -27,7 +27,7 @@ export function ResourceDataTable<T extends DataTableRowData>({
   exportOptions,
   onRowClick,
 }: {
-  data: T[];
+  data: T[] | undefined;
   count: number;
   columns: DataTableColumnDef<T>[];
   tableSearch: DataTableQuery;
@@ -45,14 +45,14 @@ export function ResourceDataTable<T extends DataTableRowData>({
   const pageCount = loading ? -1 : Math.ceil(count / tableSearch.per_page);
   const table = useDataTable({
     tableState: tableSearch,
-    data,
+    data: data ?? [],
     columns,
     pageCount,
     rowCount: count,
     initialState: { pagination: { pageIndex: 0, pageSize: DEFAULT_PAGE_SIZE } },
   });
 
-  if (error) {
+  if (error && !data) {
     return <QueryError title={`Failed to Load ${emptyTitle}`} error={error} onRetry={onRetry} />;
   }
   if (loading)

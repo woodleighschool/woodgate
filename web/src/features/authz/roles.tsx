@@ -66,7 +66,7 @@ export function RoleListPage() {
           ) : null
         }
       />
-      {query.error ? (
+      {query.isLoadingError ? (
         <QueryError
           title="Failed to Load Roles"
           error={query.error}

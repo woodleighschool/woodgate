@@ -9,11 +9,11 @@ export function RoleEditPage() {
   const { id } = useParams({ from: "/_authenticated/roles/$id/edit" });
   const query = useAuthzRole(id);
   const update = useUpdateAuthzRole(id);
-  if (query.error || !query.data || query.data.builtin) {
+  if (!query.data || query.data.builtin) {
     return (
       <QueryGate
         title="Failed to Load Role"
-        error={query.error ?? { message: "This role cannot be edited." }}
+        error={query.data ? { message: "This role cannot be edited." } : query.error}
       />
     );
   }

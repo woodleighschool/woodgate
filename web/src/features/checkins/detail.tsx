@@ -13,7 +13,7 @@ import { nonEmpty } from "@lib/utils";
 export function CheckinDetailPage() {
   const { id } = useParams({ from: "/_authenticated/checkins/$id" });
   const query = useCheckin(id);
-  if (query.error || !query.data) {
+  if (!query.data) {
     return (
       <QueryGate
         title="Failed to Load Check-in"

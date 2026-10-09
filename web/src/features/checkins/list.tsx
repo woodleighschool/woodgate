@@ -156,7 +156,7 @@ export function CheckinListPage() {
         }
       />
       <ResourceDataTable
-        data={query.data?.items ?? []}
+        data={query.data?.items}
         count={query.data?.count ?? 0}
         columns={columns}
         tableSearch={tableSearch}

@@ -16,7 +16,7 @@ export function GroupDetailPage() {
   const query = useGroup(id);
   const canEditGroups = useCan({ resource: "groups", access: "edit" });
   const canEditRoles = useCan({ resource: "authz.roles", access: "edit" });
-  if (query.error || !query.data) {
+  if (!query.data) {
     return (
       <QueryGate
         title="Failed to Load Group"

@@ -40,7 +40,7 @@ export function RoleDetailPage() {
   const canEditRoles = useCan({ resource: "authz.roles", access: "edit" });
   const remove = useDeleteAuthzRole();
   const [confirmOpen, setConfirmOpen] = useState(false);
-  if (role.error || !role.data) {
+  if (!role.data) {
     return (
       <QueryGate
         title="Failed to Load Role"

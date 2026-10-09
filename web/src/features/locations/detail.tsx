@@ -21,7 +21,7 @@ export function LocationDetailPage() {
   const canEditLocations = useCan({ resource: "locations", access: "edit" });
   const remove = useDeleteLocation();
   const [confirmOpen, setConfirmOpen] = useState(false);
-  if (query.error || !query.data) {
+  if (!query.data) {
     return (
       <QueryGate
         title="Failed to Load Location"

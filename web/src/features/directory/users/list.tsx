@@ -196,7 +196,7 @@ export function UserListPage() {
         }
       />
 
-      {query.error ? (
+      {query.isLoadingError ? (
         <QueryError
           title="Failed to Load Users"
           error={query.error}

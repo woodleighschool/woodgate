@@ -37,9 +37,10 @@ export function LocationPicker({
     [matches.data?.items, pending, value],
   );
   const anchorRef = useComboboxAnchor();
-  const error = matches.error;
 
-  if (error) return <p className="text-sm text-destructive">{error.message}</p>;
+  if (matches.isLoadingError) {
+    return <p className="text-sm text-destructive">{matches.error.message}</p>;
+  }
 
   return (
     <Combobox

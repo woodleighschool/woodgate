@@ -12,7 +12,7 @@ import { usePageFormExitGuard } from "@hooks/use-page-form-exit-guard";
 export function GroupEditPage() {
   const { id } = useParams({ from: "/_authenticated/directory/groups/$id/edit" });
   const query = useGroup(id);
-  if (query.error || !query.data) {
+  if (!query.data) {
     return (
       <QueryGate
         title="Failed to Load Group"
