@@ -1,5 +1,12 @@
 # Changelog
 
+## [2.3.1](https://github.com/woodleighschool/woodgate/compare/v2.3.0...v2.3.1) (2026-10-09)
+
+
+### Bug Fixes
+
+* **storage:** update bloby to v1.3.0 ([d762e4a](https://github.com/woodleighschool/woodgate/commit/d762e4a87f51280a0c00b461dfe69f2b99117a47))
+
 ## [2.3.0](https://github.com/woodleighschool/woodgate/compare/v2.2.0...v2.3.0) (2026-10-09)
 
 
