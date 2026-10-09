@@ -155,15 +155,3 @@ CREATE INDEX IF NOT EXISTS checkins_direction_created_idx ON checkins (direction
 CREATE UNIQUE INDEX IF NOT EXISTS checkins_asset_unique_idx
   ON checkins (asset_id)
   WHERE asset_id IS NOT NULL;
-
--- +goose Down
-DROP TABLE IF EXISTS checkins;
-DROP TABLE IF EXISTS principal_roles;
-DROP TABLE IF EXISTS permissions;
-DROP TABLE IF EXISTS api_keys;
-DROP TABLE IF EXISTS locations;
-DROP TABLE IF EXISTS assets;
-DROP TABLE IF EXISTS group_memberships;
-DROP TABLE IF EXISTS groups;
-DROP TABLE IF EXISTS users;
-DROP EXTENSION IF EXISTS pgcrypto;
