@@ -156,7 +156,7 @@ export function LocationForm({
             )}
           </form.Field>
         </FieldGroup>
-        <QueryError error={error} />
+        <QueryError title="Failed to Save Location" error={error} />
         <FormActions
           form={form}
           submitLabel={initial ? "Save" : "Create"}

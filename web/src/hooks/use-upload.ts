@@ -1,12 +1,18 @@
 import { type MutationKey, useMutation } from "@tanstack/react-query";
-import { type UploadProgress, type UploadRequest, upload } from "@woodleighschool/bloby-client";
+import {
+  type Content,
+  type UploadProgress,
+  type UploadRequest,
+  digest,
+  upload,
+} from "@woodleighschool/bloby-client";
 import { useRef, useState } from "react";
 
 import { toast } from "@components/ui/toast";
 
 interface UploadOptions<TIntent, TResult, TVars extends { file: File }> {
   mutationKey: MutationKey;
-  createIntent: (vars: TVars, signal: AbortSignal) => Promise<TIntent>;
+  createIntent: (vars: TVars, content: Content, signal: AbortSignal) => Promise<TIntent>;
   uploadRequest: (intent: TIntent, vars: TVars) => UploadRequest;
   completeUpload: (intent: TIntent, vars: TVars, signal: AbortSignal) => Promise<TResult>;
   onSuccess?: (result: TResult, vars: TVars) => void | Promise<void>;
@@ -28,6 +34,7 @@ export function useUpload<TIntent, TResult, TVars extends { file: File }>({
 
   const mutation = useMutation<TResult, Error, TVars>({
     mutationKey,
+    onError: () => undefined,
     onSuccess,
     mutationFn: async (vars) => {
       const abortController = new AbortController();
@@ -41,7 +48,10 @@ export function useUpload<TIntent, TResult, TVars extends { file: File }>({
       });
 
       try {
-        const intent = await createIntent(vars, abortController.signal);
+        // Storage accepts only the bytes the intent declares, so the declaration
+        // is taken from the blob that is sent.
+        const content = await digest(vars.file, { signal: abortController.signal });
+        const intent = await createIntent(vars, content, abortController.signal);
         abortController.signal.throwIfAborted();
         await upload({
           ...uploadRequest(intent, vars),

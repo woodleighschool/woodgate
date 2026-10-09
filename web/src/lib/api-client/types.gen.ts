@@ -58,7 +58,10 @@ export type AppKeyMutation = {
 };
 
 export type AttachmentUploadInputBody = {
+    crc64nvme: string;
     filename: string;
+    sha256: string;
+    size_bytes: number;
 };
 
 export type AuthzResource = 'users' | 'groups' | 'directory' | 'locations' | 'checkins' | 'app_keys' | 'authz.roles';

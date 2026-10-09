@@ -18,6 +18,7 @@ import (
 	"github.com/woodleighschool/goodies/bloby"
 	blobydb "github.com/woodleighschool/goodies/bloby/pgxstore"
 	"github.com/woodleighschool/woodgate/internal/fault"
+	"github.com/woodleighschool/woodgate/internal/listing"
 	"github.com/woodleighschool/woodgate/internal/testutil/testdb"
 )
 
@@ -108,12 +109,18 @@ func TestLocationSaveFinalizesUploads(t *testing.T) {
 	store := NewStore(db, objects)
 	service := NewService(store, objects)
 	background := uploadPendingImage(t, objects, BackgroundObjectPrefix)
+	if _, count, err := service.ListLocationBackgrounds(ctx, listing.Params{}); err != nil || count != 0 {
+		t.Fatalf("unfinalized upload listed in gallery: count=%d err=%v", count, err)
+	}
 	location, err := service.CreateLocation(ctx, LocationMutation{Name: "Uploaded location", Enabled: true, BackgroundObjectID: &background.ID})
 	if err != nil {
 		t.Fatal(err)
 	}
 	if location.BackgroundFile == nil || location.BackgroundFile.ContentType != "image/jpeg" {
 		t.Fatalf("unfinalized background=%+v", location.BackgroundFile)
+	}
+	if _, count, err := service.ListLocationBackgrounds(ctx, listing.Params{}); err != nil || count != 1 {
+		t.Fatalf("saved upload missing from gallery: count=%d err=%v", count, err)
 	}
 	replacement := uploadPendingImage(t, objects, BackgroundObjectPrefix)
 	_, err = service.UpdateLocation(ctx, location.ID, LocationMutation{Name: "Invalid group", Enabled: true, BackgroundObjectID: &replacement.ID, GroupIDs: []int64{999999}})
@@ -131,12 +138,10 @@ func TestLocationSaveFinalizesUploads(t *testing.T) {
 		t.Fatalf("failed update retained upload=%v", err)
 	}
 	fresh := uploadPendingImage(t, objects, BackgroundObjectPrefix)
-	incomplete, _, err := objects.BeginDirect(ctx, LogoObjectPrefix, "unfinished.jpg")
-	if err != nil {
-		t.Fatal(err)
-	}
-	if _, err := service.CreateLocation(ctx, LocationMutation{Name: "Failed location", Enabled: true, BackgroundObjectID: &fresh.ID, LogoObjectID: &incomplete.ID}); err == nil {
-		t.Fatal("incomplete upload created location")
+	incomplete, _ := beginUpload(t, objects, LogoObjectPrefix, "unfinished.jpg", jpegImage(t))
+	_, err = service.CreateLocation(ctx, LocationMutation{Name: "Failed location", Enabled: true, BackgroundObjectID: &fresh.ID, LogoObjectID: &incomplete.ID})
+	if !errors.Is(err, bloby.ErrInvalidInput) {
+		t.Fatalf("never-uploaded logo=%v", err)
 	}
 	var count int
 	if err := db.QueryRow(ctx, "SELECT count(*) FROM locations").Scan(&count); err != nil {
@@ -150,25 +155,71 @@ func TestLocationSaveFinalizesUploads(t *testing.T) {
 	}
 }
 
-func uploadPendingImage(t *testing.T, objects *bloby.Service, prefix string) *bloby.Object {
-	t.Helper()
-	object, action, err := objects.BeginDirect(t.Context(), prefix, "uploaded.jpg")
+// The gallery accepts images by what the stored bytes are, not by what the
+// uploader names them.
+func TestLocationSaveRejectsNonImageUpload(t *testing.T) {
+	db, ctx := testdb.Open(t)
+	objects, err := bloby.New(ctx, blobydb.New(db), bloby.Config{Kind: bloby.KindFile, TransferTTL: time.Minute, File: bloby.FileConfig{Root: t.TempDir(), BaseURL: "https://storage.invalid", CapabilityKeyHex: strings.Repeat("42", 32)}}, slog.New(slog.DiscardHandler))
 	if err != nil {
 		t.Fatal(err)
 	}
+	service := NewService(NewStore(db, objects), objects)
+	body := []byte("synthetic text named as an image")
+	object, action := beginUpload(t, objects, LogoObjectPrefix, "logo.png", body)
+	if status := putUpload(t, objects, action, body); status != http.StatusNoContent {
+		t.Fatalf("upload status=%d", status)
+	}
+	_, err = service.CreateLocation(ctx, LocationMutation{Name: "Text logo", Enabled: true, LogoObjectID: &object.ID})
+	if !errors.Is(err, fault.ErrInvalidInput) {
+		t.Fatalf("non-image logo=%v", err)
+	}
+	if _, err := objects.GetByID(ctx, object.ID); !errors.Is(err, bloby.ErrNotFound) {
+		t.Fatalf("rejected upload retained=%v", err)
+	}
+}
+
+func jpegImage(t *testing.T) []byte {
+	t.Helper()
 	var content bytes.Buffer
 	if err := jpeg.Encode(&content, image.NewRGBA(image.Rect(0, 0, 2, 2)), nil); err != nil {
 		t.Fatal(err)
 	}
+	return content.Bytes()
+}
+
+// beginUpload reserves an object declared to hold body.
+func beginUpload(t *testing.T, objects *bloby.Service, prefix, filename string, body []byte) (*bloby.Object, bloby.UploadAction) {
+	t.Helper()
+	content, err := bloby.Digest(bytes.NewReader(body))
+	if err != nil {
+		t.Fatal(err)
+	}
+	object, action, err := objects.BeginDirect(t.Context(), prefix, filename, content)
+	if err != nil {
+		t.Fatal(err)
+	}
+	return object, action
+}
+
+// putUpload sends body to the upload target and returns the response status.
+func putUpload(t *testing.T, objects *bloby.Service, action bloby.UploadAction, body []byte) int {
+	t.Helper()
 	target := action.Target
-	request := httptest.NewRequestWithContext(t.Context(), target.Method, target.URL, &content)
+	request := httptest.NewRequestWithContext(t.Context(), target.Method, target.URL, bytes.NewReader(body))
 	for key, value := range target.Headers {
 		request.Header.Set(key, value)
 	}
 	writer := httptest.NewRecorder()
 	objects.TransferHandler().ServeHTTP(writer, request)
-	if writer.Code != http.StatusNoContent {
-		t.Fatalf("upload status=%d body=%s", writer.Code, writer.Body.String())
+	return writer.Code
+}
+
+func uploadPendingImage(t *testing.T, objects *bloby.Service, prefix string) *bloby.Object {
+	t.Helper()
+	body := jpegImage(t)
+	object, action := beginUpload(t, objects, prefix, "uploaded.jpg", body)
+	if status := putUpload(t, objects, action, body); status != http.StatusNoContent {
+		t.Fatalf("upload status=%d", status)
 	}
 	current, err := objects.GetByID(t.Context(), object.ID)
 	if err != nil {

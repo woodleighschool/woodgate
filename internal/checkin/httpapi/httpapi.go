@@ -114,6 +114,8 @@ type attachmentListOutput struct {
 }
 type attachmentUploadInput struct {
 	Body struct {
+		bloby.Content
+
 		Filename string `json:"filename" minLength:"1"`
 	}
 }
@@ -290,7 +292,7 @@ type locationAttachmentRegistration struct {
 	uploadOperation string
 	setOperation    string
 	list            func(context.Context, listing.Params) ([]bloby.Object, int, error)
-	begin           func(context.Context, string) (*bloby.Object, bloby.UploadAction, error)
+	begin           func(context.Context, string, bloby.Content) (*bloby.Object, bloby.UploadAction, error)
 	set             func(context.Context, int64, int64) (*bloby.Object, error)
 }
 
@@ -314,7 +316,7 @@ func registerLocationAttachment(routes huma.API, deps Dependencies, registration
 		OperationID: registration.uploadOperation, Method: http.MethodPost, Path: registration.path,
 		Tags: []string{api.TagLocations}, Summary: "Create a location " + registration.kind + " upload", DefaultStatus: http.StatusCreated,
 	}), func(ctx context.Context, input *attachmentUploadInput) (*directUploadOutput, error) {
-		object, target, err := registration.begin(ctx, input.Body.Filename)
+		object, target, err := registration.begin(ctx, input.Body.Filename, input.Body.Content)
 		if err != nil {
 			return nil, api.ResourceError(ctx, deps.Logger, registration.uploadOperation, "location "+registration.kind+" upload", err)
 		}

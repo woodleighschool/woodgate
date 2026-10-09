@@ -153,11 +153,24 @@ components:
     AttachmentUploadInputBody:
       additionalProperties: false
       properties:
+        crc64nvme:
+          pattern: ^[0-9a-f]{16}$
+          type: string
         filename:
           minLength: 1
           type: string
+        sha256:
+          pattern: ^[0-9a-f]{64}$
+          type: string
+        size_bytes:
+          format: int64
+          minimum: 0
+          type: integer
       required:
         - filename
+        - size_bytes
+        - sha256
+        - crc64nvme
       type: object
     AuthzResource:
       enum:

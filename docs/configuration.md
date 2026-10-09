@@ -59,6 +59,10 @@ Bloby owns uploaded objects. Locations own their background and logo, and check-
 | `WOODGATE_STORAGE_S3_SECRET_KEY`  | Required S3 secret key                                          |
 | `WOODGATE_STORAGE_S3_PATH_STYLE`  | `false`                                                         |
 
+The administration interface uploads backgrounds and logos directly to storage. It declares each file's size, SHA-256, and CRC64NVME before sending it, and the upload URL accepts only those bytes. An image is published when its location is saved.
+
+With S3 storage, uploads go to the bucket. Its CORS policy must allow `PUT` requests from the administration interface's origin, including their `Content-Type` and `x-amz-checksum-sha256` headers. The S3 service must enforce the SHA-256 checksum signed into a presigned upload and report it on `HEAD` requests.
+
 Persist both PostgreSQL and the configured object storage.
 
 ## Reverse proxies

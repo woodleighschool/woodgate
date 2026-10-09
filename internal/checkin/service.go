@@ -178,14 +178,16 @@ func ValidateSubmission(location Location, notes string, hasPhoto bool) error {
 	}
 }
 
-// BeginLocationBackgroundUpload reserves an object in the background gallery.
-func (s *Service) BeginLocationBackgroundUpload(ctx context.Context, filename string) (*bloby.Object, bloby.UploadAction, error) {
-	return s.objects.BeginDirect(ctx, BackgroundObjectPrefix, filename)
+// BeginLocationBackgroundUpload reserves an object in the background gallery
+// for the declared content.
+func (s *Service) BeginLocationBackgroundUpload(ctx context.Context, filename string, content bloby.Content) (*bloby.Object, bloby.UploadAction, error) {
+	return s.objects.BeginDirect(ctx, BackgroundObjectPrefix, filename, content)
 }
 
-// BeginLocationLogoUpload reserves an object in the logo gallery.
-func (s *Service) BeginLocationLogoUpload(ctx context.Context, filename string) (*bloby.Object, bloby.UploadAction, error) {
-	return s.objects.BeginDirect(ctx, LogoObjectPrefix, filename)
+// BeginLocationLogoUpload reserves an object in the logo gallery for the
+// declared content.
+func (s *Service) BeginLocationLogoUpload(ctx context.Context, filename string, content bloby.Content) (*bloby.Object, bloby.UploadAction, error) {
+	return s.objects.BeginDirect(ctx, LogoObjectPrefix, filename, content)
 }
 
 // ListLocationBackgrounds returns available objects in the background gallery.

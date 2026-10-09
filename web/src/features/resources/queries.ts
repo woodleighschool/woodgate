@@ -198,8 +198,8 @@ function useUploadLocationImage(kind: "background" | "logo") {
     mutationKey: ["location-image-upload", kind],
     loadingText: `Uploading ${label}`,
     successText: `${label} Uploaded`,
-    createIntent: ({ file }, signal) =>
-      unwrap(createUpload({ body: { filename: file.name }, signal })),
+    createIntent: ({ file }, content, signal) =>
+      unwrap(createUpload({ body: { filename: file.name, ...content }, signal })),
     uploadRequest: directUploadRequest,
     completeUpload: (intent) => Promise.resolve(intent.object_id),
   });
