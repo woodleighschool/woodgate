@@ -1,6 +1,8 @@
 # syntax=docker/dockerfile:1
+# check=skip=InvalidDefaultArgInFrom
 
-# Keep the container toolchains aligned with Mise. Renovate updates each pair.
+# Go is supplied by Mise through the release workflow or local container task.
+ARG GO_VERSION
 
 # ---- Web build ------------------------------------------------------------
 # Build the frontend bundle so the Go stage can embed it. The runtime image
@@ -17,7 +19,7 @@ COPY web/ ./
 RUN pnpm build
 
 # ---- Go build -------------------------------------------------------------
-FROM --platform=$BUILDPLATFORM golang:1.27.2-alpine AS builder
+FROM --platform=$BUILDPLATFORM golang:${GO_VERSION}-alpine AS builder
 ARG TARGETOS
 ARG TARGETARCH
 ARG VERSION=dev
@@ -28,7 +30,8 @@ WORKDIR /workspace
 # Cache module downloads before copying source.
 COPY go.mod go.sum ./
 RUN go mod download
-RUN go install github.com/google/go-licenses/v2@v2.0.1
+ARG GO_LICENSES_VERSION
+RUN go install github.com/google/go-licenses/v2@${GO_LICENSES_VERSION}
 
 COPY cmd/ cmd/
 COPY internal/ internal/
