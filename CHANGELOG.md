@@ -1,5 +1,14 @@
 # Changelog
 
+## [2.3.2](https://github.com/woodleighschool/woodgate/compare/v2.3.1...v2.3.2) (2026-10-09)
+
+
+### Bug Fixes
+
+* **npm:** update dependency @tanstack/react-table (9.2.6 → 9.2.8) ([#362](https://github.com/woodleighschool/woodgate/issues/362)) ([add8594](https://github.com/woodleighschool/woodgate/commit/add8594f7176dc324915cc020b2863484b8ba922))
+* **npm:** update dependency lucide-react (1.52.0 → 1.53.0) ([#356](https://github.com/woodleighschool/woodgate/issues/356)) ([b974356](https://github.com/woodleighschool/woodgate/commit/b974356c820347e959730333a9f0f6b6fb98fd7a))
+* **storage:** declare upload content ([e9ab9d7](https://github.com/woodleighschool/woodgate/commit/e9ab9d7b6695c31572e147b4d7a6aa32a26c8587))
+
 ## [2.3.1](https://github.com/woodleighschool/woodgate/compare/v2.3.0...v2.3.1) (2026-10-09)
 
 
