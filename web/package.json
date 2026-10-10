@@ -21,7 +21,7 @@
     "@tanstack/react-router": "^1.170.41",
     "@tanstack/react-store": "^0.11.2",
     "@tanstack/react-table": "^9.2.8",
-    "@woodleighschool/authz": "^1.2.0",
+    "@woodleighschool/authz": "^1.2.1",
     "@woodleighschool/bloby-client": "^1.3.0",
     "cn": "^0.4.0",
     "cva": "^1.0.0-beta.12",
