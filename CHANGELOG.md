@@ -1,5 +1,15 @@
 # Changelog
 
+## [2.3.3](https://github.com/woodleighschool/woodgate/compare/v2.3.2...v2.3.3) (2026-10-10)
+
+
+### Bug Fixes
+
+* **go:** update module golang.org/x/term (v0.46.0 → v0.47.0) ([#359](https://github.com/woodleighschool/woodgate/issues/359)) ([a485648](https://github.com/woodleighschool/woodgate/commit/a48564865c4409c9415df5454f4c7d24dff5a6ec))
+* **npm:** update dependency @base-ui/react (1.8.0 → 1.9.0) ([#368](https://github.com/woodleighschool/woodgate/issues/368)) ([1b1c734](https://github.com/woodleighschool/woodgate/commit/1b1c7344f1e519909aba172429bd8af143744b0e))
+* **npm:** update dependency @woodleighschool/authz (1.2.0 → 1.2.1) ([#366](https://github.com/woodleighschool/woodgate/issues/366)) ([3229763](https://github.com/woodleighschool/woodgate/commit/3229763ee1a55078e03d3e9fa53b0ab6e482d0e1))
+* **npm:** update dependency lucide-react (1.53.0 → 1.54.0) ([#367](https://github.com/woodleighschool/woodgate/issues/367)) ([bb98cc1](https://github.com/woodleighschool/woodgate/commit/bb98cc17dc9f353e5ad34abd89902630c57668c9))
+
 ## [2.3.2](https://github.com/woodleighschool/woodgate/compare/v2.3.1...v2.3.2) (2026-10-09)
 
 
