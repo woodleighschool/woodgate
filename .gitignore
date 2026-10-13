@@ -37,3 +37,4 @@ xcuserdata/
 
 # Generated dependency licenses
 /third_party_licenses/
+/mock/worker-configuration.d.ts
