@@ -1,5 +1,34 @@
 # Changelog
 
+## [2.3.3](https://github.com/woodleighschool/woodgate/compare/v2.3.2...v2.3.3) (2026-10-17)
+
+
+### Bug Fixes
+
+* **go:** update module github.com/azure/azure-sdk-for-go/sdk/azidentity (v1.14.1 → v1.15.0) ([#397](https://github.com/woodleighschool/woodgate/issues/397)) ([5e4453a](https://github.com/woodleighschool/woodgate/commit/5e4453ad742a8d0e3504d70c2934f8444200308f))
+* **go:** update module github.com/gabriel-vasile/mimetype (v1.4.15 → v1.4.16) ([#420](https://github.com/woodleighschool/woodgate/issues/420)) ([7d419c8](https://github.com/woodleighschool/woodgate/commit/7d419c84618c3e8e5bfbafafb9dfd2ee6d0515d5))
+* **go:** update module github.com/go-chi/chi/v5 (v5.3.2 → v5.4.0) ([#380](https://github.com/woodleighschool/woodgate/issues/380)) ([3301da5](https://github.com/woodleighschool/woodgate/commit/3301da56a34b7003dfc5760086099a2576f7e545))
+* **go:** update module github.com/go-chi/chi/v5 (v5.4.0 → v5.5.0) ([#395](https://github.com/woodleighschool/woodgate/issues/395)) ([fe14433](https://github.com/woodleighschool/woodgate/commit/fe144334f3b5d8b2275de0456c0da16d09e9ae43))
+* **go:** update module github.com/microsoft/kiota-abstractions-go (v1.11.1 → v1.11.2) ([#413](https://github.com/woodleighschool/woodgate/issues/413)) ([20cb2b4](https://github.com/woodleighschool/woodgate/commit/20cb2b4bff430e588606ab8ce2a862512048c323))
+* **go:** update module github.com/pressly/goose/v3 (v3.28.0 → v3.29.0) ([#378](https://github.com/woodleighschool/woodgate/issues/378)) ([44be1c8](https://github.com/woodleighschool/woodgate/commit/44be1c8007c1ba152dba3387d68f0bb1a76cd82e))
+* **go:** update module golang.org/x/term (v0.46.0 → v0.47.0) ([#359](https://github.com/woodleighschool/woodgate/issues/359)) ([a485648](https://github.com/woodleighschool/woodgate/commit/a48564865c4409c9415df5454f4c7d24dff5a6ec))
+* **npm:** update dependency @base-ui/react (1.8.0 → 1.9.0) ([#368](https://github.com/woodleighschool/woodgate/issues/368)) ([1b1c734](https://github.com/woodleighschool/woodgate/commit/1b1c7344f1e519909aba172429bd8af143744b0e))
+* **npm:** update dependency @tanstack/react-table (9.2.8 → 9.3.1) ([#388](https://github.com/woodleighschool/woodgate/issues/388)) ([69bf7d6](https://github.com/woodleighschool/woodgate/commit/69bf7d6af10cd2afcf6318f40b070ca3e8f17580))
+* **npm:** update dependency @woodleighschool/authz (1.2.0 → 1.2.1) ([#366](https://github.com/woodleighschool/woodgate/issues/366)) ([3229763](https://github.com/woodleighschool/woodgate/commit/3229763ee1a55078e03d3e9fa53b0ab6e482d0e1))
+* **npm:** update dependency lucide-react (1.53.0 → 1.54.0) ([#367](https://github.com/woodleighschool/woodgate/issues/367)) ([bb98cc1](https://github.com/woodleighschool/woodgate/commit/bb98cc17dc9f353e5ad34abd89902630c57668c9))
+* **npm:** update dependency lucide-react (1.54.0 → 1.55.0) ([#374](https://github.com/woodleighschool/woodgate/issues/374)) ([54540b5](https://github.com/woodleighschool/woodgate/commit/54540b567f6b5adf78390cea0519fc1487b020a2))
+* **npm:** update dependency lucide-react (1.55.0 → 1.56.0) ([#394](https://github.com/woodleighschool/woodgate/issues/394)) ([76ff1c5](https://github.com/woodleighschool/woodgate/commit/76ff1c5840e85106d535d7a37c73bbdd5ae9ca6e))
+* **npm:** update dependency lucide-react (1.56.0 → 1.57.0) ([#402](https://github.com/woodleighschool/woodgate/issues/402)) ([6c313de](https://github.com/woodleighschool/woodgate/commit/6c313de3965ef5e35de0e193bbb56a2e269a063d))
+* **npm:** update dependency lucide-react (1.57.0 → 1.58.0) ([#417](https://github.com/woodleighschool/woodgate/issues/417)) ([0056428](https://github.com/woodleighschool/woodgate/commit/0056428ff7e7322443606db1fb59171a812316be))
+* **npm:** update dependency shadcn (4.21.4 → 4.21.5) ([#404](https://github.com/woodleighschool/woodgate/issues/404)) ([f43f6a8](https://github.com/woodleighschool/woodgate/commit/f43f6a87187482dc6333f377eb726a1da3691abc))
+* **npm:** update dependency zod (4.6.5 → 4.6.6) ([#381](https://github.com/woodleighschool/woodgate/issues/381)) ([92e2ac8](https://github.com/woodleighschool/woodgate/commit/92e2ac81924b0cf92201727c3a2c0a3253fbec5f))
+* **npm:** update dependency zod (4.6.6 → 4.6.7) ([#387](https://github.com/woodleighschool/woodgate/issues/387)) ([d1a694f](https://github.com/woodleighschool/woodgate/commit/d1a694f422a850c91a376baadb43c370b97fd175))
+* **npm:** update react runtime (19.3.0 → 19.3.1) ([#405](https://github.com/woodleighschool/woodgate/issues/405)) ([6b961e8](https://github.com/woodleighschool/woodgate/commit/6b961e8f09640e8ee020cebb16e721798dc0ec37))
+* **npm:** update tanstack-query monorepo (5.104.1 → 5.104.2) ([#382](https://github.com/woodleighschool/woodgate/issues/382)) ([f2354d6](https://github.com/woodleighschool/woodgate/commit/f2354d6ee12fba842d149a29e5a60f485eb6a66c))
+* **npm:** update tanstack-query monorepo (5.104.2 → 5.104.3) ([#409](https://github.com/woodleighschool/woodgate/issues/409)) ([d156baf](https://github.com/woodleighschool/woodgate/commit/d156baf982acb0295b59c7a7fe63834eaa916380))
+* **npm:** update tanstack-router monorepo ([#375](https://github.com/woodleighschool/woodgate/issues/375)) ([c4f6261](https://github.com/woodleighschool/woodgate/commit/c4f6261e1268f3070321fb5f415f378bb9f97c41))
+* **npm:** update tanstack-router monorepo ([#389](https://github.com/woodleighschool/woodgate/issues/389)) ([b6aaae9](https://github.com/woodleighschool/woodgate/commit/b6aaae9ac0d40a2f97df5fb394ef45a359fd4954))
+
 ## [2.3.2](https://github.com/woodleighschool/woodgate/compare/v2.3.1...v2.3.2) (2026-10-09)
 
 
