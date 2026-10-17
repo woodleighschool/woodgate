@@ -23,7 +23,7 @@
     "@tanstack/react-table": "^9.3.1",
     "@woodleighschool/authz": "^1.2.1",
     "@woodleighschool/bloby-client": "^1.3.0",
-    "cn": "^0.4.0",
+    "cn": "^0.5.0",
     "cva": "^1.0.0-beta.12",
     "date-fns": "^4.4.0",
     "lucide-react": "^1.58.0",
