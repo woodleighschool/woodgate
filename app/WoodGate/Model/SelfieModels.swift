@@ -89,15 +89,7 @@ enum SelfieAnalyzer {
         let landmarkObservations = landmarksRequest.results ?? []
         let qualityObservations = qualityRequest.results ?? []
 
-        guard faceObservations.isEmpty == false else {
-            return SelfieAnalysis(verdict: .framing)
-        }
-
-        guard faceObservations.count == 1 else {
-            return SelfieAnalysis(verdict: .framing)
-        }
-
-        guard let face = landmarkObservations.first else {
+        guard faceObservations.count == 1, let face = landmarkObservations.first else {
             return SelfieAnalysis(verdict: .framing)
         }
 

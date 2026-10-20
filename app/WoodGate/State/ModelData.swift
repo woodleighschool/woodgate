@@ -160,8 +160,7 @@ final class ModelData {
     // MARK: - Session Refresh
 
     func refreshSession() async {
-        guard let currentSession else { return }
-        guard !isBusy, locationSelection == nil else { return }
+        guard let currentSession, !isBusy, locationSelection == nil else { return }
 
         if let refreshInFlightTask {
             await refreshInFlightTask.value
