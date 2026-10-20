@@ -99,7 +99,7 @@ VALUES ($1, $2)`, userID, groupID); err != nil {
 	if err != nil {
 		t.Fatal(err)
 	}
-	levels := map[authz.Access]int{}
+	levels := make(map[authz.Access]int)
 	for _, grant := range grants {
 		if grant.Resource == ResourceUsers {
 			levels[grant.Access]++
