@@ -16,7 +16,7 @@
     "typecheck": "pnpm run types && tsc --noEmit && tsc --noEmit -p test/tsconfig.json"
   },
   "devDependencies": {
-    "@cloudflare/vitest-plugin": "1.4.6",
+    "@cloudflare/vitest-plugin": "1.4.7",
     "@cloudflare/workers-types": "5.20261022.1",
     "oxlint": "1.89.0",
     "typescript": "7.0.2",
