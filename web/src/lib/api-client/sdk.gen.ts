@@ -2,7 +2,7 @@
 
 import type { Client, ClientMeta, Options as Options2, RequestResult, TDataShape } from './client';
 import { client } from './client.gen';
-import type { CreateAppKeyData, CreateAppKeyErrors, CreateAppKeyResponses, CreateCheckinData, CreateCheckinErrors, CreateCheckinResponses, CreateLocationBackgroundUploadData, CreateLocationBackgroundUploadErrors, CreateLocationBackgroundUploadResponses, CreateLocationData, CreateLocationErrors, CreateLocationLogoUploadData, CreateLocationLogoUploadErrors, CreateLocationLogoUploadResponses, CreateLocationResponses, CreateRoleData, CreateRoleErrors, CreateRoleResponses, CreateSessionData, CreateSessionErrors, CreateSessionResponses, CreateUserData, CreateUserErrors, CreateUserResponses, DeleteAppKeyData, DeleteAppKeyErrors, DeleteAppKeyResponses, DeleteLocationData, DeleteLocationErrors, DeleteLocationResponses, DeleteRoleData, DeleteRoleErrors, DeleteRoleResponses, DeleteSessionData, DeleteSessionErrors, DeleteSessionResponses, DeleteUserData, DeleteUserErrors, DeleteUserResponses, GetAccountData, GetAccountErrors, GetAccountResponses, GetAppKeyData, GetAppKeyErrors, GetAppKeyResponses, GetCheckinData, GetCheckinErrors, GetCheckinResponses, GetCheckinUserData, GetCheckinUserErrors, GetCheckinUserResponses, GetDirectorySyncData, GetDirectorySyncErrors, GetDirectorySyncResponses, GetGroupData, GetGroupErrors, GetGroupResponses, GetLocationData, GetLocationErrors, GetLocationResponses, GetRoleData, GetRoleErrors, GetRoleResponses, GetSessionData, GetSessionErrors, GetSessionResponses, GetUserData, GetUserErrors, GetUserResponses, ListAppKeyLocationsData, ListAppKeyLocationsErrors, ListAppKeyLocationsResponses, ListAppKeysData, ListAppKeysErrors, ListAppKeysResponses, ListAuthorizationResourcesData, ListAuthorizationResourcesErrors, ListAuthorizationResourcesResponses, ListCheckinDepartmentsData, ListCheckinDepartmentsErrors, ListCheckinDepartmentsResponses, ListCheckinLocationsData, ListCheckinLocationsErrors, ListCheckinLocationsResponses, ListCheckinsData, ListCheckinsErrors, ListCheckinsResponses, ListGroupsData, ListGroupsErrors, ListGroupsResponses, ListLocationBackgroundsData, ListLocationBackgroundsErrors, ListLocationBackgroundsResponses, ListLocationGroupsData, ListLocationGroupsErrors, ListLocationGroupsResponses, ListLocationLogosData, ListLocationLogosErrors, ListLocationLogosResponses, ListLocationsData, ListLocationsErrors, ListLocationsResponses, ListRolesData, ListRolesErrors, ListRolesResponses, ListUserRolesData, ListUserRolesErrors, ListUserRolesResponses, ListUsersData, ListUsersErrors, ListUsersResponses, RevokeAccountApiKeyData, RevokeAccountApiKeyErrors, RevokeAccountApiKeyResponses, RotateAccountApiKeyData, RotateAccountApiKeyErrors, RotateAccountApiKeyResponses, SetLocationBackgroundData, SetLocationBackgroundErrors, SetLocationBackgroundResponses, SetLocationLogoData, SetLocationLogoErrors, SetLocationLogoResponses, TriggerDirectorySyncData, TriggerDirectorySyncErrors, TriggerDirectorySyncResponses, UpdateAccountData, UpdateAccountErrors, UpdateAccountResponses, UpdateAppKeyData, UpdateAppKeyErrors, UpdateAppKeyResponses, UpdateGroupData, UpdateGroupErrors, UpdateGroupResponses, UpdateLocationData, UpdateLocationErrors, UpdateLocationResponses, UpdateRoleData, UpdateRoleErrors, UpdateRoleResponses, UpdateUserData, UpdateUserErrors, UpdateUserResponses } from './types.gen';
+import type { CreateCheckinData, CreateCheckinErrors, CreateCheckinResponses, CreateLocationBackgroundUploadData, CreateLocationBackgroundUploadErrors, CreateLocationBackgroundUploadResponses, CreateLocationData, CreateLocationErrors, CreateLocationLogoUploadData, CreateLocationLogoUploadErrors, CreateLocationLogoUploadResponses, CreateLocationResponses, CreateRoleData, CreateRoleErrors, CreateRoleResponses, CreateSessionData, CreateSessionErrors, CreateSessionResponses, CreateStationData, CreateStationErrors, CreateStationResponses, CreateUserData, CreateUserErrors, CreateUserResponses, DeleteLocationData, DeleteLocationErrors, DeleteLocationResponses, DeleteRoleData, DeleteRoleErrors, DeleteRoleResponses, DeleteSessionData, DeleteSessionErrors, DeleteSessionResponses, DeleteStationData, DeleteStationErrors, DeleteStationResponses, DeleteUserData, DeleteUserErrors, DeleteUserResponses, GetAccountData, GetAccountErrors, GetAccountResponses, GetCheckinData, GetCheckinErrors, GetCheckinResponses, GetCheckinUserData, GetCheckinUserErrors, GetCheckinUserResponses, GetDirectorySyncData, GetDirectorySyncErrors, GetDirectorySyncResponses, GetGroupData, GetGroupErrors, GetGroupResponses, GetLocationData, GetLocationErrors, GetLocationResponses, GetRoleData, GetRoleErrors, GetRoleResponses, GetSessionData, GetSessionErrors, GetSessionResponses, GetStationData, GetStationErrors, GetStationResponses, GetUserData, GetUserErrors, GetUserResponses, ListAuthorizationResourcesData, ListAuthorizationResourcesErrors, ListAuthorizationResourcesResponses, ListCheckinDepartmentsData, ListCheckinDepartmentsErrors, ListCheckinDepartmentsResponses, ListCheckinLocationsData, ListCheckinLocationsErrors, ListCheckinLocationsResponses, ListCheckinsData, ListCheckinsErrors, ListCheckinsResponses, ListGroupsData, ListGroupsErrors, ListGroupsResponses, ListLocationBackgroundsData, ListLocationBackgroundsErrors, ListLocationBackgroundsResponses, ListLocationGroupsData, ListLocationGroupsErrors, ListLocationGroupsResponses, ListLocationLogosData, ListLocationLogosErrors, ListLocationLogosResponses, ListLocationsData, ListLocationsErrors, ListLocationsResponses, ListRolesData, ListRolesErrors, ListRolesResponses, ListStationLocationsData, ListStationLocationsErrors, ListStationLocationsResponses, ListStationsData, ListStationsErrors, ListStationsResponses, ListUserRolesData, ListUserRolesErrors, ListUserRolesResponses, ListUsersData, ListUsersErrors, ListUsersResponses, RevokeAccountApiKeyData, RevokeAccountApiKeyErrors, RevokeAccountApiKeyResponses, RotateAccountApiKeyData, RotateAccountApiKeyErrors, RotateAccountApiKeyResponses, RotateStationKeyData, RotateStationKeyErrors, RotateStationKeyResponses, SetLocationBackgroundData, SetLocationBackgroundErrors, SetLocationBackgroundResponses, SetLocationLogoData, SetLocationLogoErrors, SetLocationLogoResponses, TriggerDirectorySyncData, TriggerDirectorySyncErrors, TriggerDirectorySyncResponses, UpdateAccountData, UpdateAccountErrors, UpdateAccountResponses, UpdateGroupData, UpdateGroupErrors, UpdateGroupResponses, UpdateLocationData, UpdateLocationErrors, UpdateLocationResponses, UpdateRoleData, UpdateRoleErrors, UpdateRoleResponses, UpdateStationData, UpdateStationErrors, UpdateStationResponses, UpdateUserData, UpdateUserErrors, UpdateUserResponses } from './types.gen';
 
 export type Options<TData extends TDataShape = TDataShape, ThrowOnError extends boolean = boolean, TResponse = unknown> = Options2<TData, ThrowOnError, TResponse> & {
     /**
@@ -72,92 +72,6 @@ export const rotateAccountApiKey = <ThrowOnError extends boolean = false>(option
         }, { scheme: 'bearer', type: 'http' }],
     url: '/api/account/api-key',
     ...options
-});
-
-/**
- * List app keys
- */
-export const listAppKeys = <ThrowOnError extends boolean = false>(options?: Options<ListAppKeysData, ThrowOnError>): RequestResult<ListAppKeysResponses, ListAppKeysErrors, ThrowOnError> => (options?.client ?? client).get<ListAppKeysResponses, ListAppKeysErrors, ThrowOnError>({
-    security: [{
-            in: 'cookie',
-            name: 'woodgate_session',
-            type: 'apiKey'
-        }, { scheme: 'bearer', type: 'http' }],
-    url: '/api/app-keys',
-    ...options
-});
-
-/**
- * Create an app key
- */
-export const createAppKey = <ThrowOnError extends boolean = false>(options: Options<CreateAppKeyData, ThrowOnError>): RequestResult<CreateAppKeyResponses, CreateAppKeyErrors, ThrowOnError> => (options.client ?? client).post<CreateAppKeyResponses, CreateAppKeyErrors, ThrowOnError>({
-    security: [{
-            in: 'cookie',
-            name: 'woodgate_session',
-            type: 'apiKey'
-        }, { scheme: 'bearer', type: 'http' }],
-    url: '/api/app-keys',
-    ...options,
-    headers: {
-        'Content-Type': 'application/json',
-        ...options.headers
-    }
-});
-
-/**
- * List app key location choices
- */
-export const listAppKeyLocations = <ThrowOnError extends boolean = false>(options?: Options<ListAppKeyLocationsData, ThrowOnError>): RequestResult<ListAppKeyLocationsResponses, ListAppKeyLocationsErrors, ThrowOnError> => (options?.client ?? client).get<ListAppKeyLocationsResponses, ListAppKeyLocationsErrors, ThrowOnError>({
-    security: [{
-            in: 'cookie',
-            name: 'woodgate_session',
-            type: 'apiKey'
-        }, { scheme: 'bearer', type: 'http' }],
-    url: '/api/app-keys/locations',
-    ...options
-});
-
-/**
- * Delete an app key
- */
-export const deleteAppKey = <ThrowOnError extends boolean = false>(options: Options<DeleteAppKeyData, ThrowOnError>): RequestResult<DeleteAppKeyResponses, DeleteAppKeyErrors, ThrowOnError> => (options.client ?? client).delete<DeleteAppKeyResponses, DeleteAppKeyErrors, ThrowOnError>({
-    security: [{
-            in: 'cookie',
-            name: 'woodgate_session',
-            type: 'apiKey'
-        }, { scheme: 'bearer', type: 'http' }],
-    url: '/api/app-keys/{id}',
-    ...options
-});
-
-/**
- * Get an app key
- */
-export const getAppKey = <ThrowOnError extends boolean = false>(options: Options<GetAppKeyData, ThrowOnError>): RequestResult<GetAppKeyResponses, GetAppKeyErrors, ThrowOnError> => (options.client ?? client).get<GetAppKeyResponses, GetAppKeyErrors, ThrowOnError>({
-    security: [{
-            in: 'cookie',
-            name: 'woodgate_session',
-            type: 'apiKey'
-        }, { scheme: 'bearer', type: 'http' }],
-    url: '/api/app-keys/{id}',
-    ...options
-});
-
-/**
- * Update an app key
- */
-export const updateAppKey = <ThrowOnError extends boolean = false>(options: Options<UpdateAppKeyData, ThrowOnError>): RequestResult<UpdateAppKeyResponses, UpdateAppKeyErrors, ThrowOnError> => (options.client ?? client).put<UpdateAppKeyResponses, UpdateAppKeyErrors, ThrowOnError>({
-    security: [{
-            in: 'cookie',
-            name: 'woodgate_session',
-            type: 'apiKey'
-        }, { scheme: 'bearer', type: 'http' }],
-    url: '/api/app-keys/{id}',
-    ...options,
-    headers: {
-        'Content-Type': 'application/json',
-        ...options.headers
-    }
 });
 
 /**
@@ -598,6 +512,105 @@ export const createSession = <ThrowOnError extends boolean = false>(options: Opt
         'Content-Type': 'application/json',
         ...options.headers
     }
+});
+
+/**
+ * List Stations
+ */
+export const listStations = <ThrowOnError extends boolean = false>(options?: Options<ListStationsData, ThrowOnError>): RequestResult<ListStationsResponses, ListStationsErrors, ThrowOnError> => (options?.client ?? client).get<ListStationsResponses, ListStationsErrors, ThrowOnError>({
+    security: [{
+            in: 'cookie',
+            name: 'woodgate_session',
+            type: 'apiKey'
+        }, { scheme: 'bearer', type: 'http' }],
+    url: '/api/stations',
+    ...options
+});
+
+/**
+ * Create a Station
+ */
+export const createStation = <ThrowOnError extends boolean = false>(options: Options<CreateStationData, ThrowOnError>): RequestResult<CreateStationResponses, CreateStationErrors, ThrowOnError> => (options.client ?? client).post<CreateStationResponses, CreateStationErrors, ThrowOnError>({
+    security: [{
+            in: 'cookie',
+            name: 'woodgate_session',
+            type: 'apiKey'
+        }, { scheme: 'bearer', type: 'http' }],
+    url: '/api/stations',
+    ...options,
+    headers: {
+        'Content-Type': 'application/json',
+        ...options.headers
+    }
+});
+
+/**
+ * List Station location choices
+ */
+export const listStationLocations = <ThrowOnError extends boolean = false>(options?: Options<ListStationLocationsData, ThrowOnError>): RequestResult<ListStationLocationsResponses, ListStationLocationsErrors, ThrowOnError> => (options?.client ?? client).get<ListStationLocationsResponses, ListStationLocationsErrors, ThrowOnError>({
+    security: [{
+            in: 'cookie',
+            name: 'woodgate_session',
+            type: 'apiKey'
+        }, { scheme: 'bearer', type: 'http' }],
+    url: '/api/stations/locations',
+    ...options
+});
+
+/**
+ * Delete a Station
+ */
+export const deleteStation = <ThrowOnError extends boolean = false>(options: Options<DeleteStationData, ThrowOnError>): RequestResult<DeleteStationResponses, DeleteStationErrors, ThrowOnError> => (options.client ?? client).delete<DeleteStationResponses, DeleteStationErrors, ThrowOnError>({
+    security: [{
+            in: 'cookie',
+            name: 'woodgate_session',
+            type: 'apiKey'
+        }, { scheme: 'bearer', type: 'http' }],
+    url: '/api/stations/{id}',
+    ...options
+});
+
+/**
+ * Get a Station
+ */
+export const getStation = <ThrowOnError extends boolean = false>(options: Options<GetStationData, ThrowOnError>): RequestResult<GetStationResponses, GetStationErrors, ThrowOnError> => (options.client ?? client).get<GetStationResponses, GetStationErrors, ThrowOnError>({
+    security: [{
+            in: 'cookie',
+            name: 'woodgate_session',
+            type: 'apiKey'
+        }, { scheme: 'bearer', type: 'http' }],
+    url: '/api/stations/{id}',
+    ...options
+});
+
+/**
+ * Update a Station
+ */
+export const updateStation = <ThrowOnError extends boolean = false>(options: Options<UpdateStationData, ThrowOnError>): RequestResult<UpdateStationResponses, UpdateStationErrors, ThrowOnError> => (options.client ?? client).put<UpdateStationResponses, UpdateStationErrors, ThrowOnError>({
+    security: [{
+            in: 'cookie',
+            name: 'woodgate_session',
+            type: 'apiKey'
+        }, { scheme: 'bearer', type: 'http' }],
+    url: '/api/stations/{id}',
+    ...options,
+    headers: {
+        'Content-Type': 'application/json',
+        ...options.headers
+    }
+});
+
+/**
+ * Rotate a Station key
+ */
+export const rotateStationKey = <ThrowOnError extends boolean = false>(options: Options<RotateStationKeyData, ThrowOnError>): RequestResult<RotateStationKeyResponses, RotateStationKeyErrors, ThrowOnError> => (options.client ?? client).post<RotateStationKeyResponses, RotateStationKeyErrors, ThrowOnError>({
+    security: [{
+            in: 'cookie',
+            name: 'woodgate_session',
+            type: 'apiKey'
+        }, { scheme: 'bearer', type: 'http' }],
+    url: '/api/stations/{id}/key',
+    ...options
 });
 
 /**

@@ -2,6 +2,7 @@ package checkin
 
 import (
 	"context"
+	"errors"
 	"fmt"
 	"time"
 
@@ -16,6 +17,7 @@ import (
 	"github.com/woodleighschool/woodgate/internal/fault"
 	"github.com/woodleighschool/woodgate/internal/listing"
 	"github.com/woodleighschool/woodgate/internal/postgres"
+	"github.com/woodleighschool/woodgate/internal/station"
 )
 
 // Store persists the check-in domain in PostgreSQL.
@@ -128,6 +130,27 @@ func (s *Store) ListLocationGroupChoices(
 			{SQL: "group_row.id"},
 		},
 		Params: params,
+	})
+}
+
+func (s *Store) ListStationLocationChoices(
+	ctx context.Context,
+	params listing.Params,
+) ([]station.Location, int, error) {
+	var where postgres.WhereBuilder
+	if params.Q != "" {
+		where.Addf("name ILIKE '%%' || %s || '%%'", params.Q)
+	}
+	whereSQL, args := where.Build()
+	return postgres.ListWithCount[station.Location](ctx, s.pool, postgres.ListQuery{
+		SelectSQL: "SELECT id, name FROM locations",
+		WhereSQL:  whereSQL,
+		Args:      args,
+		OrderKeys: map[string]postgres.OrderExpr{
+			"name": {SQL: "lower(name)"},
+		},
+		DefaultOrder: []postgres.OrderExpr{{SQL: "lower(name)"}, {SQL: "id"}},
+		Params:       params,
 	})
 }
 
@@ -348,6 +371,8 @@ type checkinRow struct {
 	PhotoType       *string   `db:"photo_content_type"`
 	PhotoSizeBytes  *int64    `db:"photo_size_bytes"`
 	PhotoSHA256     *string   `db:"photo_sha256"`
+	StationID       *int64    `db:"station_id"`
+	StationName     string    `db:"station_name"`
 	AppID           uuid.UUID `db:"app_id"`
 	ActorName       string    `db:"actor_name"`
 	ActorKind       string    `db:"actor_kind"`
@@ -362,7 +387,8 @@ const checkinSelectSQL = `SELECT c.id,c.app_id,c.actor_kind,c.actor_app_id,c.use
     c.location_id,l.name AS location_name,c.direction::text AS direction,c.notes,c.photo_object_id,
     photo.filename AS photo_filename,photo.content_type AS photo_content_type,
     photo.size_bytes AS photo_size_bytes,photo.sha256 AS photo_sha256,
-    COALESCE(NULLIF(creator.name,''),NULLIF(creator.email,''),k.name,'') AS actor_name,
+    COALESCE(NULLIF(creator.name,''),NULLIF(creator.email,''),k.name,station.name,'') AS actor_name,
+    c.station_id,COALESCE(station.name,'') AS station_name,
     c.created_by_user_id,COALESCE(creator.name,'') AS created_by_name,
     COALESCE(creator.email,'') AS created_by_email,c.created_at
 FROM checkins c
@@ -370,7 +396,8 @@ JOIN users u ON u.id=c.user_id
 JOIN locations l ON l.id=c.location_id
 LEFT JOIN storage_objects photo ON photo.id=c.photo_object_id
 LEFT JOIN users creator ON creator.id=c.created_by_user_id
-LEFT JOIN app_keys k ON k.id=c.app_key_id`
+LEFT JOIN app_keys k ON k.id=c.app_key_id
+LEFT JOIN stations station ON station.id=c.station_id`
 
 func (s *Store) ListCheckins(ctx context.Context, params CheckinListParams) ([]Checkin, int, error) {
 	var where postgres.WhereBuilder
@@ -451,8 +478,8 @@ func (s *Store) UserActor(ctx context.Context, id int64) (Actor, error) {
 
 func (s *Store) CreateCheckin(ctx context.Context, create CheckinCreate, actor Actor, photoObjectID *int64) (*Checkin, error) {
 	var id int64
-	err := s.pool.QueryRow(ctx, `INSERT INTO checkins (user_id,location_id,direction,notes,photo_object_id,actor_kind,actor_app_id,created_by_user_id,app_key_id)
- VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9) RETURNING id`, create.UserID, create.LocationID, create.Direction, create.Notes, photoObjectID, actor.Kind, actor.AppID, actor.UserID, actor.AppKeyID).Scan(&id)
+	err := s.pool.QueryRow(ctx, `INSERT INTO checkins (user_id,location_id,direction,notes,photo_object_id,actor_kind,actor_app_id,created_by_user_id,app_key_id,station_id)
+ VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10) RETURNING id`, create.UserID, create.LocationID, create.Direction, create.Notes, photoObjectID, actor.Kind, actor.AppID, actor.UserID, actor.AppKeyID, actor.StationID).Scan(&id)
 	if err != nil {
 		return nil, postgres.MutationError(err)
 	}
@@ -471,6 +498,7 @@ func checkinFromRow(row checkinRow) Checkin {
 		Notes:         row.Notes,
 		PhotoObjectID: row.PhotoObjectID,
 		PhotoURL:      photoURL(row.ID, row.PhotoObjectID),
+		Station:       stationSummary(row.StationID, row.StationName),
 		CreatedBy:     userSummary(row.CreatedByUserID, row.CreatedByName, row.CreatedByEmail),
 		CreatedAt:     row.CreatedAt,
 	}
@@ -478,11 +506,44 @@ func checkinFromRow(row checkinRow) Checkin {
 	return item
 }
 
+func stationSummary(id *int64, name string) *StationSummary {
+	if id == nil {
+		return nil
+	}
+	return &StationSummary{ID: *id, Name: name}
+}
+
 func userSummary(id *int64, name, email string) *directory.UserSummary {
 	if id == nil {
 		return nil
 	}
 	return &directory.UserSummary{ID: *id, Name: name, Email: email}
+}
+
+func (s *Store) PersonEligible(ctx context.Context, locationID, userID int64) (bool, error) {
+	var ok bool
+	err := s.pool.QueryRow(ctx, eligiblePersonSQL+" AND u.id=$2", locationID, userID).Scan(&ok)
+	if errors.Is(err, pgx.ErrNoRows) {
+		return false, nil
+	}
+	return ok, err
+}
+
+const eligiblePersonSQL = `SELECT true FROM users u
+WHERE u.deleted_at IS NULL
+AND (NOT EXISTS (SELECT 1 FROM location_directory_groups WHERE location_id=$1)
+ OR EXISTS (SELECT 1 FROM location_directory_groups lg JOIN directory_group_memberships gm ON gm.group_id=lg.group_id WHERE lg.location_id=$1 AND gm.user_id=u.id))`
+
+type personRow struct {
+	ID    int64  `db:"id"`
+	Name  string `db:"name"`
+	Email string `db:"email"`
+}
+
+func (s *Store) listPeople(ctx context.Context, locationID int64) ([]personRow, error) {
+	return postgres.GetAll[personRow](ctx, s.pool, `SELECT u.id,u.name,u.email FROM users u WHERE u.deleted_at IS NULL
+AND (NOT EXISTS (SELECT 1 FROM location_directory_groups WHERE location_id=$1)
+ OR EXISTS (SELECT 1 FROM location_directory_groups lg JOIN directory_group_memberships gm ON gm.group_id=lg.group_id WHERE lg.location_id=$1 AND gm.user_id=u.id)) ORDER BY lower(u.name),u.id`, locationID)
 }
 
 func attachmentFile(filename, contentType *string, sizeBytes *int64, sha256 *string) *AttachmentFile {
@@ -508,3 +569,9 @@ func replacedObjectIDs(oldID, newID *int64) []int64 {
 
 // Kept local to avoid exporting pagination mechanics from this domain package.
 func listingNormalize(params listing.Params) listing.Params { return listing.Normalize(params) }
+
+func (s *Store) StationActor(ctx context.Context, id int64) (Actor, error) {
+	actor := Actor{Kind: "station", StationID: &id}
+	err := s.pool.QueryRow(ctx, "SELECT app_id FROM stations WHERE id=$1", id).Scan(&actor.AppID)
+	return actor, postgres.GetError(err)
+}

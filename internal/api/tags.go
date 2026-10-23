@@ -5,7 +5,6 @@ import "github.com/danielgtaylor/huma/v2"
 // OpenAPI resource tags are shared by capability operations and API metadata.
 const (
 	TagAccount         = "Account"
-	TagAppKeys         = "App keys"
 	TagAuthorization   = "Authorization"
 	TagCheckins        = "Check-ins"
 	TagDirectoryGroups = "Directory groups"
@@ -13,6 +12,7 @@ const (
 	TagDirectoryUsers  = "Directory users"
 	TagLocations       = "Locations"
 	TagSession         = "Session"
+	TagStations        = "Stations"
 )
 
 type openAPITagGroup struct {
@@ -24,7 +24,6 @@ type openAPITagGroup struct {
 func configureOpenAPI(doc *huma.OpenAPI) {
 	doc.Tags = []*huma.Tag{
 		resourceTag(TagAccount, "Account"),
-		resourceTag(TagAppKeys, "App keys"),
 		resourceTag(TagAuthorization, "Roles and permissions"),
 		resourceTag(TagCheckins, "Check-ins"),
 		resourceTag(TagDirectoryGroups, "Groups"),
@@ -32,12 +31,13 @@ func configureOpenAPI(doc *huma.OpenAPI) {
 		resourceTag(TagDirectoryUsers, "Users"),
 		resourceTag(TagLocations, "Locations"),
 		resourceTag(TagSession, "Session"),
+		resourceTag(TagStations, "Stations"),
 	}
 	doc.Extensions = map[string]any{
 		"x-tagGroups": []openAPITagGroup{
 			{Name: "Account", Tags: []string{TagAccount}},
 			{Name: "Directory", Tags: []string{TagDirectorySync, TagDirectoryGroups, TagDirectoryUsers}},
-			{Name: "Check-in", Tags: []string{TagCheckins, TagLocations, TagAppKeys}},
+			{Name: "Check-in", Tags: []string{TagCheckins, TagLocations, TagStations}},
 			{Name: "Authorization", Tags: []string{TagAuthorization}},
 			{Name: "Session", Tags: []string{TagSession}},
 		},
