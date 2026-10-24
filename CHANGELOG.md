@@ -1,5 +1,14 @@
 # Changelog
 
+## [2.3.4](https://github.com/woodleighschool/woodgate/compare/v2.3.3...v2.3.4) (2026-10-24)
+
+
+### Bug Fixes
+
+* **go:** update module github.com/microsoftgraph/msgraph-sdk-go (v1.104.0 → v1.105.0) ([#453](https://github.com/woodleighschool/woodgate/issues/453)) ([7b173cd](https://github.com/woodleighschool/woodgate/commit/7b173cdb7287c5324f8128d033e771f574e76201))
+* **go:** update module github.com/woodleighschool/goodies/bloby (v1.4.0 → v1.4.1) ([#460](https://github.com/woodleighschool/woodgate/issues/460)) ([6c9ac00](https://github.com/woodleighschool/woodgate/commit/6c9ac002ce3d24898f965f392ddf18da6b88bd4c))
+* **npm:** update tanstack-router monorepo ([#457](https://github.com/woodleighschool/woodgate/issues/457)) ([9be15bb](https://github.com/woodleighschool/woodgate/commit/9be15bba75cca573d082461351cf41e58fc49d10))
+
 ## [2.3.3](https://github.com/woodleighschool/woodgate/compare/v2.3.2...v2.3.3) (2026-10-22)
 
 
