@@ -181,27 +181,30 @@ url_api = "https://api.github.com/repos/pnpm/pnpm/releases/assets/662173343"
 provenance = "github-attestations"
 
 [[tools.swiftformat]]
-version = "0.64.0"
+version = "0.64.1"
 backend = "github:nicklockwood/SwiftFormat"
-specifiers = ["0.64.0"]
+specifiers = ["0.64.1"]
 
 [tools.swiftformat.options]
 no_app = "true"
 
 [tools.swiftformat."platforms.linux-arm64"]
-checksum = "sha256:6b53c985b3849be0c9544bf93a378c12aaa761a7225f05f0b9948f827dd7db52"
-url = "https://github.com/nicklockwood/SwiftFormat/releases/download/0.64.0/swiftformat_linux_aarch64.zip"
-url_api = "https://api.github.com/repos/nicklockwood/SwiftFormat/releases/assets/648824031"
+checksum = "sha256:b4272a7b55b4bdfedb2e5ca0eaeaadd75873e08860af9ead351451b21726b096"
+checksum_source = "mise-versions"
+url = "https://github.com/nicklockwood/SwiftFormat/releases/download/0.64.1/swiftformat_linux_aarch64.zip"
+url_api = "https://api.github.com/repos/nicklockwood/SwiftFormat/releases/assets/667161464"
 
 [tools.swiftformat."platforms.linux-x64"]
-checksum = "sha256:599eb5d2d8cf43e1128e79cd72f3bc2fec1b3189c3ac7593fbe732f2568fed36"
-url = "https://github.com/nicklockwood/SwiftFormat/releases/download/0.64.0/swiftformat_linux.zip"
-url_api = "https://api.github.com/repos/nicklockwood/SwiftFormat/releases/assets/648824032"
+checksum = "sha256:a291dd7e1e563562565ca18193da0c1aa0578b45973335d827e214b2d2d769ec"
+checksum_source = "mise-versions"
+url = "https://github.com/nicklockwood/SwiftFormat/releases/download/0.64.1/swiftformat_linux.zip"
+url_api = "https://api.github.com/repos/nicklockwood/SwiftFormat/releases/assets/667161463"
 
 [tools.swiftformat."platforms.macos-arm64"]
-checksum = "sha256:95ea62625d0b898a7af870293311ae6f09e4a3147ecd900593687e4b9ab2fd98"
-url = "https://github.com/nicklockwood/SwiftFormat/releases/download/0.64.0/swiftformat.zip"
-url_api = "https://api.github.com/repos/nicklockwood/SwiftFormat/releases/assets/648824039"
+checksum = "sha256:0e5762a848d738602c7a983b26812031e634d85e357db070968b9c805f253eff"
+checksum_source = "mise-versions"
+url = "https://github.com/nicklockwood/SwiftFormat/releases/download/0.64.1/swiftformat.zip"
+url_api = "https://api.github.com/repos/nicklockwood/SwiftFormat/releases/assets/667161467"
 
 [[tools.zizmor]]
 version = "1.31.1"
