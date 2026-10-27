@@ -26,7 +26,7 @@ const (
 
 	// riverMigrationVersion is deliberately pinned so dependency updates do not
 	// mutate the database schema without an explicit application change.
-	riverMigrationVersion = 7
+	riverMigrationVersion = 8
 )
 
 //go:embed migrations/*.sql
