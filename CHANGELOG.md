@@ -1,5 +1,22 @@
 # Changelog
 
+## [2.3.4](https://github.com/woodleighschool/woodgate/compare/v2.3.3...v2.3.4) (2026-10-28)
+
+
+### Bug Fixes
+
+* **go:** update module github.com/danielgtaylor/huma/v2 (v2.39.1 → v2.40.0) ([#468](https://github.com/woodleighschool/woodgate/issues/468)) ([dc37a95](https://github.com/woodleighschool/woodgate/commit/dc37a9567fab6edc166df1476267d32e2edc6364))
+* **go:** update module github.com/microsoft/kiota-abstractions-go (v1.11.4 → v1.12.0) ([#479](https://github.com/woodleighschool/woodgate/issues/479)) ([788019b](https://github.com/woodleighschool/woodgate/commit/788019ba4fbc8b1a73d256103c5951f50959ee1c))
+* **go:** update module github.com/microsoftgraph/msgraph-sdk-go (v1.104.0 → v1.105.0) ([#453](https://github.com/woodleighschool/woodgate/issues/453)) ([7b173cd](https://github.com/woodleighschool/woodgate/commit/7b173cdb7287c5324f8128d033e771f574e76201))
+* **go:** update module github.com/woodleighschool/goodies/bloby (v1.4.0 → v1.4.1) ([#460](https://github.com/woodleighschool/woodgate/issues/460)) ([6c9ac00](https://github.com/woodleighschool/woodgate/commit/6c9ac002ce3d24898f965f392ddf18da6b88bd4c))
+* **go:** update river monorepo (v0.49.0 → v0.50.0) ([#469](https://github.com/woodleighschool/woodgate/issues/469)) ([eb1e8ff](https://github.com/woodleighschool/woodgate/commit/eb1e8ff42843d01abeeab1a07063c26f48731c20))
+* **npm:** update dependency @woodleighschool/bloby-client (1.3.0 → 1.3.1) ([#463](https://github.com/woodleighschool/woodgate/issues/463)) ([f859d20](https://github.com/woodleighschool/woodgate/commit/f859d206c89e22ad9eff94772cf0d678838d6bfd))
+* **npm:** update dependency lucide-react (1.61.0 → 1.62.0) ([#478](https://github.com/woodleighschool/woodgate/issues/478)) ([bb9382b](https://github.com/woodleighschool/woodgate/commit/bb9382b3ea5ea0f9ad592c43d0ab5c6747539a29))
+* **npm:** update dependency shadcn (4.22.1 → 4.22.2) ([#476](https://github.com/woodleighschool/woodgate/issues/476)) ([4444885](https://github.com/woodleighschool/woodgate/commit/4444885a00a4a50d1b9661f647f015d26dcdbbf9))
+* **npm:** update dependency shadcn (4.22.2 → 4.23.0) ([#480](https://github.com/woodleighschool/woodgate/issues/480)) ([18d2324](https://github.com/woodleighschool/woodgate/commit/18d2324b66142c0782f2125d8074342e30b294a7))
+* **npm:** update tanstack-query monorepo (5.104.5 → 5.105.0) ([#471](https://github.com/woodleighschool/woodgate/issues/471)) ([ee748fb](https://github.com/woodleighschool/woodgate/commit/ee748fbc7743ed0ae55a751cc983bdfa082c0681))
+* **npm:** update tanstack-router monorepo ([#457](https://github.com/woodleighschool/woodgate/issues/457)) ([9be15bb](https://github.com/woodleighschool/woodgate/commit/9be15bba75cca573d082461351cf41e58fc49d10))
+
 ## [2.3.3](https://github.com/woodleighschool/woodgate/compare/v2.3.2...v2.3.3) (2026-10-22)
 
 
