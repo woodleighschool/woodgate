@@ -26,6 +26,7 @@ jobs:
     name: Latest
     if: startsWith(github.event.release.tag_name, 'app-')
     runs-on: ubuntu-26.04
+    timeout-minutes: 30
     permissions:
       contents: write
     steps:
