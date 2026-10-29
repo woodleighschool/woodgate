@@ -1,6 +1,6 @@
 import { getRouteApi } from "@tanstack/react-router";
 import { format, subMonths } from "date-fns";
-import { ClipboardCheck } from "lucide-react";
+import { ClipboardCheck, Plus } from "lucide-react";
 import { useState } from "react";
 
 import type { DataTableExportOptions } from "@components/data-table/data-table-export";
@@ -10,9 +10,11 @@ import { DateRangePicker } from "@components/date-range-picker";
 import { FacetedFilter } from "@components/faceted-filter";
 import { FilterChip } from "@components/filter-controls";
 import { PageHeader, PageShell } from "@components/layout/page-layout";
-import { TextLink } from "@components/link";
+import { Link, TextLink } from "@components/link";
 import { ResourceDataTable } from "@components/resource-data-table";
 import { Badge } from "@components/ui/badge";
+import { Button } from "@components/ui/button";
+import { useCan } from "@features/authz/access";
 import { checkinDateRange, checkinBounds } from "@features/checkins/date-range";
 import {
   checkinDirectionMetadata,
@@ -103,6 +105,7 @@ const columns: DataTableColumnDef<Checkin>[] = [
 ];
 
 export function CheckinListPage() {
+  const canEdit = useCan({ resource: "checkins", access: "edit" });
   const [calendarToday, setCalendarToday] = useState(() => new Date());
   const search = routeApi.useSearch();
   const navigate = routeApi.useNavigate();
@@ -146,6 +149,14 @@ export function CheckinListPage() {
       <PageHeader
         title="Check-ins"
         description="Review arrival and departure records."
+        actions={
+          canEdit ? (
+            <Button size="sm" render={<Link to="/checkins/new" />} nativeButton={false}>
+              <Plus data-icon="inline-start" />
+              Create
+            </Button>
+          ) : null
+        }
         context={
           search.user_id !== undefined ? (
             <UserFilterChip

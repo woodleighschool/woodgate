@@ -101,6 +101,18 @@ type checkinLocationListOutput struct {
 	}
 }
 type checkinUserOutput struct{ Body checkin.PersonSummary }
+type availableLocationListInput struct{ api.ListQueryInput }
+type availableLocationListOutput struct {
+	Body api.Page[checkin.LocationSummary]
+}
+type checkinPeopleInput struct {
+	api.ListQueryInput
+
+	LocationID int64 `query:"location_id" minimum:"1" required:"true"`
+}
+type checkinPeopleOutput struct {
+	Body api.Page[checkin.PersonSummary]
+}
 
 type checkinOutput struct{ Body checkin.Checkin }
 type checkinCreateInput struct{ Body checkin.CheckinCreate }
@@ -209,6 +221,24 @@ func registerLocations(routes huma.API, deps Dependencies) {
 }
 
 func registerCheckins(routes huma.API, deps Dependencies) {
+	huma.Register(routes, authhuma.Require(routes, deps.Authorizer, deps.Logger, rbac.ResourceCheckins, authz.Edit, huma.Operation{
+		OperationID: "list-checkin-available-locations", Method: http.MethodGet, Path: "/api/checkins/available-locations", Tags: []string{api.TagCheckins}, Summary: "List locations for recording a check-in",
+	}), func(ctx context.Context, input *availableLocationListInput) (*availableLocationListOutput, error) {
+		items, count, err := deps.Service.ListAvailableLocations(ctx, input.Params())
+		if err != nil {
+			return nil, api.ResourceError(ctx, deps.Logger, "list-checkin-available-locations", "location choices", err)
+		}
+		return &availableLocationListOutput{Body: api.Page[checkin.LocationSummary]{Items: items, Count: count}}, nil
+	})
+	huma.Register(routes, authhuma.Require(routes, deps.Authorizer, deps.Logger, rbac.ResourceCheckins, authz.Edit, huma.Operation{
+		OperationID: "list-checkin-people", Method: http.MethodGet, Path: "/api/checkins/people", Tags: []string{api.TagCheckins}, Summary: "List eligible people for a check-in",
+	}), func(ctx context.Context, input *checkinPeopleInput) (*checkinPeopleOutput, error) {
+		items, count, err := deps.Service.ListEligiblePeople(ctx, input.LocationID, input.Params())
+		if err != nil {
+			return nil, api.ResourceError(ctx, deps.Logger, "list-checkin-people", "person choices", err)
+		}
+		return &checkinPeopleOutput{Body: api.Page[checkin.PersonSummary]{Items: items, Count: count}}, nil
+	})
 	huma.Register(routes, authhuma.Require(routes, deps.Authorizer, deps.Logger, rbac.ResourceCheckins, authz.View, huma.Operation{
 		OperationID: "list-checkin-departments", Method: http.MethodGet, Path: "/api/checkins/departments", Tags: []string{api.TagCheckins}, Summary: "List check-in department choices",
 	}), func(ctx context.Context, _ *struct{}) (*checkinDepartmentListOutput, error) {

@@ -568,6 +568,34 @@ components:
         - items
         - count
       type: object
+    PageLocationSummary:
+      additionalProperties: false
+      properties:
+        count:
+          format: int64
+          type: integer
+        items:
+          items:
+            $ref: "#/components/schemas/CheckinLocationSummary"
+          type: array
+      required:
+        - items
+        - count
+      type: object
+    PagePersonSummary:
+      additionalProperties: false
+      properties:
+        count:
+          format: int64
+          type: integer
+        items:
+          items:
+            $ref: "#/components/schemas/CheckinPersonSummary"
+          type: array
+      required:
+        - items
+        - count
+      type: object
     PageStation:
       additionalProperties: false
       properties:
@@ -1638,6 +1666,63 @@ paths:
       x-authz:
         access: edit
         resource: checkins
+  /api/checkins/available-locations:
+    get:
+      operationId: list-checkin-available-locations
+      parameters:
+        - explode: false
+          in: query
+          name: q
+          schema:
+            type: string
+        - explode: false
+          in: query
+          name: page
+          schema:
+            format: int32
+            minimum: 1
+            type: integer
+        - explode: false
+          in: query
+          name: per_page
+          schema:
+            format: int32
+            maximum: 1000
+            minimum: 1
+            type: integer
+        - explode: false
+          in: query
+          name: sort
+          schema:
+            type: string
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/PageLocationSummary"
+          description: OK
+        "401":
+          content:
+            application/problem+json:
+              schema:
+                $ref: "#/components/schemas/ErrorModel"
+          description: Unauthorized
+        "403":
+          content:
+            application/problem+json:
+              schema:
+                $ref: "#/components/schemas/ErrorModel"
+          description: Forbidden
+      security:
+        - cookieAuth: []
+        - bearerAuth: []
+      summary: List locations for recording a check-in
+      tags:
+        - Check-ins
+      x-authz:
+        access: edit
+        resource: checkins
   /api/checkins/departments:
     get:
       operationId: list-checkin-departments
@@ -1699,6 +1784,71 @@ paths:
         - Check-ins
       x-authz:
         access: view
+        resource: checkins
+  /api/checkins/people:
+    get:
+      operationId: list-checkin-people
+      parameters:
+        - explode: false
+          in: query
+          name: q
+          schema:
+            type: string
+        - explode: false
+          in: query
+          name: page
+          schema:
+            format: int32
+            minimum: 1
+            type: integer
+        - explode: false
+          in: query
+          name: per_page
+          schema:
+            format: int32
+            maximum: 1000
+            minimum: 1
+            type: integer
+        - explode: false
+          in: query
+          name: sort
+          schema:
+            type: string
+        - explode: false
+          in: query
+          name: location_id
+          required: true
+          schema:
+            format: int64
+            minimum: 1
+            type: integer
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/PagePersonSummary"
+          description: OK
+        "401":
+          content:
+            application/problem+json:
+              schema:
+                $ref: "#/components/schemas/ErrorModel"
+          description: Unauthorized
+        "403":
+          content:
+            application/problem+json:
+              schema:
+                $ref: "#/components/schemas/ErrorModel"
+          description: Forbidden
+      security:
+        - cookieAuth: []
+        - bearerAuth: []
+      summary: List eligible people for a check-in
+      tags:
+        - Check-ins
+      x-authz:
+        access: edit
         resource: checkins
   /api/checkins/users/{id}:
     get:

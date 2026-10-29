@@ -15,10 +15,13 @@ import type {
   AuthzRole,
   AuthzRoleMutation,
   Checkin,
+  CheckinCreate,
   CheckinAttachmentObjectView,
   CheckinDirectUploadTarget,
   GroupSummary,
   ListCheckinsData,
+  ListCheckinAvailableLocationsData,
+  ListCheckinPeopleData,
   ListLocationGroupsData,
   ListLocationsData,
   ListStationLocationsData,
@@ -33,6 +36,7 @@ import type {
 } from "@lib/api";
 import {
   createLocationBackgroundUpload,
+  createCheckin,
   createLocation,
   createLocationLogoUpload,
   createAuthzRole,
@@ -43,6 +47,8 @@ import {
   getCheckinUser,
   listCheckinDepartments,
   listCheckinLocations,
+  listCheckinAvailableLocations,
+  listCheckinPeople,
   getLocation,
   listLocationBackgrounds,
   listLocationGroups,
@@ -279,6 +285,37 @@ export function useCheckinLocations() {
   return useQuery({
     queryKey: [...keys.checkins, "locations"],
     queryFn: ({ signal }) => unwrap(listCheckinLocations({ signal })).then((data) => data.items),
+  });
+}
+
+export function useCheckinAvailableLocations(
+  params: NonNullable<ListCheckinAvailableLocationsData["query"]>,
+) {
+  const query = baseListParams(params);
+  return useQuery({
+    queryKey: [...keys.checkins, "available-locations", query],
+    queryFn: ({ signal }) => unwrap(listCheckinAvailableLocations({ query, signal })),
+    placeholderData: keepPreviousData,
+  });
+}
+
+export function useCheckinPeople(params: ListCheckinPeopleData["query"]) {
+  const query = { ...baseListParams(params), location_id: params.location_id };
+  return useQuery({
+    queryKey: [...keys.checkins, "people", query],
+    queryFn: ({ signal }) => unwrap(listCheckinPeople({ query, signal })),
+  });
+}
+
+export function useCreateCheckin() {
+  const queryClient = useQueryClient();
+  return useMutation<Checkin, ApiError, CheckinCreate>({
+    mutationFn: (body) => unwrap(createCheckin({ body })),
+    onSuccess: async (checkin) => {
+      queryClient.setQueryData([...keys.checkins, "detail", checkin.id], checkin);
+      await queryClient.invalidateQueries({ queryKey: keys.checkins });
+      toast.add({ title: "Check-in Created", type: "success" });
+    },
   });
 }
 

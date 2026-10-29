@@ -539,6 +539,7 @@ func TestStationCheckinKeepsActorAfterStationDeletion(t *testing.T) {
 		t.Fatal(err)
 	}
 	submission := station.CheckinSubmission{StationID: stationID, LocationID: location.ID, PersonID: userID, Direction: station.DirectionIn, Photo: photo.Bytes(), ContentType: "image/jpeg"}
+	assertStationCaptureRequirements(t, ctx, service, submission)
 	receipt, err := service.SubmitStationCheckin(ctx, submission)
 	if err != nil {
 		t.Fatal(err)
@@ -570,5 +571,19 @@ func TestStationCheckinKeepsActorAfterStationDeletion(t *testing.T) {
 	}
 	if item.ActorKind != "station" || item.ActorAppID != stationAppID || item.Station != nil {
 		t.Fatalf("deleted Station changed attribution=%+v", item)
+	}
+}
+
+func assertStationCaptureRequirements(t *testing.T, ctx context.Context, service *Service, submission station.CheckinSubmission) {
+	t.Helper()
+	missingPhoto := submission
+	missingPhoto.Photo = nil
+	if _, err := service.SubmitStationCheckin(ctx, missingPhoto); !errors.Is(err, fault.ErrInvalidInput) {
+		t.Fatalf("missing station photo error=%v", err)
+	}
+	disallowedNotes := submission
+	disallowedNotes.Notes = "Not collected here"
+	if _, err := service.SubmitStationCheckin(ctx, disallowedNotes); !errors.Is(err, fault.ErrInvalidInput) {
+		t.Fatalf("disabled station notes error=%v", err)
 	}
 }

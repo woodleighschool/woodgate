@@ -453,6 +453,20 @@ FROM locations l WHERE EXISTS (SELECT 1 FROM checkins c WHERE c.location_id=l.id
 ORDER BY l.name,l.id`)
 }
 
+func (s *Store) ListAvailableLocations(ctx context.Context, params listing.Params) ([]LocationSummary, int, error) {
+	var where postgres.WhereBuilder
+	where.Add("enabled")
+	if params.Q != "" {
+		where.Addf("name ILIKE '%%' || %s || '%%'", params.Q)
+	}
+	whereSQL, args := where.Build()
+	return postgres.ListWithCount[LocationSummary](ctx, s.pool, postgres.ListQuery{
+		SelectSQL: "SELECT id,name FROM locations", WhereSQL: whereSQL, Args: args,
+		OrderKeys:    map[string]postgres.OrderExpr{"name": {SQL: "lower(name)"}},
+		DefaultOrder: []postgres.OrderExpr{{SQL: "lower(name)"}, {SQL: "id"}}, Params: params,
+	})
+}
+
 func (s *Store) GetCheckinUser(ctx context.Context, id int64) (*PersonSummary, error) {
 	person, err := postgres.GetOne[PersonSummary](ctx, s.pool, `SELECT id,email,name,COALESCE(department,'') AS department FROM users WHERE id=$1`, id)
 	if err != nil {
@@ -521,18 +535,39 @@ func userSummary(id *int64, name, email string) *directory.UserSummary {
 }
 
 func (s *Store) PersonEligible(ctx context.Context, locationID, userID int64) (bool, error) {
+	where := eligiblePeopleWhere(locationID)
+	where.Addf("u.id=%s", userID)
+	whereSQL, args := where.Build()
 	var ok bool
-	err := s.pool.QueryRow(ctx, eligiblePersonSQL+" AND u.id=$2", locationID, userID).Scan(&ok)
+	err := s.pool.QueryRow(ctx, "SELECT true FROM users u "+whereSQL, args...).Scan(&ok)
 	if errors.Is(err, pgx.ErrNoRows) {
 		return false, nil
 	}
 	return ok, err
 }
 
-const eligiblePersonSQL = `SELECT true FROM users u
-WHERE u.deleted_at IS NULL
-AND (NOT EXISTS (SELECT 1 FROM location_directory_groups WHERE location_id=$1)
- OR EXISTS (SELECT 1 FROM location_directory_groups lg JOIN directory_group_memberships gm ON gm.group_id=lg.group_id WHERE lg.location_id=$1 AND gm.user_id=u.id))`
+func eligiblePeopleWhere(locationID int64) postgres.WhereBuilder {
+	var where postgres.WhereBuilder
+	where.Add("u.deleted_at IS NULL")
+	location := where.Arg(locationID)
+	where.Add(fmt.Sprintf(`(NOT EXISTS (SELECT 1 FROM location_directory_groups WHERE location_id=%[1]s)
+ OR EXISTS (SELECT 1 FROM location_directory_groups lg JOIN directory_group_memberships gm ON gm.group_id=lg.group_id WHERE lg.location_id=%[1]s AND gm.user_id=u.id))`, location))
+	return where
+}
+
+func (s *Store) ListEligiblePeople(ctx context.Context, locationID int64, params listing.Params) ([]PersonSummary, int, error) {
+	where := eligiblePeopleWhere(locationID)
+	if params.Q != "" {
+		where.Addf("(u.name ILIKE '%%' || %s || '%%' OR u.email ILIKE '%%' || %s || '%%' OR u.department ILIKE '%%' || %s || '%%')", params.Q, params.Q, params.Q)
+	}
+	whereSQL, args := where.Build()
+	return postgres.ListWithCount[PersonSummary](ctx, s.pool, postgres.ListQuery{
+		SelectSQL: "SELECT u.id,u.name,u.email,COALESCE(u.department,'') AS department FROM users u",
+		WhereSQL:  whereSQL, Args: args,
+		OrderKeys:    map[string]postgres.OrderExpr{"name": {SQL: "lower(u.name)"}},
+		DefaultOrder: []postgres.OrderExpr{{SQL: "lower(u.name)"}, {SQL: "u.id"}}, Params: params,
+	})
+}
 
 type personRow struct {
 	ID    int64  `db:"id"`
@@ -541,9 +576,9 @@ type personRow struct {
 }
 
 func (s *Store) listPeople(ctx context.Context, locationID int64) ([]personRow, error) {
-	return postgres.GetAll[personRow](ctx, s.pool, `SELECT u.id,u.name,u.email FROM users u WHERE u.deleted_at IS NULL
-AND (NOT EXISTS (SELECT 1 FROM location_directory_groups WHERE location_id=$1)
- OR EXISTS (SELECT 1 FROM location_directory_groups lg JOIN directory_group_memberships gm ON gm.group_id=lg.group_id WHERE lg.location_id=$1 AND gm.user_id=u.id)) ORDER BY lower(u.name),u.id`, locationID)
+	where := eligiblePeopleWhere(locationID)
+	whereSQL, args := where.Build()
+	return postgres.GetAll[personRow](ctx, s.pool, "SELECT u.id,u.name,u.email FROM users u "+whereSQL+" ORDER BY lower(u.name),u.id", args...)
 }
 
 func attachmentFile(filename, contentType *string, sizeBytes *int64, sha256 *string) *AttachmentFile {

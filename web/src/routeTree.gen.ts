@@ -21,6 +21,7 @@ import { Route as AuthenticatedRolesRouteImport } from './routes/_authenticated/
 import { Route as AuthenticatedStationsRouteImport } from './routes/_authenticated/stations'
 import { Route as AuthenticatedCheckinsIndexRouteImport } from './routes/_authenticated/checkins.index'
 import { Route as AuthenticatedCheckinsIdRouteImport } from './routes/_authenticated/checkins.$id'
+import { Route as AuthenticatedCheckinsNewRouteImport } from './routes/_authenticated/checkins.new'
 import { Route as AuthenticatedDirectoryIndexRouteImport } from './routes/_authenticated/directory.index'
 import { Route as AuthenticatedDirectoryGroupsRouteImport } from './routes/_authenticated/directory.groups'
 import { Route as AuthenticatedDirectoryUsersRouteImport } from './routes/_authenticated/directory.users'
@@ -109,6 +110,12 @@ const AuthenticatedCheckinsIdRoute = AuthenticatedCheckinsIdRouteImport.update({
   path: '/$id',
   getParentRoute: () => AuthenticatedCheckinsRoute,
 } as any)
+const AuthenticatedCheckinsNewRoute =
+  AuthenticatedCheckinsNewRouteImport.update({
+    id: '/new',
+    path: '/new',
+    getParentRoute: () => AuthenticatedCheckinsRoute,
+  } as any)
 const AuthenticatedDirectoryIndexRoute =
   AuthenticatedDirectoryIndexRouteImport.update({
     id: '/',
@@ -279,6 +286,7 @@ export interface FileRoutesByFullPath {
   '/roles': typeof AuthenticatedRolesRouteWithChildren
   '/stations': typeof AuthenticatedStationsRouteWithChildren
   '/checkins/$id': typeof AuthenticatedCheckinsIdRoute
+  '/checkins/new': typeof AuthenticatedCheckinsNewRoute
   '/directory/groups': typeof AuthenticatedDirectoryGroupsRouteWithChildren
   '/directory/users': typeof AuthenticatedDirectoryUsersRouteWithChildren
   '/locations/$id': typeof AuthenticatedLocationsIdRouteWithChildren
@@ -314,6 +322,7 @@ export interface FileRoutesByTo {
   '/$': typeof AuthenticatedSplatRoute
   '/account': typeof AuthenticatedAccountRoute
   '/checkins/$id': typeof AuthenticatedCheckinsIdRoute
+  '/checkins/new': typeof AuthenticatedCheckinsNewRoute
   '/locations/new': typeof AuthenticatedLocationsNewRoute
   '/roles/new': typeof AuthenticatedRolesNewRoute
   '/stations/new': typeof AuthenticatedStationsNewRoute
@@ -349,6 +358,7 @@ export interface FileRoutesById {
   '/_authenticated/roles': typeof AuthenticatedRolesRouteWithChildren
   '/_authenticated/stations': typeof AuthenticatedStationsRouteWithChildren
   '/_authenticated/checkins/$id': typeof AuthenticatedCheckinsIdRoute
+  '/_authenticated/checkins/new': typeof AuthenticatedCheckinsNewRoute
   '/_authenticated/directory/groups': typeof AuthenticatedDirectoryGroupsRouteWithChildren
   '/_authenticated/directory/users': typeof AuthenticatedDirectoryUsersRouteWithChildren
   '/_authenticated/locations/$id': typeof AuthenticatedLocationsIdRouteWithChildren
@@ -391,6 +401,7 @@ export interface FileRouteTypes {
     | '/roles'
     | '/stations'
     | '/checkins/$id'
+    | '/checkins/new'
     | '/directory/groups'
     | '/directory/users'
     | '/locations/$id'
@@ -426,6 +437,7 @@ export interface FileRouteTypes {
     | '/$'
     | '/account'
     | '/checkins/$id'
+    | '/checkins/new'
     | '/locations/new'
     | '/roles/new'
     | '/stations/new'
@@ -460,6 +472,7 @@ export interface FileRouteTypes {
     | '/_authenticated/roles'
     | '/_authenticated/stations'
     | '/_authenticated/checkins/$id'
+    | '/_authenticated/checkins/new'
     | '/_authenticated/directory/groups'
     | '/_authenticated/directory/users'
     | '/_authenticated/locations/$id'
@@ -580,6 +593,13 @@ declare module '@tanstack/react-router' {
       path: '/$id'
       fullPath: '/checkins/$id'
       preLoaderRoute: typeof AuthenticatedCheckinsIdRouteImport
+      parentRoute: typeof AuthenticatedCheckinsRoute
+    }
+    '/_authenticated/checkins/new': {
+      id: '/_authenticated/checkins/new'
+      path: '/new'
+      fullPath: '/checkins/new'
+      preLoaderRoute: typeof AuthenticatedCheckinsNewRouteImport
       parentRoute: typeof AuthenticatedCheckinsRoute
     }
     '/_authenticated/directory/': {
@@ -776,11 +796,13 @@ declare module '@tanstack/react-router' {
 
 interface AuthenticatedCheckinsRouteChildren {
   AuthenticatedCheckinsIdRoute: typeof AuthenticatedCheckinsIdRoute
+  AuthenticatedCheckinsNewRoute: typeof AuthenticatedCheckinsNewRoute
   AuthenticatedCheckinsIndexRoute: typeof AuthenticatedCheckinsIndexRoute
 }
 
 const AuthenticatedCheckinsRouteChildren: AuthenticatedCheckinsRouteChildren = {
   AuthenticatedCheckinsIdRoute: AuthenticatedCheckinsIdRoute,
+  AuthenticatedCheckinsNewRoute: AuthenticatedCheckinsNewRoute,
   AuthenticatedCheckinsIndexRoute: AuthenticatedCheckinsIndexRoute,
 }
 

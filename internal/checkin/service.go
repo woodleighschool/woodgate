@@ -156,6 +156,31 @@ func (s *Service) ListCheckinLocations(ctx context.Context) ([]LocationSummary, 
 	return s.store.ListCheckinLocations(ctx)
 }
 
+// ListAvailableLocations returns enabled locations for recording a check-in.
+func (s *Service) ListAvailableLocations(ctx context.Context, params listing.Params) ([]LocationSummary, int, error) {
+	params = listing.Normalize(params)
+	if err := listing.Validate(params); err != nil {
+		return nil, 0, err
+	}
+	return s.store.ListAvailableLocations(ctx, params)
+}
+
+// ListEligiblePeople returns the people allowed to check in at a location.
+func (s *Service) ListEligiblePeople(ctx context.Context, locationID int64, params listing.Params) ([]PersonSummary, int, error) {
+	params = listing.Normalize(params)
+	if err := listing.Validate(params); err != nil {
+		return nil, 0, err
+	}
+	location, err := s.store.GetLocation(ctx, locationID)
+	if err != nil {
+		return nil, 0, err
+	}
+	if !location.Enabled {
+		return nil, 0, fmt.Errorf("%w: location is disabled", fault.ErrInvalidInput)
+	}
+	return s.store.ListEligiblePeople(ctx, locationID, params)
+}
+
 // GetCheckinUser resolves the person used to scope check-in history.
 func (s *Service) GetCheckinUser(ctx context.Context, id int64) (*PersonSummary, error) {
 	return s.store.GetCheckinUser(ctx, id)
@@ -191,11 +216,10 @@ func (s *Service) Submit(ctx context.Context, create CheckinCreate, actor Actor,
 		}
 		return nil, fmt.Errorf("%w: location is disabled", fault.ErrInvalidInput)
 	}
-	if actor.Kind == "user" && location.Photo {
-		return nil, fmt.Errorf("%w: use a Station when this location requires a photo", fault.ErrInvalidInput)
-	}
-	if err := ValidateSubmission(*location, create.Notes, len(photo) > 0); err != nil {
-		return nil, err
+	if actor.Kind == "station" {
+		if err := ValidateSubmission(*location, create.Notes, len(photo) > 0); err != nil {
+			return nil, err
+		}
 	}
 	eligible, err := s.store.PersonEligible(ctx, create.LocationID, create.UserID)
 	if err != nil {
@@ -227,7 +251,7 @@ func (s *Service) Submit(ctx context.Context, create CheckinCreate, actor Actor,
 	return item, err
 }
 
-// ValidateSubmission applies the workflow rules shared by both API surfaces.
+// ValidateSubmission applies the location's self-service capture requirements.
 func ValidateSubmission(location Location, notes string, hasPhoto bool) error {
 	switch {
 	case !location.Enabled:

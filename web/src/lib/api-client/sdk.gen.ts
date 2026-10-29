@@ -2,7 +2,7 @@
 
 import type { Client, ClientMeta, Options as Options2, RequestResult, TDataShape } from './client';
 import { client } from './client.gen';
-import type { CreateCheckinData, CreateCheckinErrors, CreateCheckinResponses, CreateLocationBackgroundUploadData, CreateLocationBackgroundUploadErrors, CreateLocationBackgroundUploadResponses, CreateLocationData, CreateLocationErrors, CreateLocationLogoUploadData, CreateLocationLogoUploadErrors, CreateLocationLogoUploadResponses, CreateLocationResponses, CreateRoleData, CreateRoleErrors, CreateRoleResponses, CreateSessionData, CreateSessionErrors, CreateSessionResponses, CreateStationData, CreateStationErrors, CreateStationResponses, CreateUserData, CreateUserErrors, CreateUserResponses, DeleteLocationData, DeleteLocationErrors, DeleteLocationResponses, DeleteRoleData, DeleteRoleErrors, DeleteRoleResponses, DeleteSessionData, DeleteSessionErrors, DeleteSessionResponses, DeleteStationData, DeleteStationErrors, DeleteStationResponses, DeleteUserData, DeleteUserErrors, DeleteUserResponses, GetAccountData, GetAccountErrors, GetAccountResponses, GetCheckinData, GetCheckinErrors, GetCheckinResponses, GetCheckinUserData, GetCheckinUserErrors, GetCheckinUserResponses, GetDirectorySyncData, GetDirectorySyncErrors, GetDirectorySyncResponses, GetGroupData, GetGroupErrors, GetGroupResponses, GetLocationData, GetLocationErrors, GetLocationResponses, GetRoleData, GetRoleErrors, GetRoleResponses, GetSessionData, GetSessionErrors, GetSessionResponses, GetStationData, GetStationErrors, GetStationResponses, GetUserData, GetUserErrors, GetUserResponses, ListAuthorizationResourcesData, ListAuthorizationResourcesErrors, ListAuthorizationResourcesResponses, ListCheckinDepartmentsData, ListCheckinDepartmentsErrors, ListCheckinDepartmentsResponses, ListCheckinLocationsData, ListCheckinLocationsErrors, ListCheckinLocationsResponses, ListCheckinsData, ListCheckinsErrors, ListCheckinsResponses, ListGroupsData, ListGroupsErrors, ListGroupsResponses, ListLocationBackgroundsData, ListLocationBackgroundsErrors, ListLocationBackgroundsResponses, ListLocationGroupsData, ListLocationGroupsErrors, ListLocationGroupsResponses, ListLocationLogosData, ListLocationLogosErrors, ListLocationLogosResponses, ListLocationsData, ListLocationsErrors, ListLocationsResponses, ListRolesData, ListRolesErrors, ListRolesResponses, ListStationLocationsData, ListStationLocationsErrors, ListStationLocationsResponses, ListStationsData, ListStationsErrors, ListStationsResponses, ListUserRolesData, ListUserRolesErrors, ListUserRolesResponses, ListUsersData, ListUsersErrors, ListUsersResponses, RevokeAccountApiKeyData, RevokeAccountApiKeyErrors, RevokeAccountApiKeyResponses, RotateAccountApiKeyData, RotateAccountApiKeyErrors, RotateAccountApiKeyResponses, RotateStationKeyData, RotateStationKeyErrors, RotateStationKeyResponses, SetLocationBackgroundData, SetLocationBackgroundErrors, SetLocationBackgroundResponses, SetLocationLogoData, SetLocationLogoErrors, SetLocationLogoResponses, TriggerDirectorySyncData, TriggerDirectorySyncErrors, TriggerDirectorySyncResponses, UpdateAccountData, UpdateAccountErrors, UpdateAccountResponses, UpdateGroupData, UpdateGroupErrors, UpdateGroupResponses, UpdateLocationData, UpdateLocationErrors, UpdateLocationResponses, UpdateRoleData, UpdateRoleErrors, UpdateRoleResponses, UpdateStationData, UpdateStationErrors, UpdateStationResponses, UpdateUserData, UpdateUserErrors, UpdateUserResponses } from './types.gen';
+import type { CreateCheckinData, CreateCheckinErrors, CreateCheckinResponses, CreateLocationBackgroundUploadData, CreateLocationBackgroundUploadErrors, CreateLocationBackgroundUploadResponses, CreateLocationData, CreateLocationErrors, CreateLocationLogoUploadData, CreateLocationLogoUploadErrors, CreateLocationLogoUploadResponses, CreateLocationResponses, CreateRoleData, CreateRoleErrors, CreateRoleResponses, CreateSessionData, CreateSessionErrors, CreateSessionResponses, CreateStationData, CreateStationErrors, CreateStationResponses, CreateUserData, CreateUserErrors, CreateUserResponses, DeleteLocationData, DeleteLocationErrors, DeleteLocationResponses, DeleteRoleData, DeleteRoleErrors, DeleteRoleResponses, DeleteSessionData, DeleteSessionErrors, DeleteSessionResponses, DeleteStationData, DeleteStationErrors, DeleteStationResponses, DeleteUserData, DeleteUserErrors, DeleteUserResponses, GetAccountData, GetAccountErrors, GetAccountResponses, GetCheckinData, GetCheckinErrors, GetCheckinResponses, GetCheckinUserData, GetCheckinUserErrors, GetCheckinUserResponses, GetDirectorySyncData, GetDirectorySyncErrors, GetDirectorySyncResponses, GetGroupData, GetGroupErrors, GetGroupResponses, GetLocationData, GetLocationErrors, GetLocationResponses, GetRoleData, GetRoleErrors, GetRoleResponses, GetSessionData, GetSessionErrors, GetSessionResponses, GetStationData, GetStationErrors, GetStationResponses, GetUserData, GetUserErrors, GetUserResponses, ListAuthorizationResourcesData, ListAuthorizationResourcesErrors, ListAuthorizationResourcesResponses, ListCheckinAvailableLocationsData, ListCheckinAvailableLocationsErrors, ListCheckinAvailableLocationsResponses, ListCheckinDepartmentsData, ListCheckinDepartmentsErrors, ListCheckinDepartmentsResponses, ListCheckinLocationsData, ListCheckinLocationsErrors, ListCheckinLocationsResponses, ListCheckinPeopleData, ListCheckinPeopleErrors, ListCheckinPeopleResponses, ListCheckinsData, ListCheckinsErrors, ListCheckinsResponses, ListGroupsData, ListGroupsErrors, ListGroupsResponses, ListLocationBackgroundsData, ListLocationBackgroundsErrors, ListLocationBackgroundsResponses, ListLocationGroupsData, ListLocationGroupsErrors, ListLocationGroupsResponses, ListLocationLogosData, ListLocationLogosErrors, ListLocationLogosResponses, ListLocationsData, ListLocationsErrors, ListLocationsResponses, ListRolesData, ListRolesErrors, ListRolesResponses, ListStationLocationsData, ListStationLocationsErrors, ListStationLocationsResponses, ListStationsData, ListStationsErrors, ListStationsResponses, ListUserRolesData, ListUserRolesErrors, ListUserRolesResponses, ListUsersData, ListUsersErrors, ListUsersResponses, RevokeAccountApiKeyData, RevokeAccountApiKeyErrors, RevokeAccountApiKeyResponses, RotateAccountApiKeyData, RotateAccountApiKeyErrors, RotateAccountApiKeyResponses, RotateStationKeyData, RotateStationKeyErrors, RotateStationKeyResponses, SetLocationBackgroundData, SetLocationBackgroundErrors, SetLocationBackgroundResponses, SetLocationLogoData, SetLocationLogoErrors, SetLocationLogoResponses, TriggerDirectorySyncData, TriggerDirectorySyncErrors, TriggerDirectorySyncResponses, UpdateAccountData, UpdateAccountErrors, UpdateAccountResponses, UpdateGroupData, UpdateGroupErrors, UpdateGroupResponses, UpdateLocationData, UpdateLocationErrors, UpdateLocationResponses, UpdateRoleData, UpdateRoleErrors, UpdateRoleResponses, UpdateStationData, UpdateStationErrors, UpdateStationResponses, UpdateUserData, UpdateUserErrors, UpdateUserResponses } from './types.gen';
 
 export type Options<TData extends TDataShape = TDataShape, ThrowOnError extends boolean = boolean, TResponse = unknown> = Options2<TData, ThrowOnError, TResponse> & {
     /**
@@ -191,6 +191,19 @@ export const createCheckin = <ThrowOnError extends boolean = false>(options: Opt
 });
 
 /**
+ * List locations for recording a check-in
+ */
+export const listCheckinAvailableLocations = <ThrowOnError extends boolean = false>(options?: Options<ListCheckinAvailableLocationsData, ThrowOnError>): RequestResult<ListCheckinAvailableLocationsResponses, ListCheckinAvailableLocationsErrors, ThrowOnError> => (options?.client ?? client).get<ListCheckinAvailableLocationsResponses, ListCheckinAvailableLocationsErrors, ThrowOnError>({
+    security: [{
+            in: 'cookie',
+            name: 'woodgate_session',
+            type: 'apiKey'
+        }, { scheme: 'bearer', type: 'http' }],
+    url: '/api/checkins/available-locations',
+    ...options
+});
+
+/**
  * List check-in department choices
  */
 export const listCheckinDepartments = <ThrowOnError extends boolean = false>(options?: Options<ListCheckinDepartmentsData, ThrowOnError>): RequestResult<ListCheckinDepartmentsResponses, ListCheckinDepartmentsErrors, ThrowOnError> => (options?.client ?? client).get<ListCheckinDepartmentsResponses, ListCheckinDepartmentsErrors, ThrowOnError>({
@@ -213,6 +226,19 @@ export const listCheckinLocations = <ThrowOnError extends boolean = false>(optio
             type: 'apiKey'
         }, { scheme: 'bearer', type: 'http' }],
     url: '/api/checkins/locations',
+    ...options
+});
+
+/**
+ * List eligible people for a check-in
+ */
+export const listCheckinPeople = <ThrowOnError extends boolean = false>(options: Options<ListCheckinPeopleData, ThrowOnError>): RequestResult<ListCheckinPeopleResponses, ListCheckinPeopleErrors, ThrowOnError> => (options.client ?? client).get<ListCheckinPeopleResponses, ListCheckinPeopleErrors, ThrowOnError>({
+    security: [{
+            in: 'cookie',
+            name: 'woodgate_session',
+            type: 'apiKey'
+        }, { scheme: 'bearer', type: 'http' }],
+    url: '/api/checkins/people',
     ...options
 });
 

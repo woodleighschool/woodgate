@@ -13,6 +13,7 @@ import { useDebouncedCallback } from "@hooks/use-debounced-callback";
 
 export function SearchCombobox<TItem>({
   id,
+  "aria-invalid": invalid,
   items,
   value,
   inputValue,
@@ -28,6 +29,7 @@ export function SearchCombobox<TItem>({
   onValueChange,
 }: {
   id?: string;
+  "aria-invalid"?: true;
   items: TItem[];
   value: TItem | null;
   inputValue: string;
@@ -60,6 +62,7 @@ export function SearchCombobox<TItem>({
     >
       <ComboboxInput
         id={id}
+        aria-invalid={invalid}
         className="w-full"
         placeholder={placeholder}
         required={required}
@@ -69,18 +72,16 @@ export function SearchCombobox<TItem>({
       >
         {loading ? <InputGroupLoadingAddon /> : null}
       </ComboboxInput>
-      {loading ? null : (
-        <ComboboxContent>
-          <ComboboxEmpty>{emptyMessage}</ComboboxEmpty>
-          <ComboboxList>
-            {(item) => (
-              <ComboboxItem key={itemKey(item)} value={item}>
-                {renderItem?.(item) ?? itemLabel(item)}
-              </ComboboxItem>
-            )}
-          </ComboboxList>
-        </ComboboxContent>
-      )}
+      <ComboboxContent>
+        <ComboboxEmpty>{loading ? "Loading..." : emptyMessage}</ComboboxEmpty>
+        <ComboboxList>
+          {(item) => (
+            <ComboboxItem key={itemKey(item)} value={item}>
+              {renderItem?.(item) ?? itemLabel(item)}
+            </ComboboxItem>
+          )}
+        </ComboboxList>
+      </ComboboxContent>
     </Combobox>
   );
 }

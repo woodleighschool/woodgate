@@ -230,6 +230,16 @@ export type PageLocation = {
     items: Array<CheckinLocation>;
 };
 
+export type PageLocationSummary = {
+    count: number;
+    items: Array<CheckinLocationSummary>;
+};
+
+export type PagePersonSummary = {
+    count: number;
+    items: Array<CheckinPersonSummary>;
+};
+
 export type PageStation = {
     count: number;
     items: Array<Station>;
@@ -853,6 +863,40 @@ export type CreateCheckinResponses = {
 
 export type CreateCheckinResponse = CreateCheckinResponses[keyof CreateCheckinResponses];
 
+export type ListCheckinAvailableLocationsData = {
+    body?: never;
+    path?: never;
+    query?: {
+        q?: string;
+        page?: number;
+        per_page?: number;
+        sort?: string;
+    };
+    url: '/api/checkins/available-locations';
+};
+
+export type ListCheckinAvailableLocationsErrors = {
+    /**
+     * Unauthorized
+     */
+    401: ErrorModel;
+    /**
+     * Forbidden
+     */
+    403: ErrorModel;
+};
+
+export type ListCheckinAvailableLocationsError = ListCheckinAvailableLocationsErrors[keyof ListCheckinAvailableLocationsErrors];
+
+export type ListCheckinAvailableLocationsResponses = {
+    /**
+     * OK
+     */
+    200: PageLocationSummary;
+};
+
+export type ListCheckinAvailableLocationsResponse = ListCheckinAvailableLocationsResponses[keyof ListCheckinAvailableLocationsResponses];
+
 export type ListCheckinDepartmentsData = {
     body?: never;
     path?: never;
@@ -910,6 +954,41 @@ export type ListCheckinLocationsResponses = {
 };
 
 export type ListCheckinLocationsResponse = ListCheckinLocationsResponses[keyof ListCheckinLocationsResponses];
+
+export type ListCheckinPeopleData = {
+    body?: never;
+    path?: never;
+    query: {
+        q?: string;
+        page?: number;
+        per_page?: number;
+        sort?: string;
+        location_id: number;
+    };
+    url: '/api/checkins/people';
+};
+
+export type ListCheckinPeopleErrors = {
+    /**
+     * Unauthorized
+     */
+    401: ErrorModel;
+    /**
+     * Forbidden
+     */
+    403: ErrorModel;
+};
+
+export type ListCheckinPeopleError = ListCheckinPeopleErrors[keyof ListCheckinPeopleErrors];
+
+export type ListCheckinPeopleResponses = {
+    /**
+     * OK
+     */
+    200: PagePersonSummary;
+};
+
+export type ListCheckinPeopleResponse = ListCheckinPeopleResponses[keyof ListCheckinPeopleResponses];
 
 export type GetCheckinUserData = {
     body?: never;
