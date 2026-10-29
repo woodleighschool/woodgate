@@ -1,8 +1,10 @@
 import { revalidateLogic, useForm } from "@tanstack/react-form";
 import { useNavigate, useParams } from "@tanstack/react-router";
+import { useState } from "react";
 
 import { FormActions } from "@components/form-actions";
 import { PageHeader, PageShell } from "@components/layout/page-layout";
+import { QueryError } from "@components/query-error";
 import { QueryGate } from "@components/query-gate";
 import { FieldGroup } from "@components/ui/field";
 import { RolePicker } from "@features/authz/role-picker";
@@ -23,6 +25,7 @@ export function GroupEditPage() {
   }
   return (
     <GroupRoleForm
+      key={id}
       groupID={id}
       name={query.data.display_name}
       roleIDs={query.data.roles.map((role) => role.id)}
@@ -41,14 +44,20 @@ function GroupRoleForm({
 }) {
   const navigate = useNavigate();
   const update = useUpdateGroup(groupID);
+  const [error, setError] = useState<Error | null>(null);
   const cancel = () => void navigate({ to: "/directory/groups/$id", params: { id: groupID } });
   const form = useForm({
     defaultValues: { role_ids: roleIDs },
     validationLogic: revalidateLogic({ mode: "submit", modeAfterSubmission: "change" }),
     onSubmit: async ({ value, formApi }) => {
-      await update.mutateAsync(value);
-      formApi.reset(value);
-      cancel();
+      setError(null);
+      try {
+        await update.mutateAsync(value);
+        formApi.reset(value);
+        cancel();
+      } catch (cause) {
+        setError(cause instanceof Error ? cause : new Error("Unable to save group."));
+      }
     },
   });
   const exitGuard = usePageFormExitGuard({ form, onDiscard: cancel });
@@ -67,6 +76,7 @@ function GroupRoleForm({
             )}
           </form.Field>
         </FieldGroup>
+        <QueryError title="Failed to Save Group" error={error} />
         <FormActions form={form} submitLabel="Save" onCancel={exitGuard.requestDiscard} />
       </PageShell>
       {exitGuard.dialog}

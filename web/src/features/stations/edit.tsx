@@ -10,15 +10,22 @@ export function StationEditPage() {
   const query = useStation(id);
   const update = useUpdateStation(id);
   if (!query.data) {
-    return <QueryGate title="Failed to Load Station" error={query.error} />;
+    return (
+      <QueryGate
+        title="Failed to Load Station"
+        error={query.error}
+        onRetry={() => void query.refetch()}
+      />
+    );
   }
   return (
     <StationForm
+      key={id}
       title="Edit Station"
       initial={query.data}
       onSubmit={async (body) => (await update.mutateAsync(body)).id}
       onSuccess={(savedID) => void navigate({ to: "/stations/$id", params: { id: savedID } })}
-      onCancel={() => void navigate({ to: "/stations/$id", params: { id: id } })}
+      onCancel={() => void navigate({ to: "/stations/$id", params: { id } })}
     />
   );
 }

@@ -14,19 +14,17 @@ export function RoleEditPage() {
       <QueryGate
         title="Failed to Load Role"
         error={query.data ? { message: "This role cannot be edited." } : query.error}
+        onRetry={query.data ? undefined : () => void query.refetch()}
       />
     );
   }
   return (
     <RoleForm
+      key={id}
       title="Edit Role"
       initial={query.data}
-      pending={update.isPending}
-      onSubmit={(body) => {
-        void update
-          .mutateAsync(body)
-          .then((role) => navigate({ to: "/roles/$id", params: { id: role.id } }));
-      }}
+      onSubmit={async (body) => (await update.mutateAsync(body)).id}
+      onSuccess={(savedID) => void navigate({ to: "/roles/$id", params: { id: savedID } })}
       onCancel={() => void navigate({ to: "/roles/$id", params: { id } })}
     />
   );

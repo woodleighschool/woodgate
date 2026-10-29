@@ -9,12 +9,8 @@ export function RoleCreatePage() {
   return (
     <RoleForm
       title="Create Role"
-      pending={create.isPending}
-      onSubmit={(body) => {
-        void create
-          .mutateAsync(body)
-          .then((role) => navigate({ to: "/roles/$id", params: { id: role.id } }));
-      }}
+      onSubmit={async (body) => (await create.mutateAsync(body)).id}
+      onSuccess={(id) => void navigate({ to: "/roles/$id", params: { id } })}
       onCancel={() => void navigate({ to: "/roles" })}
     />
   );

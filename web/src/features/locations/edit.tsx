@@ -17,10 +17,17 @@ export function LocationEditPage() {
   const backgroundUpload = useUploadLocationBackground();
   const logoUpload = useUploadLocationLogo();
   if (!query.data) {
-    return <QueryGate title="Failed to Load Location" error={query.error} />;
+    return (
+      <QueryGate
+        title="Failed to Load Location"
+        error={query.error}
+        onRetry={() => void query.refetch()}
+      />
+    );
   }
   return (
     <LocationForm
+      key={id}
       title="Edit Location"
       initial={query.data}
       onSubmit={async (body, images) => {
