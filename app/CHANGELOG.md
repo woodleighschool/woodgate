@@ -1,5 +1,22 @@
 # Changelog
 
+## [3.0.0](https://github.com/woodleighschool/woodgate/compare/app-v2.0.1...app-v3.0.0) (2026-10-29)
+
+
+### ⚠ BREAKING CHANGES
+
+* adopt Station pairing and companion protocol ([#138](https://github.com/woodleighschool/woodgate/issues/138))
+
+### Features
+
+* adopt Station pairing and companion protocol ([#138](https://github.com/woodleighschool/woodgate/issues/138)) ([b52d8c0](https://github.com/woodleighschool/woodgate/commit/b52d8c04adb436a5d97ce9ff2e14313f6755f56b))
+* **app:** add autonomous single app mode ([#182](https://github.com/woodleighschool/woodgate/issues/182)) ([37122b4](https://github.com/woodleighschool/woodgate/commit/37122b4bf27620251e5c11bae59e90016ebad9a7))
+
+
+### Bug Fixes
+
+* **app:** simplify server URL setup ([8cca3fe](https://github.com/woodleighschool/woodgate/commit/8cca3fe1095910e87c5f94c19f3607b48bb9a0cf))
+
 ## [2.0.1](https://github.com/woodleighschool/woodgate/compare/app-v2.0.0...app-v2.0.1) (2026-09-09)
 
 
