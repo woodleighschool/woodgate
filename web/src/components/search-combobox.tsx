@@ -15,6 +15,7 @@ export function SearchCombobox<TItem>({
   id,
   "aria-invalid": invalid,
   items,
+  count,
   value,
   inputValue,
   loading,
@@ -31,6 +32,7 @@ export function SearchCombobox<TItem>({
   id?: string;
   "aria-invalid"?: true;
   items: TItem[];
+  count?: number;
   value: TItem | null;
   inputValue: string;
   loading: boolean;
@@ -58,7 +60,10 @@ export function SearchCombobox<TItem>({
         onInputValueChange(next);
         if (value !== null && next !== itemLabel(value)) onValueChange(null);
       }}
-      onValueChange={onValueChange}
+      onValueChange={(next) => {
+        onInputValueChange(next ? itemLabel(next) : "");
+        onValueChange(next);
+      }}
     >
       <ComboboxInput
         id={id}
@@ -81,25 +86,23 @@ export function SearchCombobox<TItem>({
             </ComboboxItem>
           )}
         </ComboboxList>
+        {!loading && count !== undefined && count > items.length ? (
+          <output className="block border-t p-2 text-xs text-muted-foreground">
+            Showing {items.length} of {count} results. Type to narrow your search.
+          </output>
+        ) : null}
       </ComboboxContent>
     </Combobox>
   );
 }
 
-export function useSearchCombobox(selectedLabel: string, debounceMs = 200) {
-  const [inputValue, setInputValue] = useState(selectedLabel);
-  const [q, setQ] = useState(selectedLabel.trim());
-  const [previousLabel, setPreviousLabel] = useState(selectedLabel);
+export function useSearchCombobox(initialValue: string, debounceMs = 200) {
+  const [inputValue, setInputValue] = useState(initialValue);
+  const [q, setQ] = useState(initialValue.trim());
   const { run: updateQuery, cancel: cancelQuery } = useDebouncedCallback(
     (next: string) => setQ(next),
     debounceMs,
   );
-
-  if (selectedLabel !== previousLabel) {
-    setPreviousLabel(selectedLabel);
-    setInputValue(selectedLabel);
-    setQ(selectedLabel.trim());
-  }
 
   const updateInput = useCallback(
     (nextValue: string) => {

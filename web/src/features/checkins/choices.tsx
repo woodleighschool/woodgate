@@ -20,6 +20,7 @@ export function CheckinLocationCombobox(props: ChoiceProps<CheckinLocationSummar
       <SearchCombobox
         {...props}
         items={pending ? [] : (query.data?.items ?? [])}
+        count={query.data?.count}
         inputValue={search.inputValue}
         loading={pending}
         placeholder="Select a location"
@@ -52,6 +53,7 @@ export function CheckinPersonCombobox({
         {...props}
         items={pending ? [] : (query.data?.items ?? [])}
         inputValue={search.inputValue}
+        count={query.data?.count}
         loading={pending}
         placeholder="Search people"
         emptyMessage="No eligible people found."
@@ -60,9 +62,7 @@ export function CheckinPersonCombobox({
         renderItem={(person) => (
           <div className="flex flex-col">
             <span>{person.name || person.email}</span>
-            <span className="text-sm text-muted-foreground">
-              {[person.department, person.email].filter(Boolean).join(" · ")}
-            </span>
+            <span className="text-sm text-muted-foreground">{person.email}</span>
           </div>
         )}
         required

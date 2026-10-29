@@ -41,10 +41,9 @@ export function LocationCombobox(props: ResourceComboboxProps) {
       required={props.required}
       onBlur={props.onBlur}
       onInputValueChange={search.setInputValue}
-      onValueChange={(location) => {
-        props.onChange(location ? { id: location.id, name: location.name } : null);
-        search.setInputValue(location?.name ?? "");
-      }}
+      onValueChange={(location) =>
+        props.onChange(location ? { id: location.id, name: location.name } : null)
+      }
     />
   );
 }
