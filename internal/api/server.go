@@ -73,8 +73,9 @@ type AppRoutes struct {
 
 // ProtocolRoutes groups agent-facing routers by their transport policy.
 type ProtocolRoutes struct {
-	Ordinary  chi.Router
-	Transfers chi.Router
+	Ordinary   chi.Router
+	Transfers  chi.Router
+	WebSockets chi.Router
 }
 
 // NewServer returns an HTTP server.
@@ -174,8 +175,9 @@ func newProtocolRoutes(
 ) ProtocolRoutes {
 	requestLogger := middleware.RequestLogger(logger)
 	return ProtocolRoutes{
-		Ordinary:  r.With(requestTimeoutMiddleware(defaultRequestTimeout), compression, requestLogger),
-		Transfers: r.With(requestLogger),
+		Ordinary:   r.With(requestTimeoutMiddleware(defaultRequestTimeout), compression, requestLogger),
+		Transfers:  r.With(requestLogger),
+		WebSockets: r.With(requestLogger),
 	}
 }
 

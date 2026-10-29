@@ -15,7 +15,7 @@ Environment variables use the `WOODGATE_` prefix. The example environment and Co
 
 Browser sessions are stored in PostgreSQL and expire after 14 days. Local users authenticate with stored passwords; `woodgate user create`, `user set-password`, and `user set-roles` administer their access.
 
-Staff roles grant view or edit access to resources. Users can receive roles directly or through directory groups. Directory membership alone does not grant application access. Personal user API keys inherit staff roles; companion app keys are separate, expire independently, and are scoped to selected locations or all locations.
+Staff roles grant view or edit access to resources. Users can receive roles directly or through directory groups. Directory membership alone does not grant application access. Personal user API keys inherit staff roles. Companion stations use separate pairing secrets and belong to one location.
 
 ## Single sign-on
 
