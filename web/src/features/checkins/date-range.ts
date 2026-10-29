@@ -14,11 +14,11 @@ export function checkinDateRange(
 }
 
 export function checkinBounds(range: DateRange | undefined): {
-  createdFrom?: string;
-  createdBefore?: string;
+  occurredFrom?: string;
+  occurredBefore?: string;
 } {
   return {
-    createdFrom: range?.from ? startOfDay(range.from).toISOString() : undefined,
-    createdBefore: range?.to ? addDays(startOfDay(range.to), 1).toISOString() : undefined,
+    occurredFrom: range?.from ? startOfDay(range.from).toISOString() : undefined,
+    occurredBefore: range?.to ? addDays(startOfDay(range.to), 1).toISOString() : undefined,
   };
 }

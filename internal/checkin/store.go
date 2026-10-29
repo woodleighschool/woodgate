@@ -380,7 +380,9 @@ type checkinRow struct {
 	CreatedByUserID *int64    `db:"created_by_user_id"`
 	CreatedByName   string    `db:"created_by_name"`
 	CreatedByEmail  string    `db:"created_by_email"`
+	OccurredAt      time.Time `db:"occurred_at"`
 	CreatedAt       time.Time `db:"created_at"`
+	UpdatedAt       time.Time `db:"updated_at"`
 }
 
 const checkinSelectSQL = `SELECT c.id,c.app_id,c.actor_kind,c.actor_app_id,c.user_id,u.name AS user_name,u.email AS user_email,COALESCE(u.department,'') AS department,
@@ -390,7 +392,7 @@ const checkinSelectSQL = `SELECT c.id,c.app_id,c.actor_kind,c.actor_app_id,c.use
     COALESCE(NULLIF(creator.name,''),NULLIF(creator.email,''),k.name,station.name,'') AS actor_name,
     c.station_id,COALESCE(station.name,'') AS station_name,
     c.created_by_user_id,COALESCE(creator.name,'') AS created_by_name,
-    COALESCE(creator.email,'') AS created_by_email,c.created_at
+    COALESCE(creator.email,'') AS created_by_email,c.occurred_at,c.created_at,c.updated_at
 FROM checkins c
 JOIN users u ON u.id=c.user_id
 JOIN locations l ON l.id=c.location_id
@@ -416,16 +418,16 @@ func (s *Store) ListCheckins(ctx context.Context, params CheckinListParams) ([]C
 	if len(params.Departments) > 0 {
 		where.Addf("u.department=ANY(%s::text[])", params.Departments)
 	}
-	if params.CreatedFrom != nil {
-		where.Addf("c.created_at >= %s", *params.CreatedFrom)
+	if params.OccurredFrom != nil {
+		where.Addf("c.occurred_at >= %s", *params.OccurredFrom)
 	}
-	if params.CreatedBefore != nil {
-		where.Addf("c.created_at < %s", *params.CreatedBefore)
+	if params.OccurredBefore != nil {
+		where.Addf("c.occurred_at < %s", *params.OccurredBefore)
 	}
 	whereSQL, args := where.Build()
 	rows, count, err := postgres.ListWithCount[checkinRow](ctx, s.pool, postgres.ListQuery{SelectSQL: checkinSelectSQL, WhereSQL: whereSQL, Args: args,
-		OrderKeys:    map[string]postgres.OrderExpr{"id": {SQL: "c.id"}, "user": {SQL: "lower(u.name)"}, "department": {SQL: "lower(u.department)", NullOrder: postgres.NullsLast}, "location": {SQL: "lower(l.name)"}, "direction": {SQL: "c.direction"}, "created_at": {SQL: "c.created_at"}},
-		DefaultOrder: []postgres.OrderExpr{{SQL: "c.created_at", Descending: true}, {SQL: "c.id", Descending: true}}, Params: params.ListParams})
+		OrderKeys:    map[string]postgres.OrderExpr{"id": {SQL: "c.id"}, "user": {SQL: "lower(u.name)"}, "department": {SQL: "lower(u.department)", NullOrder: postgres.NullsLast}, "location": {SQL: "lower(l.name)"}, "direction": {SQL: "c.direction"}, "occurred_at": {SQL: "c.occurred_at"}},
+		DefaultOrder: []postgres.OrderExpr{{SQL: "c.occurred_at", Descending: true}, {SQL: "c.id", Descending: true}}, Params: params.ListParams})
 	if err != nil {
 		return nil, 0, err
 	}
@@ -500,6 +502,19 @@ func (s *Store) CreateCheckin(ctx context.Context, create CheckinCreate, actor A
 	return s.GetCheckin(ctx, id)
 }
 
+func (s *Store) UpdateCheckin(ctx context.Context, id int64, mutation CheckinMutation) (*Checkin, error) {
+	tag, err := s.pool.Exec(ctx, `UPDATE checkins
+SET user_id=$2,location_id=$3,direction=$4,notes=$5,occurred_at=$6,updated_at=now()
+WHERE id=$1`, id, mutation.UserID, mutation.LocationID, mutation.Direction, mutation.Notes, mutation.OccurredAt)
+	if err != nil {
+		return nil, postgres.MutationError(err)
+	}
+	if tag.RowsAffected() == 0 {
+		return nil, fault.ErrNotFound
+	}
+	return s.GetCheckin(ctx, id)
+}
+
 func checkinFromRow(row checkinRow) Checkin {
 	item := Checkin{
 		ID:    row.ID,
@@ -514,7 +529,9 @@ func checkinFromRow(row checkinRow) Checkin {
 		PhotoURL:      photoURL(row.ID, row.PhotoObjectID),
 		Station:       stationSummary(row.StationID, row.StationName),
 		CreatedBy:     userSummary(row.CreatedByUserID, row.CreatedByName, row.CreatedByEmail),
+		OccurredAt:    row.OccurredAt,
 		CreatedAt:     row.CreatedAt,
+		UpdatedAt:     row.UpdatedAt,
 	}
 	item.PhotoFile = attachmentFile(row.PhotoFilename, row.PhotoType, row.PhotoSizeBytes, row.PhotoSHA256)
 	return item

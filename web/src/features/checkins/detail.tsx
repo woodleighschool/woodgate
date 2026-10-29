@@ -1,17 +1,21 @@
 import { useParams } from "@tanstack/react-router";
+import { Pencil } from "lucide-react";
 
 import { KeyValueRow, KeyValueSection } from "@components/key-value";
 import { PageHeader, PageShell } from "@components/layout/page-layout";
-import { TextLink } from "@components/link";
+import { Link, TextLink } from "@components/link";
 import { QueryGate } from "@components/query-gate";
 import { RelativeTime } from "@components/relative-time";
 import { Badge } from "@components/ui/badge";
+import { Button } from "@components/ui/button";
+import { useCan } from "@features/authz/access";
 import { checkinDirectionMetadata, checkinPersonLabel } from "@features/checkins/presentation";
 import { useCheckin } from "@features/resources/queries";
 import { nonEmpty } from "@lib/utils";
 
 export function CheckinDetailPage() {
   const { id } = useParams({ from: "/_authenticated/checkins/$id" });
+  const canEdit = useCan({ resource: "checkins", access: "edit" });
   const query = useCheckin(id);
   if (!query.data) {
     return (
@@ -25,7 +29,21 @@ export function CheckinDetailPage() {
   const checkin = query.data;
   return (
     <PageShell>
-      <PageHeader title="Check-in Details" />
+      <PageHeader
+        title="Check-in Details"
+        actions={
+          canEdit ? (
+            <Button
+              size="sm"
+              render={<Link to="/checkins/$id/edit" params={{ id }} />}
+              nativeButton={false}
+            >
+              <Pencil data-icon="inline-start" />
+              Edit
+            </Button>
+          ) : null
+        }
+      />
       {checkin.photo_url ? (
         <div className="flex max-h-128 max-w-3xl items-center justify-center overflow-hidden rounded-xl border bg-muted/40 p-4">
           <img
@@ -55,7 +73,7 @@ export function CheckinDetailPage() {
             </Badge>
           }
         />
-        <KeyValueRow label="Time" value={<RelativeTime value={checkin.created_at} />} />
+        <KeyValueRow label="Time" value={<RelativeTime value={checkin.occurred_at} />} />
         <KeyValueRow label="Notes" value={nonEmpty(checkin.notes) ?? "-"} />
         {checkin.station ? <KeyValueRow label="Station" value={checkin.station.name} /> : null}
         {checkin.created_by || !checkin.station ? (
@@ -67,6 +85,8 @@ export function CheckinDetailPage() {
             }
           />
         ) : null}
+        <KeyValueRow label="Created" value={<RelativeTime value={checkin.created_at} />} />
+        <KeyValueRow label="Updated" value={<RelativeTime value={checkin.updated_at} />} />
       </KeyValueSection>
     </PageShell>
   );

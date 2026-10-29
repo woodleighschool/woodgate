@@ -408,7 +408,7 @@ func assertLocationRelationProjections(
 	}
 }
 
-func TestListCheckinsUsesHalfOpenCreatedRange(t *testing.T) {
+func TestListCheckinsUsesHalfOpenOccurredRange(t *testing.T) {
 	db, ctx := testdb.Open(t)
 	service := NewService(NewStore(db, nil), nil)
 
@@ -425,24 +425,24 @@ VALUES ('range@example.invalid','Range Person','entra','range-user') RETURNING i
 	before := from.Add(24 * time.Hour)
 	var fromID, middleID int64
 	for _, event := range []struct {
-		createdAt time.Time
-		id        *int64
+		occurredAt time.Time
+		id         *int64
 	}{
-		{createdAt: from, id: &fromID},
-		{createdAt: from.Add(12 * time.Hour), id: &middleID},
-		{createdAt: before},
+		{occurredAt: from, id: &fromID},
+		{occurredAt: from.Add(12 * time.Hour), id: &middleID},
+		{occurredAt: before},
 	} {
 		var id int64
-		if err := db.QueryRow(ctx, `INSERT INTO checkins (user_id,location_id,direction,created_at,actor_kind,actor_app_id,created_by_user_id)
-SELECT $1,$2,'check_in',$3,'user',app_id,id FROM users WHERE id=$1 RETURNING id`, userID, locationID, event.createdAt).Scan(&id); err != nil {
-			t.Fatalf("insert check-in at %s: %v", event.createdAt, err)
+		if err := db.QueryRow(ctx, `INSERT INTO checkins (user_id,location_id,direction,occurred_at,actor_kind,actor_app_id,created_by_user_id)
+SELECT $1,$2,'check_in',$3,'user',app_id,id FROM users WHERE id=$1 RETURNING id`, userID, locationID, event.occurredAt).Scan(&id); err != nil {
+			t.Fatalf("insert check-in at %s: %v", event.occurredAt, err)
 		}
 		if event.id != nil {
 			*event.id = id
 		}
 	}
 
-	items, count, err := service.ListCheckins(ctx, CheckinListParams{CreatedFrom: &from, CreatedBefore: &before})
+	items, count, err := service.ListCheckins(ctx, CheckinListParams{OccurredFrom: &from, OccurredBefore: &before})
 	if err != nil {
 		t.Fatalf("ListCheckins: %v", err)
 	}
@@ -450,8 +450,8 @@ SELECT $1,$2,'check_in',$3,'user',app_id,id FROM users WHERE id=$1 RETURNING id`
 		t.Fatalf("check-ins = %+v, count = %d; want IDs %d and %d", items, count, middleID, fromID)
 	}
 
-	if _, _, err := service.ListCheckins(ctx, CheckinListParams{CreatedFrom: &before, CreatedBefore: &before}); !errors.Is(err, fault.ErrInvalidInput) {
-		t.Fatalf("equal created bounds error = %v, want invalid input", err)
+	if _, _, err := service.ListCheckins(ctx, CheckinListParams{OccurredFrom: &before, OccurredBefore: &before}); !errors.Is(err, fault.ErrInvalidInput) {
+		t.Fatalf("equal occurred bounds error = %v, want invalid input", err)
 	}
 }
 
@@ -565,13 +565,7 @@ func TestStationCheckinKeepsActorAfterStationDeletion(t *testing.T) {
 	if _, err := db.Exec(ctx, "DELETE FROM stations WHERE id=$1", stationID); err != nil {
 		t.Fatal(err)
 	}
-	item, err = store.GetCheckin(ctx, receipt.ID)
-	if err != nil {
-		t.Fatal(err)
-	}
-	if item.ActorKind != "station" || item.ActorAppID != stationAppID || item.Station != nil {
-		t.Fatalf("deleted Station changed attribution=%+v", item)
-	}
+	assertUpdatedCheckinSource(t, ctx, service, item)
 }
 
 func assertStationCaptureRequirements(t *testing.T, ctx context.Context, service *Service, submission station.CheckinSubmission) {
@@ -585,5 +579,19 @@ func assertStationCaptureRequirements(t *testing.T, ctx context.Context, service
 	disallowedNotes.Notes = "Not collected here"
 	if _, err := service.SubmitStationCheckin(ctx, disallowedNotes); !errors.Is(err, fault.ErrInvalidInput) {
 		t.Fatalf("disabled station notes error=%v", err)
+	}
+}
+
+func assertUpdatedCheckinSource(t *testing.T, ctx context.Context, service *Service, original *Checkin) {
+	t.Helper()
+	updated, err := service.UpdateCheckin(ctx, original.ID, CheckinMutation{
+		UserID: original.Person.ID, LocationID: original.Location.ID, Direction: DirectionOut,
+		Notes: "Corrected", OccurredAt: original.OccurredAt.Add(-time.Hour),
+	})
+	if err != nil {
+		t.Fatal(err)
+	}
+	if updated.ActorKind != original.ActorKind || updated.ActorAppID != original.ActorAppID || updated.Station != nil || updated.CreatedBy != nil || updated.PhotoObjectID == nil || *updated.PhotoObjectID != *original.PhotoObjectID || updated.PhotoURL != original.PhotoURL {
+		t.Fatalf("update changed source or photo: %+v", updated)
 	}
 }

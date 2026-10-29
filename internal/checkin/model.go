@@ -93,13 +93,13 @@ type StationSummary struct {
 	Name string `json:"name"`
 }
 
-// Checkin is an immutable arrival or departure event.
+// Checkin records an arrival or departure.
 type Checkin struct {
 	ID            int64                  `json:"id"`
 	AppID         uuid.UUID              `json:"-"`
 	Person        PersonSummary          `json:"person"`
 	Location      LocationSummary        `json:"location"`
-	Direction     Direction              `json:"direction"`
+	Direction     Direction              `json:"direction" enum:"check_in,check_out"`
 	Notes         string                 `json:"notes"`
 	PhotoObjectID *int64                 `json:"photo_object_id,omitempty"`
 	PhotoFile     *AttachmentFile        `json:"photo_file,omitempty"`
@@ -109,18 +109,20 @@ type Checkin struct {
 	ActorKind     string                 `json:"actor_kind"`
 	ActorAppID    uuid.UUID              `json:"actor_app_id"`
 	CreatedBy     *directory.UserSummary `json:"created_by,omitempty"`
+	OccurredAt    time.Time              `json:"occurred_at"`
 	CreatedAt     time.Time              `json:"created_at"`
+	UpdatedAt     time.Time              `json:"updated_at"`
 }
 
 // CheckinListParams filters the paginated check-in list.
 type CheckinListParams struct {
-	ListParams    listing.Params
-	LocationID    int64     `validate:"gte=0"`
-	UserID        int64     `validate:"gte=0"`
-	Direction     Direction `validate:"omitempty,oneof=check_in check_out"`
-	Departments   []string
-	CreatedFrom   *time.Time
-	CreatedBefore *time.Time
+	ListParams     listing.Params
+	LocationID     int64     `validate:"gte=0"`
+	UserID         int64     `validate:"gte=0"`
+	Direction      Direction `validate:"omitempty,oneof=check_in check_out"`
+	Departments    []string
+	OccurredFrom   *time.Time
+	OccurredBefore *time.Time
 }
 
 // CheckinCreate contains the submitted event fields.
@@ -129,6 +131,24 @@ type CheckinCreate struct {
 	LocationID int64     `json:"location_id" minimum:"1" validate:"gte=1"`
 	Direction  Direction `json:"direction"   enum:"check_in,check_out" validate:"oneof=check_in check_out"`
 	Notes      string    `json:"notes"`
+}
+
+// CheckinMutation replaces the editable fields of an existing check-in.
+type CheckinMutation struct {
+	UserID     int64     `json:"user_id"     minimum:"1" validate:"gte=1"`
+	LocationID int64     `json:"location_id" minimum:"1" validate:"gte=1"`
+	Direction  Direction `json:"direction"   enum:"check_in,check_out" validate:"oneof=check_in check_out"`
+	Notes      string    `json:"notes"`
+	OccurredAt time.Time `json:"occurred_at" validate:"required"`
+}
+
+func (mutation *CheckinMutation) normalize() { mutation.Notes = strings.TrimSpace(mutation.Notes) }
+
+func (mutation *CheckinMutation) validate() error {
+	if err := validation.Struct(mutation); err != nil {
+		return fmt.Errorf("%w: %w", fault.ErrInvalidInput, err)
+	}
+	return nil
 }
 
 func (mutation *LocationMutation) normalize() {
@@ -179,8 +199,8 @@ func (params *CheckinListParams) validate() error {
 	if err := validation.Struct(params); err != nil {
 		return fmt.Errorf("%w: %w", fault.ErrInvalidInput, err)
 	}
-	if params.CreatedFrom != nil && params.CreatedBefore != nil && !params.CreatedFrom.Before(*params.CreatedBefore) {
-		return fmt.Errorf("%w: created_from must be before created_before", fault.ErrInvalidInput)
+	if params.OccurredFrom != nil && params.OccurredBefore != nil && !params.OccurredFrom.Before(*params.OccurredBefore) {
+		return fmt.Errorf("%w: occurred_from must be before occurred_before", fault.ErrInvalidInput)
 	}
 	return listing.Validate(params.ListParams)
 }

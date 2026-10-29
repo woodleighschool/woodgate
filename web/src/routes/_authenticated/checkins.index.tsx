@@ -9,7 +9,7 @@ const searchSchema = createTableSearchSchema([
   "department",
   "location",
   "direction",
-  "created_at",
+  "occurred_at",
 ])
   .extend({
     departments: z.array(z.string()).optional().catch(undefined),

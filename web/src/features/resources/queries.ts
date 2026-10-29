@@ -16,6 +16,7 @@ import type {
   AuthzRoleMutation,
   Checkin,
   CheckinCreate,
+  CheckinMutation,
   CheckinAttachmentObjectView,
   CheckinDirectUploadTarget,
   GroupSummary,
@@ -58,6 +59,7 @@ import {
   listCheckins,
   listLocations,
   updateLocation,
+  updateCheckin,
   updateAuthzRole,
   createStation,
   deleteStation,
@@ -97,8 +99,8 @@ function checkinQueryParams(params: CheckinListParams = {}) {
     user_id: params.user_id,
     direction: params.direction,
     departments: params.departments,
-    created_from: params.created_from,
-    created_before: params.created_before,
+    occurred_from: params.occurred_from,
+    occurred_before: params.occurred_before,
   };
 }
 
@@ -315,6 +317,18 @@ export function useCreateCheckin() {
       queryClient.setQueryData([...keys.checkins, "detail", checkin.id], checkin);
       await queryClient.invalidateQueries({ queryKey: keys.checkins });
       toast.add({ title: "Check-in Created", type: "success" });
+    },
+  });
+}
+
+export function useUpdateCheckin(id: number) {
+  const queryClient = useQueryClient();
+  return useMutation<Checkin, ApiError, CheckinMutation>({
+    mutationFn: (body) => unwrap(updateCheckin({ path: { id }, body })),
+    onSuccess: async (checkin) => {
+      queryClient.setQueryData(checkinQueryOptions(id).queryKey, checkin);
+      await queryClient.invalidateQueries({ queryKey: keys.checkins });
+      toast.add({ title: "Check-in Saved", type: "success" });
     },
   });
 }

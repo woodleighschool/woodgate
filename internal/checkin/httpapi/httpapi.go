@@ -82,12 +82,12 @@ type locationPutInput struct {
 type checkinListInput struct {
 	api.ListQueryInput
 
-	LocationID    int64                        `query:"location_id,omitempty" minimum:"1"`
-	UserID        int64                        `query:"user_id,omitempty" minimum:"1"`
-	Direction     checkin.Direction            `query:"direction,omitempty" enum:"check_in,check_out"`
-	Departments   []string                     `query:"departments,omitempty,explode"`
-	CreatedFrom   api.OptionalParam[time.Time] `query:"created_from,omitempty"`
-	CreatedBefore api.OptionalParam[time.Time] `query:"created_before,omitempty"`
+	LocationID     int64                        `query:"location_id,omitempty" minimum:"1"`
+	UserID         int64                        `query:"user_id,omitempty" minimum:"1"`
+	Direction      checkin.Direction            `query:"direction,omitempty" enum:"check_in,check_out"`
+	Departments    []string                     `query:"departments,omitempty,explode"`
+	OccurredFrom   api.OptionalParam[time.Time] `query:"occurred_from,omitempty"`
+	OccurredBefore api.OptionalParam[time.Time] `query:"occurred_before,omitempty"`
 }
 type checkinListOutput struct{ Body api.Page[checkin.Checkin] }
 type checkinDepartmentListOutput struct {
@@ -116,6 +116,10 @@ type checkinPeopleOutput struct {
 
 type checkinOutput struct{ Body checkin.Checkin }
 type checkinCreateInput struct{ Body checkin.CheckinCreate }
+type checkinPutInput struct {
+	ID   int64 `path:"id"`
+	Body checkin.CheckinMutation
+}
 type checkinIDInput struct {
 	ID int64 `path:"id"`
 }
@@ -274,7 +278,7 @@ func registerCheckins(routes huma.API, deps Dependencies) {
 	})
 
 	huma.Register(routes, authhuma.Require(routes, deps.Authorizer, deps.Logger, rbac.ResourceCheckins, authz.View, huma.Operation{OperationID: "list-checkins", Method: http.MethodGet, Path: "/api/checkins", Tags: []string{api.TagCheckins}, Summary: "List check-ins"}), func(ctx context.Context, input *checkinListInput) (*checkinListOutput, error) {
-		items, count, err := deps.Service.ListCheckins(ctx, checkin.CheckinListParams{ListParams: input.Params(), LocationID: input.LocationID, UserID: input.UserID, Direction: input.Direction, Departments: input.Departments, CreatedFrom: input.CreatedFrom.Pointer(), CreatedBefore: input.CreatedBefore.Pointer()})
+		items, count, err := deps.Service.ListCheckins(ctx, checkin.CheckinListParams{ListParams: input.Params(), LocationID: input.LocationID, UserID: input.UserID, Direction: input.Direction, Departments: input.Departments, OccurredFrom: input.OccurredFrom.Pointer(), OccurredBefore: input.OccurredBefore.Pointer()})
 		if err != nil {
 			return nil, api.ResourceError(ctx, deps.Logger, "list-checkins", "check-in", err)
 		}
@@ -295,6 +299,16 @@ func registerCheckins(routes huma.API, deps Dependencies) {
 		item, err := deps.Service.CreateCheckin(ctx, input.Body, user.ID)
 		if err != nil {
 			return nil, api.ResourceError(ctx, deps.Logger, "create-checkin", "check-in", err)
+		}
+		return &checkinOutput{Body: *item}, nil
+	})
+
+	huma.Register(routes, authhuma.Require(routes, deps.Authorizer, deps.Logger, rbac.ResourceCheckins, authz.Edit, huma.Operation{
+		OperationID: "update-checkin", Method: http.MethodPut, Path: checkinPath, Tags: []string{api.TagCheckins}, Summary: "Update a check-in",
+	}), func(ctx context.Context, input *checkinPutInput) (*checkinOutput, error) {
+		item, err := deps.Service.UpdateCheckin(ctx, input.ID, input.Body)
+		if err != nil {
+			return nil, api.ResourceError(ctx, deps.Logger, "update-checkin", "check-in", err, "checkin_id", input.ID)
 		}
 		return &checkinOutput{Body: *item}, nil
 	})

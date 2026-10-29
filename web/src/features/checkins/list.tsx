@@ -48,7 +48,7 @@ const exportColumns: DataTableExportOptions<Checkin>["columns"] = [
     header: "Direction",
     value: (checkin) => checkinDirectionMetadata(checkin.direction).name,
   },
-  { header: "Time", value: (checkin) => checkin.created_at },
+  { header: "Time", value: (checkin) => checkin.occurred_at },
   { header: "Notes", value: (checkin) => checkin.notes },
 ];
 
@@ -94,11 +94,11 @@ const columns: DataTableColumnDef<Checkin>[] = [
     meta: { label: "Direction" },
   },
   {
-    id: "created_at",
-    accessorKey: "created_at",
+    id: "occurred_at",
+    accessorKey: "occurred_at",
     header: "Time",
     cell: ({ row }) => (
-      <time dateTime={row.original.created_at}>{formatDateTime(row.original.created_at)}</time>
+      <time dateTime={row.original.occurred_at}>{formatDateTime(row.original.occurred_at)}</time>
     ),
     meta: { label: "Time" },
   },
@@ -129,8 +129,8 @@ export function CheckinListPage() {
     location_id: search.location_id,
     user_id: search.user_id,
     direction: search.direction,
-    created_from: bounds.createdFrom,
-    created_before: bounds.createdBefore,
+    occurred_from: bounds.occurredFrom,
+    occurred_before: bounds.occurredBefore,
   };
   const query = useCheckins(queryParams);
   const exportOptions: DataTableExportOptions<Checkin> = {

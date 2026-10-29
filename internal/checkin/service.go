@@ -171,12 +171,8 @@ func (s *Service) ListEligiblePeople(ctx context.Context, locationID int64, para
 	if err := listing.Validate(params); err != nil {
 		return nil, 0, err
 	}
-	location, err := s.store.GetLocation(ctx, locationID)
-	if err != nil {
+	if _, err := s.store.GetLocation(ctx, locationID); err != nil {
 		return nil, 0, err
-	}
-	if !location.Enabled {
-		return nil, 0, fmt.Errorf("%w: location is disabled", fault.ErrInvalidInput)
 	}
 	return s.store.ListEligiblePeople(ctx, locationID, params)
 }
@@ -200,6 +196,32 @@ func (s *Service) CreateCheckin(ctx context.Context, create CheckinCreate, actor
 	return s.Submit(ctx, create, actor, nil)
 }
 
+// UpdateCheckin replaces the record fields while retaining its original source and photo.
+func (s *Service) UpdateCheckin(ctx context.Context, id int64, mutation CheckinMutation) (*Checkin, error) {
+	mutation.normalize()
+	if err := mutation.validate(); err != nil {
+		return nil, err
+	}
+	current, err := s.store.GetCheckin(ctx, id)
+	if err != nil {
+		return nil, err
+	}
+	// Existing records remain editable after location or directory configuration changes.
+	if mutation.LocationID != current.Location.ID || mutation.UserID != current.Person.ID {
+		location, err := s.store.GetLocation(ctx, mutation.LocationID)
+		if err != nil {
+			return nil, err
+		}
+		if !location.Enabled {
+			return nil, fmt.Errorf("%w: location is disabled", fault.ErrInvalidInput)
+		}
+		if err := s.validatePerson(ctx, mutation.LocationID, mutation.UserID); err != nil {
+			return nil, err
+		}
+	}
+	return s.store.UpdateCheckin(ctx, id, mutation)
+}
+
 // Submit records an event and any photo as a single owner workflow.
 func (s *Service) Submit(ctx context.Context, create CheckinCreate, actor Actor, photo []byte) (*Checkin, error) {
 	create.normalize()
@@ -221,12 +243,8 @@ func (s *Service) Submit(ctx context.Context, create CheckinCreate, actor Actor,
 			return nil, err
 		}
 	}
-	eligible, err := s.store.PersonEligible(ctx, create.LocationID, create.UserID)
-	if err != nil {
+	if err := s.validatePerson(ctx, create.LocationID, create.UserID); err != nil {
 		return nil, err
-	}
-	if !eligible {
-		return nil, fmt.Errorf("%w: person is not eligible for this location", fault.ErrInvalidInput)
 	}
 	var photoObjectID *int64
 	if len(photo) > 0 {
@@ -249,6 +267,17 @@ func (s *Service) Submit(ctx context.Context, create CheckinCreate, actor Actor,
 		s.objects.DeleteUnreferenced(ctx, *photoObjectID)
 	}
 	return item, err
+}
+
+func (s *Service) validatePerson(ctx context.Context, locationID, userID int64) error {
+	eligible, err := s.store.PersonEligible(ctx, locationID, userID)
+	if err != nil {
+		return err
+	}
+	if !eligible {
+		return fmt.Errorf("%w: person is not eligible for this location", fault.ErrInvalidInput)
+	}
+	return nil
 }
 
 // ValidateSubmission applies the location's self-service capture requirements.

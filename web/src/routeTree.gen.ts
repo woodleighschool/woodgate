@@ -34,6 +34,8 @@ import { Route as AuthenticatedRolesNewRouteImport } from './routes/_authenticat
 import { Route as AuthenticatedStationsIndexRouteImport } from './routes/_authenticated/stations.index'
 import { Route as AuthenticatedStationsIdRouteImport } from './routes/_authenticated/stations.$id'
 import { Route as AuthenticatedStationsNewRouteImport } from './routes/_authenticated/stations.new'
+import { Route as AuthenticatedCheckinsIdIndexRouteImport } from './routes/_authenticated/checkins.$id.index'
+import { Route as AuthenticatedCheckinsIdEditRouteImport } from './routes/_authenticated/checkins.$id.edit'
 import { Route as AuthenticatedDirectoryGroupsIndexRouteImport } from './routes/_authenticated/directory.groups.index'
 import { Route as AuthenticatedDirectoryGroupsIdRouteImport } from './routes/_authenticated/directory.groups.$id'
 import { Route as AuthenticatedDirectoryUsersIndexRouteImport } from './routes/_authenticated/directory.users.index'
@@ -184,6 +186,18 @@ const AuthenticatedStationsNewRoute =
     path: '/new',
     getParentRoute: () => AuthenticatedStationsRoute,
   } as any)
+const AuthenticatedCheckinsIdIndexRoute =
+  AuthenticatedCheckinsIdIndexRouteImport.update({
+    id: '/',
+    path: '/',
+    getParentRoute: () => AuthenticatedCheckinsIdRoute,
+  } as any)
+const AuthenticatedCheckinsIdEditRoute =
+  AuthenticatedCheckinsIdEditRouteImport.update({
+    id: '/edit',
+    path: '/edit',
+    getParentRoute: () => AuthenticatedCheckinsIdRoute,
+  } as any)
 const AuthenticatedDirectoryGroupsIndexRoute =
   AuthenticatedDirectoryGroupsIndexRouteImport.update({
     id: '/',
@@ -285,7 +299,7 @@ export interface FileRoutesByFullPath {
   '/locations': typeof AuthenticatedLocationsRouteWithChildren
   '/roles': typeof AuthenticatedRolesRouteWithChildren
   '/stations': typeof AuthenticatedStationsRouteWithChildren
-  '/checkins/$id': typeof AuthenticatedCheckinsIdRoute
+  '/checkins/$id': typeof AuthenticatedCheckinsIdRouteWithChildren
   '/checkins/new': typeof AuthenticatedCheckinsNewRoute
   '/directory/groups': typeof AuthenticatedDirectoryGroupsRouteWithChildren
   '/directory/users': typeof AuthenticatedDirectoryUsersRouteWithChildren
@@ -300,12 +314,14 @@ export interface FileRoutesByFullPath {
   '/locations/': typeof AuthenticatedLocationsIndexRoute
   '/roles/': typeof AuthenticatedRolesIndexRoute
   '/stations/': typeof AuthenticatedStationsIndexRoute
+  '/checkins/$id/edit': typeof AuthenticatedCheckinsIdEditRoute
   '/directory/groups/$id': typeof AuthenticatedDirectoryGroupsIdRouteWithChildren
   '/directory/users/$id': typeof AuthenticatedDirectoryUsersIdRouteWithChildren
   '/directory/users/new': typeof AuthenticatedDirectoryUsersNewRoute
   '/locations/$id/edit': typeof AuthenticatedLocationsIdEditRoute
   '/roles/$id/edit': typeof AuthenticatedRolesIdEditRoute
   '/stations/$id/edit': typeof AuthenticatedStationsIdEditRoute
+  '/checkins/$id/': typeof AuthenticatedCheckinsIdIndexRoute
   '/directory/groups/': typeof AuthenticatedDirectoryGroupsIndexRoute
   '/directory/users/': typeof AuthenticatedDirectoryUsersIndexRoute
   '/locations/$id/': typeof AuthenticatedLocationsIdIndexRoute
@@ -321,7 +337,6 @@ export interface FileRoutesByTo {
   '/login': typeof LoginRoute
   '/$': typeof AuthenticatedSplatRoute
   '/account': typeof AuthenticatedAccountRoute
-  '/checkins/$id': typeof AuthenticatedCheckinsIdRoute
   '/checkins/new': typeof AuthenticatedCheckinsNewRoute
   '/locations/new': typeof AuthenticatedLocationsNewRoute
   '/roles/new': typeof AuthenticatedRolesNewRoute
@@ -331,10 +346,12 @@ export interface FileRoutesByTo {
   '/locations': typeof AuthenticatedLocationsIndexRoute
   '/roles': typeof AuthenticatedRolesIndexRoute
   '/stations': typeof AuthenticatedStationsIndexRoute
+  '/checkins/$id/edit': typeof AuthenticatedCheckinsIdEditRoute
   '/directory/users/new': typeof AuthenticatedDirectoryUsersNewRoute
   '/locations/$id/edit': typeof AuthenticatedLocationsIdEditRoute
   '/roles/$id/edit': typeof AuthenticatedRolesIdEditRoute
   '/stations/$id/edit': typeof AuthenticatedStationsIdEditRoute
+  '/checkins/$id': typeof AuthenticatedCheckinsIdIndexRoute
   '/directory/groups': typeof AuthenticatedDirectoryGroupsIndexRoute
   '/directory/users': typeof AuthenticatedDirectoryUsersIndexRoute
   '/locations/$id': typeof AuthenticatedLocationsIdIndexRoute
@@ -357,7 +374,7 @@ export interface FileRoutesById {
   '/_authenticated/locations': typeof AuthenticatedLocationsRouteWithChildren
   '/_authenticated/roles': typeof AuthenticatedRolesRouteWithChildren
   '/_authenticated/stations': typeof AuthenticatedStationsRouteWithChildren
-  '/_authenticated/checkins/$id': typeof AuthenticatedCheckinsIdRoute
+  '/_authenticated/checkins/$id': typeof AuthenticatedCheckinsIdRouteWithChildren
   '/_authenticated/checkins/new': typeof AuthenticatedCheckinsNewRoute
   '/_authenticated/directory/groups': typeof AuthenticatedDirectoryGroupsRouteWithChildren
   '/_authenticated/directory/users': typeof AuthenticatedDirectoryUsersRouteWithChildren
@@ -372,12 +389,14 @@ export interface FileRoutesById {
   '/_authenticated/locations/': typeof AuthenticatedLocationsIndexRoute
   '/_authenticated/roles/': typeof AuthenticatedRolesIndexRoute
   '/_authenticated/stations/': typeof AuthenticatedStationsIndexRoute
+  '/_authenticated/checkins/$id/edit': typeof AuthenticatedCheckinsIdEditRoute
   '/_authenticated/directory/groups/$id': typeof AuthenticatedDirectoryGroupsIdRouteWithChildren
   '/_authenticated/directory/users/$id': typeof AuthenticatedDirectoryUsersIdRouteWithChildren
   '/_authenticated/directory/users/new': typeof AuthenticatedDirectoryUsersNewRoute
   '/_authenticated/locations/$id/edit': typeof AuthenticatedLocationsIdEditRoute
   '/_authenticated/roles/$id/edit': typeof AuthenticatedRolesIdEditRoute
   '/_authenticated/stations/$id/edit': typeof AuthenticatedStationsIdEditRoute
+  '/_authenticated/checkins/$id/': typeof AuthenticatedCheckinsIdIndexRoute
   '/_authenticated/directory/groups/': typeof AuthenticatedDirectoryGroupsIndexRoute
   '/_authenticated/directory/users/': typeof AuthenticatedDirectoryUsersIndexRoute
   '/_authenticated/locations/$id/': typeof AuthenticatedLocationsIdIndexRoute
@@ -415,12 +434,14 @@ export interface FileRouteTypes {
     | '/locations/'
     | '/roles/'
     | '/stations/'
+    | '/checkins/$id/edit'
     | '/directory/groups/$id'
     | '/directory/users/$id'
     | '/directory/users/new'
     | '/locations/$id/edit'
     | '/roles/$id/edit'
     | '/stations/$id/edit'
+    | '/checkins/$id/'
     | '/directory/groups/'
     | '/directory/users/'
     | '/locations/$id/'
@@ -436,7 +457,6 @@ export interface FileRouteTypes {
     | '/login'
     | '/$'
     | '/account'
-    | '/checkins/$id'
     | '/checkins/new'
     | '/locations/new'
     | '/roles/new'
@@ -446,10 +466,12 @@ export interface FileRouteTypes {
     | '/locations'
     | '/roles'
     | '/stations'
+    | '/checkins/$id/edit'
     | '/directory/users/new'
     | '/locations/$id/edit'
     | '/roles/$id/edit'
     | '/stations/$id/edit'
+    | '/checkins/$id'
     | '/directory/groups'
     | '/directory/users'
     | '/locations/$id'
@@ -486,12 +508,14 @@ export interface FileRouteTypes {
     | '/_authenticated/locations/'
     | '/_authenticated/roles/'
     | '/_authenticated/stations/'
+    | '/_authenticated/checkins/$id/edit'
     | '/_authenticated/directory/groups/$id'
     | '/_authenticated/directory/users/$id'
     | '/_authenticated/directory/users/new'
     | '/_authenticated/locations/$id/edit'
     | '/_authenticated/roles/$id/edit'
     | '/_authenticated/stations/$id/edit'
+    | '/_authenticated/checkins/$id/'
     | '/_authenticated/directory/groups/'
     | '/_authenticated/directory/users/'
     | '/_authenticated/locations/$id/'
@@ -686,6 +710,20 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedStationsNewRouteImport
       parentRoute: typeof AuthenticatedStationsRoute
     }
+    '/_authenticated/checkins/$id/': {
+      id: '/_authenticated/checkins/$id/'
+      path: '/'
+      fullPath: '/checkins/$id/'
+      preLoaderRoute: typeof AuthenticatedCheckinsIdIndexRouteImport
+      parentRoute: typeof AuthenticatedCheckinsIdRoute
+    }
+    '/_authenticated/checkins/$id/edit': {
+      id: '/_authenticated/checkins/$id/edit'
+      path: '/edit'
+      fullPath: '/checkins/$id/edit'
+      preLoaderRoute: typeof AuthenticatedCheckinsIdEditRouteImport
+      parentRoute: typeof AuthenticatedCheckinsIdRoute
+    }
     '/_authenticated/directory/groups/': {
       id: '/_authenticated/directory/groups/'
       path: '/'
@@ -794,14 +832,30 @@ declare module '@tanstack/react-router' {
   }
 }
 
+interface AuthenticatedCheckinsIdRouteChildren {
+  AuthenticatedCheckinsIdEditRoute: typeof AuthenticatedCheckinsIdEditRoute
+  AuthenticatedCheckinsIdIndexRoute: typeof AuthenticatedCheckinsIdIndexRoute
+}
+
+const AuthenticatedCheckinsIdRouteChildren: AuthenticatedCheckinsIdRouteChildren =
+  {
+    AuthenticatedCheckinsIdEditRoute: AuthenticatedCheckinsIdEditRoute,
+    AuthenticatedCheckinsIdIndexRoute: AuthenticatedCheckinsIdIndexRoute,
+  }
+
+const AuthenticatedCheckinsIdRouteWithChildren =
+  AuthenticatedCheckinsIdRoute._addFileChildren(
+    AuthenticatedCheckinsIdRouteChildren,
+  )
+
 interface AuthenticatedCheckinsRouteChildren {
-  AuthenticatedCheckinsIdRoute: typeof AuthenticatedCheckinsIdRoute
+  AuthenticatedCheckinsIdRoute: typeof AuthenticatedCheckinsIdRouteWithChildren
   AuthenticatedCheckinsNewRoute: typeof AuthenticatedCheckinsNewRoute
   AuthenticatedCheckinsIndexRoute: typeof AuthenticatedCheckinsIndexRoute
 }
 
 const AuthenticatedCheckinsRouteChildren: AuthenticatedCheckinsRouteChildren = {
-  AuthenticatedCheckinsIdRoute: AuthenticatedCheckinsIdRoute,
+  AuthenticatedCheckinsIdRoute: AuthenticatedCheckinsIdRouteWithChildren,
   AuthenticatedCheckinsNewRoute: AuthenticatedCheckinsNewRoute,
   AuthenticatedCheckinsIndexRoute: AuthenticatedCheckinsIndexRoute,
 }

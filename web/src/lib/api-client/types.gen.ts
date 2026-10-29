@@ -33,15 +33,17 @@ export type Checkin = {
     actor_name: string;
     created_at: string;
     created_by?: UserSummary;
-    direction: string;
+    direction: 'check_in' | 'check_out';
     id: number;
     location: CheckinLocationSummary;
     notes: string;
+    occurred_at: string;
     person: CheckinPersonSummary;
     photo_file?: CheckinAttachmentFile;
     photo_object_id?: number;
     photo_url?: string;
     station?: CheckinStationSummary;
+    updated_at: string;
 };
 
 export type CheckinAttachmentFile = {
@@ -121,6 +123,14 @@ export type CheckinLocationMutation = {
 export type CheckinLocationSummary = {
     id: number;
     name: string;
+};
+
+export type CheckinMutation = {
+    direction: 'check_in' | 'check_out';
+    location_id: number;
+    notes: string;
+    occurred_at: string;
+    user_id: number;
 };
 
 export type CheckinPersonSummary = {
@@ -806,8 +816,8 @@ export type ListCheckinsData = {
         user_id?: number;
         direction?: 'check_in' | 'check_out';
         departments?: Array<string>;
-        created_from?: string;
-        created_before?: string;
+        occurred_from?: string;
+        occurred_before?: string;
     };
     url: '/api/checkins';
 };
@@ -1051,6 +1061,37 @@ export type GetCheckinResponses = {
 };
 
 export type GetCheckinResponse = GetCheckinResponses[keyof GetCheckinResponses];
+
+export type UpdateCheckinData = {
+    body: CheckinMutation;
+    path: {
+        id: number;
+    };
+    query?: never;
+    url: '/api/checkins/{id}';
+};
+
+export type UpdateCheckinErrors = {
+    /**
+     * Unauthorized
+     */
+    401: ErrorModel;
+    /**
+     * Forbidden
+     */
+    403: ErrorModel;
+};
+
+export type UpdateCheckinError = UpdateCheckinErrors[keyof UpdateCheckinErrors];
+
+export type UpdateCheckinResponses = {
+    /**
+     * OK
+     */
+    200: Checkin;
+};
+
+export type UpdateCheckinResponse = UpdateCheckinResponses[keyof UpdateCheckinResponses];
 
 export type GetDirectorySyncData = {
     body?: never;
