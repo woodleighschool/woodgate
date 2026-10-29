@@ -12,7 +12,6 @@ describe("WoodGate development mock", () => {
     await expect(response.json()).resolves.toEqual({
       service: "WoodGate development mock",
       station_key: "testing123",
-      review_pairing: { base_url: origin, api_key: "reviewkey" },
     });
   });
 

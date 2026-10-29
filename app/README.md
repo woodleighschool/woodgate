@@ -22,8 +22,6 @@ mise run //mock:dev
 
 On an unpaired device, choose **Set Up**, select **Manual**, and pair with the URL printed by Wrangler and the Station key `testing123`. The mock uses synthetic people and discards check-ins.
 
-The `/api/v1` companion client uses the root response’s `review_pairing` object instead. Encode that object as a QR code, scan it from **Scan QR Code**, and select a location. Its public API key is `reviewkey`. Review Room accepts optional notes and requires a selfie; Reception exercises check-ins without either.
-
 ## 📦 Releases
 
 App releases use `app-v<version>` tags and keep `MARKETING_VERSION` in `Config/Version.xcconfig`. GitHub Actions uploads builds to App Store Connect:

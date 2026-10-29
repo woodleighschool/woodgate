@@ -25,7 +25,7 @@ struct WelcomeView: View {
                 .multilineTextAlignment(.center)
 
                 Button("Set Up", action: onPair)
-                    .buttonStyle(.borderedProminent)
+                    .buttonStyle(.glassProminent)
                     .controlSize(.large)
                     .disabled(isBusy)
             }
@@ -33,7 +33,8 @@ struct WelcomeView: View {
             .padding(24)
             .frame(maxWidth: .infinity)
         }
-        .defaultScrollAnchor(.center)
+        .defaultScrollAnchor(.center, for: .alignment)
+        .scrollBounceBehavior(.basedOnSize)
     }
 }
 
