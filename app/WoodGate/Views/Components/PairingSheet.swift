@@ -8,8 +8,17 @@ struct PairingSheet: View {
 
     let onPayload: (PairingPayload) async throws -> Void
 
-    @State private var pendingPayload: PairingPayload?
-    @State private var pairingError: String?
+    @State private var step = PairingStep.entry
+    @State private var baseURL = ""
+    @State private var stationKey = ""
+
+    private var pendingPayload: PairingPayload? {
+        if case let .connecting(payload) = step {
+            payload
+        } else {
+            nil
+        }
+    }
 
     private var isBusy: Bool {
         pendingPayload != nil
@@ -17,7 +26,6 @@ struct PairingSheet: View {
 
     @State private var canScan = DataScannerViewController.isSupported && DataScannerViewController.isAvailable
     @State private var method: PairingMethod = DataScannerViewController.isSupported && DataScannerViewController.isAvailable ? .scan : .manual
-    @State private var scannerID = UUID()
 
     // MARK: - Body
 
@@ -32,16 +40,44 @@ struct PairingSheet: View {
             .padding(.horizontal, 24)
             .padding(.vertical, 16)
 
-            switch method {
-            case .scan:
-                ScanPairingView(isBusy: isBusy, onPayload: scan, onUnavailable: {
-                    canScan = false
-                    method = .manual
-                })
-                .id(scannerID)
-            case .manual:
-                ManualPairingView(isBusy: isBusy, onPayload: pair)
+            switch step {
+            case .entry:
+                Text(method == .scan ? "Scan Configuration QR" : "Manually Enter Details")
+                    .font(.title2.weight(.bold))
+                    .frame(maxWidth: .infinity, alignment: .leading)
+                    .padding(.horizontal, 24)
+                    .padding(.top, 8)
+                    .padding(.bottom, 12)
+
+                switch method {
+                case .scan:
+                    ScanPairingView(onPayload: scan, onUnavailable: scannerUnavailable)
+                case .manual:
+                    ManualPairingView(baseURL: $baseURL, stationKey: $stationKey, onPayload: pair)
+                }
+            case .connecting:
+                ProgressView("Connecting...")
+                    .frame(maxWidth: .infinity, maxHeight: .infinity)
+            case let .failed(invalidCode, message):
+                ContentUnavailableView {
+                    Label(
+                        invalidCode ? "Invalid QR Code" : "Could Not Connect",
+                        systemImage: invalidCode ? "qrcode" : "network.slash"
+                    )
+                } description: {
+                    Text(message)
+                } actions: {
+                    Button(method == .scan ? "Rescan" : "Edit Details") {
+                        step = .entry
+                    }
+                    .buttonStyle(.glassProminent)
+                    .controlSize(.large)
+                }
             }
+        }
+        .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .top)
+        .onChange(of: method) {
+            step = .entry
         }
         .task(id: pendingPayload) {
             guard let payload = pendingPayload else { return }
@@ -49,21 +85,8 @@ struct PairingSheet: View {
                 try await onPayload(payload)
             } catch {
                 guard !Task.isCancelled else { return }
-                pairingError = error.localizedDescription
+                step = .failed(invalidCode: false, message: error.localizedDescription)
             }
-            pendingPayload = nil
-        }
-        .alert("Could Not Connect", isPresented: Binding(
-            get: { pairingError != nil },
-            set: {
-                if !$0 {
-                    pairingError = nil
-                }
-            }
-        )) {
-            Button("OK") { scannerID = UUID() }
-        } message: {
-            Text(pairingError ?? "")
         }
         .interactiveDismissDisabled(isBusy)
         .navigationTitle("Set Up")
@@ -73,17 +96,28 @@ struct PairingSheet: View {
     // MARK: - Private Helpers
 
     private func scan(_ text: String) {
-        guard !isBusy else { return }
+        guard case .entry = step else { return }
         do {
             try pair(PairingPayload.parse(urlString: text))
         } catch {
-            pairingError = "This QR code does not contain valid server and Station key details."
+            step = .failed(
+                invalidCode: true,
+                message: "This QR code does not contain valid server and Station key details."
+            )
         }
     }
 
     private func pair(_ payload: PairingPayload) {
         guard !isBusy else { return }
-        pendingPayload = payload
+        baseURL = payload.baseURL
+        stationKey = payload.stationKey
+        step = .connecting(payload)
+    }
+
+    private func scannerUnavailable() {
+        guard case .entry = step else { return }
+        canScan = false
+        method = .manual
     }
 }
 
@@ -94,17 +128,19 @@ private enum PairingMethod {
     case manual
 }
 
+private enum PairingStep {
+    case entry
+    case connecting(PairingPayload)
+    case failed(invalidCode: Bool, message: String)
+}
+
 private struct ScanPairingView: View {
-    let isBusy: Bool
     let onPayload: (String) -> Void
     let onUnavailable: () -> Void
 
     var body: some View {
         ScrollView {
             VStack(alignment: .leading, spacing: 12) {
-                Text("Scan Configuration QR")
-                    .font(.title2.weight(.bold))
-
                 Text(
                     "Scan the Station’s QR code to set up this device."
                 )
@@ -116,10 +152,10 @@ private struct ScanPairingView: View {
                     .frame(height: 420)
                     .clipShape(RoundedRectangle(cornerRadius: 28, style: .continuous))
                     .shadow(color: .black.opacity(0.1), radius: 10, y: 4)
-                    .allowsHitTesting(!isBusy)
             }
             .frame(maxWidth: .infinity, alignment: .leading)
-            .padding(24)
+            .padding(.horizontal, 24)
+            .padding(.bottom, 24)
         }
     }
 }
@@ -127,15 +163,13 @@ private struct ScanPairingView: View {
 private struct ManualPairingView: View {
     // MARK: - Properties
 
-    @State private var baseURL = ""
-    @State private var stationKey = ""
+    @Binding var baseURL: String
+    @Binding var stationKey: String
 
-    let isBusy: Bool
     let onPayload: (PairingPayload) -> Void
 
     private var isPairingDisabled: Bool {
-        isBusy
-            || AppSettings.serverURL(baseURL) == nil
+        AppSettings.serverURL(baseURL) == nil
             || stationKey.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty
     }
 
@@ -158,19 +192,12 @@ private struct ManualPairingView: View {
             }
 
             Section {
-                Button(action: pair) {
-                    HStack {
-                        Text("Continue")
-                        Spacer()
-                        if isBusy {
-                            ProgressView()
-                        }
-                    }
-                }
-                .disabled(isPairingDisabled)
+                Button("Continue", action: pair)
+                    .disabled(isPairingDisabled)
             }
         }
-        .disabled(isBusy)
+        .contentMargins(.horizontal, 24, for: .scrollContent)
+        .contentMargins(.top, 0, for: .scrollContent)
     }
 
     // MARK: - Private Helpers
