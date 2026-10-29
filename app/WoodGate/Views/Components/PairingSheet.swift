@@ -157,6 +157,7 @@ private struct ScanPairingView: View {
             .padding(.horizontal, 24)
             .padding(.bottom, 24)
         }
+        .scrollBounceBehavior(.basedOnSize)
     }
 }
 
@@ -198,6 +199,7 @@ private struct ManualPairingView: View {
         }
         .contentMargins(.horizontal, 24, for: .scrollContent)
         .contentMargins(.top, 0, for: .scrollContent)
+        .scrollBounceBehavior(.basedOnSize)
     }
 
     // MARK: - Private Helpers

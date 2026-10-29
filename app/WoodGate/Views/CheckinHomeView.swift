@@ -64,6 +64,7 @@ struct CheckinHomeView: View {
                 .frame(maxWidth: .infinity)
             }
             .defaultScrollAnchor(.center, for: .alignment)
+            .scrollBounceBehavior(.basedOnSize)
             .scrollDismissesKeyboard(.interactively)
         }
         .coordinateSpace(name: "checkinForm")
