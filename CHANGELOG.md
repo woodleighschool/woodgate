@@ -1,5 +1,25 @@
 # Changelog
 
+## [3.0.0](https://github.com/woodleighschool/woodgate/compare/v2.3.4...v3.0.0) (2026-10-29)
+
+
+### ⚠ BREAKING CHANGES
+
+* adopt Station pairing and companion protocol ([#138](https://github.com/woodleighschool/woodgate/issues/138))
+
+### Features
+
+* adopt Station pairing and companion protocol ([#138](https://github.com/woodleighschool/woodgate/issues/138)) ([b52d8c0](https://github.com/woodleighschool/woodgate/commit/b52d8c04adb436a5d97ce9ff2e14313f6755f56b))
+* create check-ins from the web interface ([be35f5b](https://github.com/woodleighschool/woodgate/commit/be35f5b837fe5b6b0e569b8f7e6a13f2405707d8))
+* edit check-in records ([58e1d86](https://github.com/woodleighschool/woodgate/commit/58e1d86bb4a6f0e61fb569ef54a43261ef4b3a34))
+
+
+### Bug Fixes
+
+* align resource form save behavior ([825eae1](https://github.com/woodleighschool/woodgate/commit/825eae1a06706778a363d91466b841ff43a57a39))
+* clarify check-in person search ([9d8eab5](https://github.com/woodleighschool/woodgate/commit/9d8eab5d1ad73092b8ecec8631e0c884ce876a9e))
+* **npm:** update dependency lucide-react (1.62.0 → 1.63.0) ([#486](https://github.com/woodleighschool/woodgate/issues/486)) ([0b748ac](https://github.com/woodleighschool/woodgate/commit/0b748ac38688671c7d78d219ffbf9a90caa9d97f))
+
 ## [2.3.4](https://github.com/woodleighschool/woodgate/compare/v2.3.3...v2.3.4) (2026-10-28)
 
 
