@@ -1,5 +1,13 @@
 # Changelog
 
+## [3.0.1](https://github.com/woodleighschool/woodgate/compare/app-v3.0.0...app-v3.0.1) (2026-10-29)
+
+
+### Bug Fixes
+
+* **app:** limit scroll bounce to overflowing content ([939f5c9](https://github.com/woodleighschool/woodgate/commit/939f5c9c7727050b3bf8a92fe27ca436f02fda16))
+* **app:** stop camera after pairing scan ([0d8615f](https://github.com/woodleighschool/woodgate/commit/0d8615f91458e00c14a7cfc92f1b6f5b70950e43))
+
 ## [3.0.0](https://github.com/woodleighschool/woodgate/compare/app-v2.0.1...app-v3.0.0) (2026-10-29)
 
 
