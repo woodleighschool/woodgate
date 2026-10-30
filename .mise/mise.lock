@@ -181,27 +181,27 @@ url_api = "https://api.github.com/repos/pnpm/pnpm/releases/assets/681916062"
 provenance = "github-attestations"
 
 [[tools.swiftformat]]
-version = "0.64.3"
+version = "0.64.4"
 backend = "github:nicklockwood/SwiftFormat"
-specifiers = ["0.64.3"]
+specifiers = ["0.64.4"]
 
 [tools.swiftformat.options]
 no_app = "true"
 
 [tools.swiftformat."platforms.linux-arm64"]
-checksum = "sha256:fa9c2431673dd809baf1d0e8faa7de1758562355a0feea5aff9d5b144fcbf2eb"
+checksum = "sha256:75d87cebe0a66630976a7149216d71d39edd0de18b44a5e16d01256e15fc77e1"
 checksum_source = "mise-versions"
-url = "https://github.com/nicklockwood/SwiftFormat/releases/download/0.64.3/swiftformat_linux_aarch64.zip"
-url_api = "https://api.github.com/repos/nicklockwood/SwiftFormat/releases/assets/677644850"
+url = "https://github.com/nicklockwood/SwiftFormat/releases/download/0.64.4/swiftformat_linux_aarch64.zip"
+url_api = "https://api.github.com/repos/nicklockwood/SwiftFormat/releases/assets/681086662"
 
 [tools.swiftformat."platforms.linux-x64"]
-checksum = "sha256:45fe2d2fed940c6d7cf403fbf21bbb7645f0f5f2dd01e179fbb46c450cadc205"
+checksum = "sha256:d2ca3c1017bd6421871ac9728f48e0485814e06142bd5b4f7f4a9c76f7fd9c5f"
 checksum_source = "mise-versions"
-url = "https://github.com/nicklockwood/SwiftFormat/releases/download/0.64.3/swiftformat_linux.zip"
-url_api = "https://api.github.com/repos/nicklockwood/SwiftFormat/releases/assets/677644854"
+url = "https://github.com/nicklockwood/SwiftFormat/releases/download/0.64.4/swiftformat_linux.zip"
+url_api = "https://api.github.com/repos/nicklockwood/SwiftFormat/releases/assets/681086658"
 
 [tools.swiftformat."platforms.macos-arm64"]
-checksum = "sha256:5caff00f02c440cc50d1dad588e949402c7cb271f5f8ae248a788164d21bf41a"
+checksum = "sha256:bb42fbfb0b9d5f1b8b83db3147087220ea414916fce8c5cf71abaea5ad5a3175"
 checksum_source = "mise-versions"
-url = "https://github.com/nicklockwood/SwiftFormat/releases/download/0.64.3/swiftformat.zip"
-url_api = "https://api.github.com/repos/nicklockwood/SwiftFormat/releases/assets/677644857"
+url = "https://github.com/nicklockwood/SwiftFormat/releases/download/0.64.4/swiftformat.zip"
+url_api = "https://api.github.com/repos/nicklockwood/SwiftFormat/releases/assets/681086654"
