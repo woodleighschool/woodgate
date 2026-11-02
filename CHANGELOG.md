@@ -1,5 +1,12 @@
 # Changelog
 
+## [3.0.1](https://github.com/woodleighschool/woodgate/compare/v3.0.0...v3.0.1) (2026-11-02)
+
+
+### Bug Fixes
+
+* **npm:** update dependency lucide-react (1.65.0 → 1.64.0) ([#501](https://github.com/woodleighschool/woodgate/issues/501)) ([fc7ecd6](https://github.com/woodleighschool/woodgate/commit/fc7ecd6e5f38e44f76af213604fab2557ca2213f))
+
 ## [3.0.0](https://github.com/woodleighschool/woodgate/compare/v2.3.4...v3.0.0) (2026-10-29)
 
 
