@@ -23,11 +23,9 @@ lockfile = true
 config_roots = ["app", "mock", "web"]
 
 [tasks.go-deps]
-description = "Download Go dependencies"
 run = "go mod download"
 
 [tasks.deps]
-description = "Install backend, mock, and web dependencies"
 depends = ["go-deps", "//mock:deps", "//web:deps"]
 
 [tasks.dev]
@@ -35,7 +33,6 @@ description = "Run backend and web development servers"
 run = { tasks = ["dev-backend", "//web:dev"] }
 
 [tasks.dev-backend]
-description = "Run backend development server"
 run = "air"
 
 [tasks.build]
@@ -44,39 +41,28 @@ depends = ["//mock:build", "//web:build"]
 run = { task = "backend" }
 
 [tasks.backend]
-description = "Build backend binary"
+description = "Build the backend binary"
 run = "go build -o woodgate ./cmd/woodgate"
 
 [tasks.tidy]
-description = "Tidy the Go module"
 run = "go mod tidy"
 
 [tasks.tidy-check]
-description = "Check the Go module is tidy"
 run = "go mod tidy -diff"
 
 [tasks.vulncheck]
-description = "Scan for known vulnerabilities with govulncheck"
 run = "govulncheck ./..."
 
-[tasks.go-generate]
-description = "Run Go generators"
-run = "go generate ./..."
-
 [tasks.generate]
-description = "Regenerate checked-in API contracts"
-run = { task = "openapi-types" }
+description = "Regenerate the OpenAPI schema and web client"
+run = [{ task = "openapi" }, { task = "//web:openapi-types" }]
 
 [tasks.openapi]
 description = "Generate the OpenAPI schema"
 run = "go run ./cmd/woodgate openapi --output web/openapi.yaml"
 
-[tasks.openapi-types]
-description = "Generate the OpenAPI schema and web client"
-run = [{ task = "openapi" }, { task = "//web:openapi-types" }]
-
 [tasks.test]
-description = "Run dependency-free Go checks"
+description = "Vet Go code and run race-enabled tests"
 run = ["go vet ./...", "go test -race -count=1 ./..."]
 
 [tasks.test-postgres]
@@ -91,35 +77,31 @@ description = "Run dependency-free and PostgreSQL tests"
 run = [{ task = "test" }, { task = "test-postgres" }]
 
 [tasks.go-lint]
-description = "Run Go linters"
 run = "golangci-lint run"
 
 [tasks.go-lint-fix]
-description = "Run Go linters and apply fixes"
 run = "golangci-lint run --fix"
 
 [tasks.lint-fix]
-description = "Run backend, mock, and web linters and apply fixes"
+description = "Fix lint issues in the backend, mock and web app"
 depends = ["go-lint-fix", "//mock:lint-fix", "//web:lint-fix"]
 
 [tasks.lint]
-description = "Run backend, mock, web, and app linters"
 depends = ["go-lint", "//app:lint", "//mock:lint", "//web:lint"]
 
 [tasks.go-format]
-description = "Format Go code"
 run = "go fmt ./..."
 
 [tasks.go-fmt-check]
-description = "Check Go formatting"
-run = "test -z \"$(gofmt -l .)\" || { gofmt -l .; exit 1; }"
+run = '''
+unformatted=$(gofmt -l .) || exit 1
+test -z "$unformatted" || { printf '%s\n' "$unformatted"; exit 1; }
+'''
 
 [tasks.format]
-description = "Format backend, mock, web, and app code"
 depends = ["go-format", "//app:format", "//mock:format", "//web:format"]
 
 [tasks.fmt-check]
-description = "Check backend, mock, web, and app formatting"
 depends = [
   "go-fmt-check",
   "//app:fmt-check",
@@ -128,11 +110,9 @@ depends = [
 ]
 
 [tasks.clean]
-description = "Remove local build outputs"
 run = "rm -rf woodgate .air bin web/dist"
 
 [tasks.container-build]
-description = "Build the production container locally"
 run = '''
 docker build \
   --build-arg GO_VERSION="$(mise config get tools.go)" \

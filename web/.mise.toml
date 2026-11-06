@@ -1,49 +1,43 @@
 [tasks.deps]
-description = "Install web dependencies"
 run = "pnpm install --frozen-lockfile"
 
 [tasks.dev]
-description = "Run web development server"
 depends = [":deps"]
 run = """
 pnpm run dev
 """
 
 [tasks.build]
-description = "Build web bundle"
+description = "Type-check and build the web bundle"
 depends = [":deps"]
 run = "pnpm run build"
 
 [tasks.serve]
-description = "Serve the built web bundle"
+description = "Serve the production build"
 run = "pnpm run preview"
 
 [tasks.lint]
-description = "Run web lint and typecheck"
+description = "Lint and type-check"
 depends = [":deps"]
 run = "pnpm run lint"
 
 [tasks.lint-fix]
-description = "Run web lint fixes and typecheck"
+description = "Fix lint issues and type-check"
 depends = [":deps"]
 run = "pnpm run lint:fix"
 
 [tasks.typecheck]
-description = "Run web typecheck"
 depends = [":deps"]
 run = "pnpm run typecheck"
 
 [tasks.test]
-description = "Run web behavior tests"
 depends = [":deps"]
 run = "pnpm run test"
 
 [tasks.format]
-description = "Format web code"
 run = "pnpm run format"
 
 [tasks.fmt-check]
-description = "Check web formatting"
 run = "oxfmt --check"
 
 [tasks.openapi-types]
@@ -52,5 +46,4 @@ depends = [":deps"]
 run = "pnpm run openapi:types"
 
 [tasks.clean]
-description = "Remove web build output"
 run = "rm -rf dist"

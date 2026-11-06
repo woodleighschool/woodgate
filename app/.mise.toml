@@ -1,9 +1,7 @@
 [tasks.format]
-description = "Format Swift code"
 run = "swiftformat WoodGate"
 
 [tasks.fmt-check]
-description = "Check Swift formatting"
 run = "swiftformat WoodGate --lint"
 
 [tasks.build]
@@ -32,5 +30,5 @@ periphery scan \
 """
 
 [tasks.lint]
-description = "Run app lint"
+description = "Check for unused Swift code"
 depends = [":periphery"]
