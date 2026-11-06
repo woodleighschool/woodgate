@@ -13,7 +13,6 @@ periphery = { version = "3.8.0", os = ["macos"] }
 swiftformat = { version = "0.64.5", no_app = true, rename_exe = "swiftformat" }
 jactionlint = "2.4.0"
 oxfmt = "0.75.0"
-"npm:@commitlint/cli" = "21.2.4"
 
 [settings]
 experimental = true
