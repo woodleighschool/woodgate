@@ -6,10 +6,6 @@ on:
   push:
     branches:
       - main
-    paths-ignore:
-      - "**.md"
-      - ".release-please-manifest.json"
-      - "app/Config/Version.xcconfig"
   pull_request:
     branches:
       - main
@@ -28,37 +24,7 @@ env:
   MISE_TASK_RUN_AUTO_INSTALL: "false"
 
 jobs:
-  workflow-lint:
-    if: >-
-      ${{ !(github.event_name == 'push' && startsWith(github.event.head_commit.message, 'chore(release):'))
-      && !(startsWith(github.head_ref, 'release-please--')
-      && github.event.pull_request.head.repo.full_name == github.repository) }}
-    name: Workflow Lint
-    runs-on: ubuntu-26.04
-    timeout-minutes: 30
-    permissions:
-      contents: read
-    steps:
-      - name: Checkout
-        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
-        with:
-          persist-credentials: false
-
-      - name: Setup Mise
-        uses: jdx/mise-action@f5be966e4a917d54244728e6a5fdcd1d93a35e6c # v5.2.6
-        with:
-          install_args: --locked jactionlint
-
-      - name: Lint workflows
-        env:
-          GH_TOKEN: ${{ github.token }}
-        run: jactionlint --online --shellcheck= --format github
-
   backend:
-    if: >-
-      ${{ !(github.event_name == 'push' && startsWith(github.event.head_commit.message, 'chore(release):'))
-      && !(startsWith(github.head_ref, 'release-please--')
-      && github.event.pull_request.head.repo.full_name == github.repository) }}
     name: Backend
     runs-on: ubuntu-26.04
     timeout-minutes: 30
@@ -85,22 +51,29 @@ jobs:
       - name: Setup Mise
         uses: jdx/mise-action@f5be966e4a917d54244728e6a5fdcd1d93a35e6c # v5.2.6
         with:
-          install_args: --locked go golangci-lint
+          install_args: --locked go golangci-lint jactionlint go:golang.org/x/vuln/cmd/govulncheck
+
+      - name: Resolve Go cache
+        id: go-cache
+        run: |
+          echo "build=$(go env GOCACHE)" >> "$GITHUB_OUTPUT"
+          echo "modules=$(go env GOMODCACHE)" >> "$GITHUB_OUTPUT"
+          echo "version=$(go env GOVERSION)" >> "$GITHUB_OUTPUT"
 
       - name: Cache Go modules and build
         uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
         with:
           path: |
-            ~/.cache/go-build
-            ~/go/pkg/mod
-          key: ${{ runner.os }}-go-${{ hashFiles('go.sum') }}
-          restore-keys: ${{ runner.os }}-go-
+            ${{ steps.go-cache.outputs.build }}
+            ${{ steps.go-cache.outputs.modules }}
+          key: ${{ runner.os }}-${{ runner.arch }}-go-${{ steps.go-cache.outputs.version }}-${{ hashFiles('go.sum') }}
+          restore-keys: ${{ runner.os }}-${{ runner.arch }}-go-
 
       - name: Cache golangci-lint
         uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
         with:
           path: ~/.cache/golangci-lint
-          key: ${{ runner.os }}-golangci-lint-${{ hashFiles('go.sum', '.golangci.yml', '.mise/mise.lock') }}
+          key: ${{ runner.os }}-${{ runner.arch }}-golangci-lint-${{ hashFiles('go.sum', '.golangci.yml', '.mise/mise.lock') }}
 
       - name: Check Go formatting
         run: mise run go-fmt-check
@@ -111,19 +84,18 @@ jobs:
       - name: Run Go lint
         run: mise run go-lint
 
-      - name: Run dependency-free Go checks
-        run: mise run test
-
-      - name: Run PostgreSQL component tests
-        env:
-          WOODGATE_TEST_DATABASE_URL: postgres://woodgate:woodgate@127.0.0.1:5432/postgres?sslmode=disable
+      - name: Run Go and PostgreSQL tests
         run: mise run test-postgres
 
+      - name: Run govulncheck
+        run: mise run vulncheck
+
+      - name: Lint workflows
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: jactionlint --online --shellcheck= --format github .github/workflows/*.yaml
+
   frontend:
-    if: >-
-      ${{ !(github.event_name == 'push' && startsWith(github.event.head_commit.message, 'chore(release):'))
-      && !(startsWith(github.head_ref, 'release-please--')
-      && github.event.pull_request.head.repo.full_name == github.repository) }}
     name: Frontend
     runs-on: ubuntu-26.04
     timeout-minutes: 20
@@ -138,14 +110,21 @@ jobs:
         with:
           install_args: --locked go node pnpm oxfmt
 
+      - name: Resolve Go cache
+        id: go-cache
+        run: |
+          echo "build=$(go env GOCACHE)" >> "$GITHUB_OUTPUT"
+          echo "modules=$(go env GOMODCACHE)" >> "$GITHUB_OUTPUT"
+          echo "version=$(go env GOVERSION)" >> "$GITHUB_OUTPUT"
+
       - name: Cache Go modules and build
         uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
         with:
           path: |
-            ~/.cache/go-build
-            ~/go/pkg/mod
-          key: ${{ runner.os }}-go-${{ hashFiles('go.sum') }}
-          restore-keys: ${{ runner.os }}-go-
+            ${{ steps.go-cache.outputs.build }}
+            ${{ steps.go-cache.outputs.modules }}
+          key: ${{ runner.os }}-${{ runner.arch }}-go-${{ steps.go-cache.outputs.version }}-${{ hashFiles('go.sum') }}
+          restore-keys: ${{ runner.os }}-${{ runner.arch }}-go-
 
       - name: Resolve pnpm store
         id: pnpm
@@ -155,47 +134,13 @@ jobs:
         uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
         with:
           path: ${{ steps.pnpm.outputs.path }}
-          key: ${{ runner.os }}-pnpm-${{ hashFiles('web/pnpm-lock.yaml', 'mock/pnpm-lock.yaml') }}
-          restore-keys: ${{ runner.os }}-pnpm-
+          key: ${{ runner.os }}-${{ runner.arch }}-pnpm-${{ hashFiles('web/pnpm-lock.yaml', 'mock/pnpm-lock.yaml') }}
+          restore-keys: ${{ runner.os }}-${{ runner.arch }}-pnpm-
 
-      - name: Check frontend formatting
-        run: mise run //web:fmt-check
-
-      - name: Lint frontend
-        run: mise run //web:lint
-
-      - name: Test frontend behavior
-        run: mise run //web:test
-
-      - name: Check mock formatting
-        run: mise run //mock:fmt-check
-
-      - name: Lint mock
-        run: mise run //mock:lint
-
-      - name: Test mock behavior
-        run: mise run //mock:test
-
-      - name: Regenerate API contracts
-        run: mise run generate
-
-      - name: Check generated code is committed
-        run: |
-          generated_status=$(git status --short --untracked-files=all -- web/openapi.yaml web/src/lib/api-client)
-          test -z "$generated_status" || {
-            printf '%s\n' "$generated_status"
-            git diff -- web/openapi.yaml web/src/lib/api-client
-            exit 1
-          }
-
-      - name: Build application
-        run: mise run build
+      - name: Check frontend and generated contracts
+        run: mise run frontend-check
 
   app:
-    if: >-
-      ${{ !(github.event_name == 'push' && startsWith(github.event.head_commit.message, 'chore(release):'))
-      && !(startsWith(github.head_ref, 'release-please--')
-      && github.event.pull_request.head.repo.full_name == github.repository) }}
     name: App
     runs-on: xcode-27
     timeout-minutes: 20
@@ -208,7 +153,6 @@ jobs:
       - name: Setup Mise
         uses: jdx/mise-action@f5be966e4a917d54244728e6a5fdcd1d93a35e6c # v5.2.6
         with:
-          cache: false
           install_args: --locked periphery swiftformat
 
       - name: Show Xcode version
@@ -223,44 +167,18 @@ jobs:
       - name: Build app for iOS Simulator
         run: mise run //app:build
 
-  go-vulncheck:
-    if: >-
-      ${{ !(github.event_name == 'push' && startsWith(github.event.head_commit.message, 'chore(release):'))
-      && !(startsWith(github.head_ref, 'release-please--')
-      && github.event.pull_request.head.repo.full_name == github.repository) }}
-    name: Go Vulncheck
-    runs-on: ubuntu-26.04
-    timeout-minutes: 10
-    steps:
-      - name: Checkout
-        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
-        with:
-          persist-credentials: false
-
-      - name: Setup Mise
-        uses: jdx/mise-action@f5be966e4a917d54244728e6a5fdcd1d93a35e6c # v5.2.6
-        with:
-          install_args: --locked go go:golang.org/x/vuln/cmd/govulncheck
-
-      - name: Run govulncheck
-        run: mise run vulncheck
-
   status:
     if: ${{ !cancelled() }}
     name: Build Success
     needs:
-      - workflow-lint
       - app
       - backend
       - frontend
-      - go-vulncheck
     runs-on: ubuntu-26.04
-    timeout-minutes: 30
+    timeout-minutes: 5
     permissions: {}
     steps:
-      - name: Any jobs failed?
-        if: ${{ contains(needs.*.result, 'failure') || contains(needs.*.result, 'cancelled') }}
-        run: exit 1
-      - name: All jobs passed or skipped?
-        if: ${{ !(contains(needs.*.result, 'failure') || contains(needs.*.result, 'cancelled')) }}
-        run: echo "All jobs passed or skipped" && echo "${{ toJSON(needs.*.result) }}"
+      - name: Check results
+        env:
+          RESULTS: ${{ toJSON(needs) }}
+        run: jq -e 'all(.[]; .result == "success")' <<<"$RESULTS"

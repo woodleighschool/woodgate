@@ -40,6 +40,26 @@ description = "Build mock, web bundle, and backend binary"
 depends = ["//mock:build", "//web:build"]
 run = { task = "backend" }
 
+[tasks.frontend-check]
+description = "Verify the web app, mock and generated API contracts"
+depends = ["generate"]
+run = [
+  '''
+generated_status=$(git status --short --untracked-files=all -- web/openapi.yaml web/src/lib/api-client)
+test -z "$generated_status" || {
+  printf '%s\n' "$generated_status"
+  git diff -- web/openapi.yaml web/src/lib/api-client
+  exit 1
+}
+''',
+  { task = "//web:fmt-check" },
+  "pnpm --dir web run lint",
+  "pnpm --dir web run test",
+  "pnpm --dir web run build",
+  { task = "//mock:check" },
+  { task = "backend" },
+]
+
 [tasks.backend]
 description = "Build the backend binary"
 run = "go build -o woodgate ./cmd/woodgate"
@@ -66,15 +86,11 @@ description = "Vet Go code and run race-enabled tests"
 run = ["go vet ./...", "go test -race -count=1 ./..."]
 
 [tasks.test-postgres]
-description = "Run PostgreSQL component tests"
+description = "Run Go tests with PostgreSQL component coverage"
 run = """
 WOODGATE_TEST_DATABASE_URL="${WOODGATE_TEST_DATABASE_URL:-postgres://woodgate:woodgate@127.0.0.1:5432/postgres?sslmode=disable}" \
-  go test -race -count=1 -tags=postgres ./internal/... ./cmd/...
+  go test -race -count=1 -tags=postgres ./...
 """
-
-[tasks.test-all]
-description = "Run dependency-free and PostgreSQL tests"
-run = [{ task = "test" }, { task = "test-postgres" }]
 
 [tasks.go-lint]
 run = "golangci-lint run"

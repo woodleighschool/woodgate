@@ -1,33 +1,41 @@
 [tasks.deps]
 run = "pnpm install --frozen-lockfile"
 
-[tasks.dev]
-description = "Generate Worker types and start the development server"
+[tasks.types]
+description = "Generate Cloudflare Worker types"
 depends = [":deps"]
+run = "pnpm run types"
+
+[tasks.check]
+run = [
+  { task = ":fmt-check" },
+  { task = ":lint" },
+  { task = ":typecheck" },
+  { task = ":test" },
+  { task = ":build" },
+]
+
+[tasks.dev]
+depends = [":types"]
 run = "pnpm run dev"
 
 [tasks.build]
-description = "Generate Worker types and build without deploying"
-depends = [":deps"]
+depends = [":types"]
 run = "pnpm run build"
 
 [tasks.test]
-description = "Generate Worker types and run tests"
-depends = [":deps"]
+depends = [":types"]
 run = "pnpm run test"
 
 [tasks.typecheck]
-description = "Generate Worker types and type-check"
-depends = [":deps"]
+depends = [":types"]
 run = "pnpm run typecheck"
 
 [tasks.lint]
-description = "Lint and type-check"
 depends = [":deps"]
 run = "pnpm run lint"
 
 [tasks.lint-fix]
-description = "Fix lint issues and type-check"
 depends = [":deps"]
 run = "pnpm run lint:fix"
 
