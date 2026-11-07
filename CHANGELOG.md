@@ -1,5 +1,28 @@
 # Changelog
 
+## [3.0.1](https://github.com/woodleighschool/woodgate/compare/v3.0.0...v3.0.1) (2026-11-07)
+
+
+### Bug Fixes
+
+* **go:** update module github.com/caarlos0/env/v11 (v11.4.1 → v11.4.2) ([#532](https://github.com/woodleighschool/woodgate/issues/532)) ([45cc953](https://github.com/woodleighschool/woodgate/commit/45cc953ab417286a2bd27c8543af2e51bb46dbf8))
+* **go:** update module github.com/go-playground/validator/v10 (v10.30.5 → v10.30.6) ([#526](https://github.com/woodleighschool/woodgate/issues/526)) ([68d6157](https://github.com/woodleighschool/woodgate/commit/68d6157ff0185b1b696a75be2677e39c65634b61))
+* **go:** update module github.com/jackc/pgx/v5 (v5.11.0 → v5.12.0) ([#510](https://github.com/woodleighschool/woodgate/issues/510)) ([26f34ba](https://github.com/woodleighschool/woodgate/commit/26f34bae0666b90657b52c94d22a99bfc9094ef8))
+* **go:** update river monorepo (v0.50.0 → v0.51.0) ([#516](https://github.com/woodleighschool/woodgate/issues/516)) ([8fbd345](https://github.com/woodleighschool/woodgate/commit/8fbd3458db0d0b115327b4132a21fb067c77dd83))
+* **go:** update river monorepo (v0.51.0 → v0.51.1) ([#547](https://github.com/woodleighschool/woodgate/issues/547)) ([284d710](https://github.com/woodleighschool/woodgate/commit/284d710fd85b0fb1ffdb50164c0b128c010a8be7))
+* **npm:** update dependency cn (0.5.1 → 0.5.1) ([#507](https://github.com/woodleighschool/woodgate/issues/507)) ([643da30](https://github.com/woodleighschool/woodgate/commit/643da30b9f0c11d7d1a8854c022a735dc59fdae5))
+* **npm:** update dependency cn (0.5.1 → 0.5.2) ([#522](https://github.com/woodleighschool/woodgate/issues/522)) ([937d36e](https://github.com/woodleighschool/woodgate/commit/937d36ec9635f64ec6614366ca22cdb3d742d814))
+* **npm:** update dependency lucide-react (1.65.0 → 1.64.0) ([#501](https://github.com/woodleighschool/woodgate/issues/501)) ([fc7ecd6](https://github.com/woodleighschool/woodgate/commit/fc7ecd6e5f38e44f76af213604fab2557ca2213f))
+* **npm:** update dependency lucide-react (1.65.0 → 1.65.0) ([#508](https://github.com/woodleighschool/woodgate/issues/508)) ([60fd71d](https://github.com/woodleighschool/woodgate/commit/60fd71daaea2949a05b92adb7289d6d52bfd3975))
+* **npm:** update dependency lucide-react (1.65.0 → 1.66.0) ([#511](https://github.com/woodleighschool/woodgate/issues/511)) ([6293ad3](https://github.com/woodleighschool/woodgate/commit/6293ad3c7ae5399e60c59ccffd321a9b8530f5cc))
+* **npm:** update dependency lucide-react (1.66.0 → 1.67.0) ([#535](https://github.com/woodleighschool/woodgate/issues/535)) ([811e9c6](https://github.com/woodleighschool/woodgate/commit/811e9c686c2e90f96614f763a412f964fb0a2844))
+* **npm:** update dependency lucide-react (1.69.0 → 1.69.0) ([#538](https://github.com/woodleighschool/woodgate/issues/538)) ([d62fe47](https://github.com/woodleighschool/woodgate/commit/d62fe4747167c00efc3ceb80173df47edbfb5b42))
+* **npm:** update dependency lucide-react (1.69.0 → 1.70.0) ([#551](https://github.com/woodleighschool/woodgate/issues/551)) ([b0e5f36](https://github.com/woodleighschool/woodgate/commit/b0e5f362633b1fe0d8aa27ca88574d41e34239c4))
+* **npm:** update tanstack-query monorepo (5.105.0 → 5.105.1) ([#517](https://github.com/woodleighschool/woodgate/issues/517)) ([5eff785](https://github.com/woodleighschool/woodgate/commit/5eff785876f36776437b742bbd20ade6b725f552))
+* **npm:** update tanstack-query monorepo (5.105.3 → 5.105.2) ([#527](https://github.com/woodleighschool/woodgate/issues/527)) ([c998963](https://github.com/woodleighschool/woodgate/commit/c998963b9fdba321aeaa258478898f045d394588))
+* **npm:** update tanstack-query monorepo (5.105.3 → 5.105.3) ([#530](https://github.com/woodleighschool/woodgate/issues/530)) ([681d23d](https://github.com/woodleighschool/woodgate/commit/681d23dd57abad77bfbebc5590612c997872b112))
+* **npm:** update tanstack-query monorepo (5.105.3 → 5.106.1) ([#543](https://github.com/woodleighschool/woodgate/issues/543)) ([e33fdb0](https://github.com/woodleighschool/woodgate/commit/e33fdb0c32805637998417157d6313ced6683b4a))
+
 ## [3.0.0](https://github.com/woodleighschool/woodgate/compare/v2.3.4...v3.0.0) (2026-10-29)
 
 
