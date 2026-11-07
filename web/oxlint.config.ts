@@ -9,8 +9,6 @@ export default {
     "src/routeTree.gen.ts",
     "src/lib/api-client/**",
     "src/components/ui/**",
-    "src/lib/compose-refs.ts",
-    "src/components/visually-hidden-input.tsx",
   ],
 
   env: {
