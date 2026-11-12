@@ -28,7 +28,7 @@ require (
 	github.com/spf13/cobra v1.10.2
 	github.com/woodleighschool/goodies/auth v1.1.1-0.20261112102811-eb85a57a3a9c
 	github.com/woodleighschool/goodies/bloby v1.4.2
-	github.com/woodleighschool/goodies/pglock v0.1.1
+	github.com/woodleighschool/goodies/pglock v0.1.2
 	golang.org/x/term v0.48.0
 )
 
