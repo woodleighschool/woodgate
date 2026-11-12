@@ -1,4 +1,4 @@
-# WoodGate 🚪
+# woodgate 🚪
 
 [![Release](https://img.shields.io/github/v/release/woodleighschool/woodgate?display_name=tag&sort=semver)](https://github.com/woodleighschool/woodgate/releases/latest)
 [![CI](https://github.com/woodleighschool/woodgate/actions/workflows/ci.yaml/badge.svg?branch=main)](https://github.com/woodleighschool/woodgate/actions/workflows/ci.yaml)
