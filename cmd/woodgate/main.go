@@ -19,6 +19,7 @@ import (
 	"github.com/spf13/cobra"
 	"github.com/woodleighschool/goodies/auth/authn"
 	"github.com/woodleighschool/goodies/auth/authz"
+	authoidc "github.com/woodleighschool/goodies/auth/oidc"
 	"github.com/woodleighschool/goodies/bloby"
 	blobydb "github.com/woodleighschool/goodies/bloby/pgxstore"
 	"github.com/woodleighschool/goodies/pglock"
@@ -218,7 +219,7 @@ func newEntraSyncService(cfg config.Config, store *directory.Store, logger *slog
 func newAuth(ctx context.Context, cfg config.Config, store *directory.Store, sessions *scs.SessionManager, authorization *authz.Service, logger *slog.Logger) (*authn.Service, error) {
 	authConfig := authn.Config{Admit: authorization.HasAccess, SuccessRedirect: "/checkins", FailureRedirect: "/login", Logger: logger}
 	if cfg.OIDCEnabled() {
-		authConfig.OIDC = &authn.OIDCConfig{IssuerURL: cfg.OIDCIssuerURL, ClientID: cfg.OIDCClientID, ClientSecret: cfg.OIDCClientSecret, RedirectURL: cfg.OIDCRedirectURL, Scopes: cfg.OIDCScopes, EmailClaim: cfg.OIDCEmailClaim}
+		authConfig.OIDC = &authoidc.Config{IssuerURL: cfg.OIDCIssuerURL, ClientID: cfg.OIDCClientID, ClientSecret: cfg.OIDCClientSecret, RedirectURL: cfg.OIDCRedirectURL, Scopes: cfg.OIDCScopes, EmailClaim: cfg.OIDCEmailClaim}
 	}
 	service, err := authn.New(ctx, directory.NewAuthnStore(store), sessions, authConfig)
 	if err != nil {
