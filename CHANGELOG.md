@@ -1,5 +1,20 @@
 # Changelog
 
+## [3.0.2](https://github.com/woodleighschool/woodgate/compare/v3.0.1...v3.0.2) (2026-11-14)
+
+
+### Bug Fixes
+
+* **go:** update goodies/auth to v1.2.0 ([9af02e5](https://github.com/woodleighschool/woodgate/commit/9af02e5d1eca7653ae56ac718d1ae04e0e63a272))
+* **go:** update module github.com/jackc/pgx/v5 (v5.12.0 → v5.13.0) ([#586](https://github.com/woodleighschool/woodgate/issues/586)) ([74a61f4](https://github.com/woodleighschool/woodgate/commit/74a61f45c1a3a5487c434f9dbec58720accde023))
+* **go:** update module github.com/pressly/goose/v3 (v3.29.0 → v3.30.0) ([#576](https://github.com/woodleighschool/woodgate/issues/576)) ([3939d8c](https://github.com/woodleighschool/woodgate/commit/3939d8c0822f69ebe4f6e235563a691b52c62f5b))
+* **go:** update module github.com/pressly/goose/v3 (v3.30.0 → v3.30.1) ([#590](https://github.com/woodleighschool/woodgate/issues/590)) ([783d215](https://github.com/woodleighschool/woodgate/commit/783d2158b93ea5c30a2c49ccf5075c059a7d2389))
+* **go:** update module github.com/woodleighschool/goodies/bloby (v1.4.1 → v1.4.2) ([#581](https://github.com/woodleighschool/woodgate/issues/581)) ([30128f1](https://github.com/woodleighschool/woodgate/commit/30128f1356c750f0b045bdac66e9cdd8cecb0df8))
+* **go:** update module github.com/woodleighschool/goodies/pglock (v0.1.1 → v0.1.2) ([#582](https://github.com/woodleighschool/woodgate/issues/582)) ([8dfcab5](https://github.com/woodleighschool/woodgate/commit/8dfcab52dd3c90ef2745cf803890941e7cb868cf))
+* **npm:** update dependency @woodleighschool/bloby-client (1.3.1 → 1.3.2) ([#583](https://github.com/woodleighschool/woodgate/issues/583)) ([c4e5e2e](https://github.com/woodleighschool/woodgate/commit/c4e5e2e8f9dac4824d9f5934b7cd95b70d13c203))
+* **npm:** update dependency lucide-react (1.71.0 → 1.72.0) ([#579](https://github.com/woodleighschool/woodgate/issues/579)) ([322e79a](https://github.com/woodleighschool/woodgate/commit/322e79a83f12de74c9bb0c912a61c40661e0adb0))
+* **npm:** update dependency papaparse (5.7.0 → 5.7.1) ([#584](https://github.com/woodleighschool/woodgate/issues/584)) ([8357493](https://github.com/woodleighschool/woodgate/commit/8357493fe2559b09c008ea78c917859c55acfd64))
+
 ## [3.0.1](https://github.com/woodleighschool/woodgate/compare/v3.0.0...v3.0.1) (2026-11-11)
 
 
