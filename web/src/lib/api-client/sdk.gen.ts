@@ -701,7 +701,7 @@ export const listUserRoles = <ThrowOnError extends boolean = false>(options?: Op
 });
 
 /**
- * Delete a user
+ * Delete a local user
  */
 export const deleteUser = <ThrowOnError extends boolean = false>(options: Options<DeleteUserData, ThrowOnError>): RequestResult<DeleteUserResponses, DeleteUserErrors, ThrowOnError> => (options.client ?? client).delete<DeleteUserResponses, DeleteUserErrors, ThrowOnError>({
     security: [{

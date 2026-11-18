@@ -15,7 +15,7 @@ type AuthnStore struct{ store *Store }
 func NewAuthnStore(store *Store) *AuthnStore { return &AuthnStore{store: store} }
 
 func (s *AuthnStore) GetPrincipal(ctx context.Context, id int64) (*authn.Principal, error) {
-	principal, err := postgres.GetOne[authn.Principal](ctx, s.store.pool, `SELECT id,email,name FROM users WHERE id=$1 AND deleted_at IS NULL`, id)
+	principal, err := postgres.GetOne[authn.Principal](ctx, s.store.pool, `SELECT id,email,name FROM users WHERE id=$1 AND account_enabled AND deleted_at IS NULL`, id)
 	if err != nil {
 		return nil, authnStoreError(err)
 	}
@@ -23,7 +23,7 @@ func (s *AuthnStore) GetPrincipal(ctx context.Context, id int64) (*authn.Princip
 }
 
 func (s *AuthnStore) GetPrincipalByAPIKey(ctx context.Context, key string) (*authn.Principal, error) {
-	principal, err := postgres.GetOne[authn.Principal](ctx, s.store.pool, `SELECT id,email,name FROM users WHERE api_key=$1 AND deleted_at IS NULL`, key)
+	principal, err := postgres.GetOne[authn.Principal](ctx, s.store.pool, `SELECT id,email,name FROM users WHERE api_key=$1 AND account_enabled AND deleted_at IS NULL`, key)
 	if err != nil {
 		return nil, authnStoreError(err)
 	}
@@ -31,7 +31,7 @@ func (s *AuthnStore) GetPrincipalByAPIKey(ctx context.Context, key string) (*aut
 }
 
 func (s *AuthnStore) GetPasswordIdentityByEmail(ctx context.Context, email string) (*authn.PasswordIdentity, error) {
-	identity, err := postgres.GetOne[authn.PasswordIdentity](ctx, s.store.pool, `SELECT id,email,name,password_hash FROM users WHERE email=$1 AND source='local' AND password_hash IS NOT NULL AND deleted_at IS NULL`, email)
+	identity, err := postgres.GetOne[authn.PasswordIdentity](ctx, s.store.pool, `SELECT id,email,name,password_hash FROM users WHERE email=$1 AND source='local' AND password_hash IS NOT NULL AND account_enabled AND deleted_at IS NULL`, email)
 	if err != nil {
 		return nil, authnStoreError(err)
 	}
@@ -39,7 +39,7 @@ func (s *AuthnStore) GetPasswordIdentityByEmail(ctx context.Context, email strin
 }
 
 func (s *AuthnStore) GetSSOPrincipalByEmail(ctx context.Context, email string) (*authn.Principal, error) {
-	principal, err := postgres.GetOne[authn.Principal](ctx, s.store.pool, `SELECT id,email,name FROM users WHERE email=$1 AND source<>'local' AND deleted_at IS NULL`, email)
+	principal, err := postgres.GetOne[authn.Principal](ctx, s.store.pool, `SELECT id,email,name FROM users WHERE email=$1 AND source<>'local' AND account_enabled AND deleted_at IS NULL`, email)
 	if err != nil {
 		return nil, authnStoreError(err)
 	}
@@ -47,7 +47,7 @@ func (s *AuthnStore) GetSSOPrincipalByEmail(ctx context.Context, email string) (
 }
 
 func (s *AuthnStore) SetAPIKey(ctx context.Context, id int64, key string) error {
-	tag, err := s.store.pool.Exec(ctx, `UPDATE users SET api_key=$2,api_key_created_at=now(),updated_at=now() WHERE id=$1 AND deleted_at IS NULL`, id, key)
+	tag, err := s.store.pool.Exec(ctx, `UPDATE users SET api_key=$2,api_key_created_at=now(),updated_at=now() WHERE id=$1 AND account_enabled AND deleted_at IS NULL`, id, key)
 	if err != nil {
 		return authnStoreError(postgres.MutationError(err))
 	}
@@ -58,7 +58,7 @@ func (s *AuthnStore) SetAPIKey(ctx context.Context, id int64, key string) error 
 }
 
 func (s *AuthnStore) ClearAPIKey(ctx context.Context, id int64) error {
-	tag, err := s.store.pool.Exec(ctx, `UPDATE users SET api_key=NULL,api_key_created_at=NULL,updated_at=now() WHERE id=$1 AND deleted_at IS NULL`, id)
+	tag, err := s.store.pool.Exec(ctx, `UPDATE users SET api_key=NULL,api_key_created_at=NULL,updated_at=now() WHERE id=$1 AND account_enabled AND deleted_at IS NULL`, id)
 	if err != nil {
 		return authnStoreError(postgres.MutationError(err))
 	}

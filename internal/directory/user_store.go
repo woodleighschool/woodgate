@@ -2,6 +2,7 @@ package directory
 
 import (
 	"context"
+	"fmt"
 	"strconv"
 	"strings"
 	"time"
@@ -9,6 +10,7 @@ import (
 	"github.com/jackc/pgx/v5"
 	"github.com/jackc/pgx/v5/pgxpool"
 
+	"github.com/woodleighschool/woodgate/internal/fault"
 	"github.com/woodleighschool/woodgate/internal/listing"
 	"github.com/woodleighschool/woodgate/internal/postgres"
 )
@@ -37,6 +39,7 @@ type userRow struct {
 	GivenName         *string    `db:"given_name"`
 	FamilyName        *string    `db:"family_name"`
 	Department        *string    `db:"department"`
+	AccountEnabled    bool       `db:"account_enabled"`
 	DeletedAt         *time.Time `db:"deleted_at"`
 	CreatedAt         time.Time  `db:"created_at"`
 	UpdatedAt         time.Time  `db:"updated_at"`
@@ -56,6 +59,7 @@ var userColumnExprs = []string{
 	"given_name",
 	"family_name",
 	"department",
+	"account_enabled",
 	"deleted_at",
 	"created_at",
 	"updated_at",
@@ -93,6 +97,7 @@ func userFromRow(r userRow) User {
 		GivenName:         derefString(r.GivenName),
 		FamilyName:        derefString(r.FamilyName),
 		Department:        derefString(r.Department),
+		AccountEnabled:    r.AccountEnabled,
 		DeletedAt:         r.DeletedAt,
 		CreatedAt:         r.CreatedAt,
 		UpdatedAt:         r.UpdatedAt,
@@ -292,7 +297,7 @@ SELECT id
 FROM users
 WHERE email = $1
   AND deleted_at IS NULL
-ORDER BY CASE WHEN source = 'local' THEN 1 ELSE 0 END, id
+ORDER BY account_enabled DESC, CASE WHEN source = 'local' THEN 1 ELSE 0 END, id
 LIMIT 1
 FOR UPDATE`, email).Scan(&userID); err != nil {
 			return postgres.GetError(err)
@@ -353,24 +358,11 @@ FOR UPDATE`, id).Scan(&source); err != nil {
 			return postgres.GetError(err)
 		}
 
-		var deletedID int64
-		if source == SourceLocal {
-			if err := tx.QueryRow(ctx, `
-DELETE FROM users
-WHERE id = $1
-RETURNING id`, id).Scan(&deletedID); err != nil {
-				return postgres.MutationError(err)
-			}
-		} else {
-			if err := tx.QueryRow(ctx, `
-UPDATE users
-SET
-    deleted_at = now(),
-    updated_at = now()
-WHERE id = $1
-RETURNING id`, id).Scan(&deletedID); err != nil {
-				return postgres.MutationError(err)
-			}
+		if source != SourceLocal {
+			return fmt.Errorf("%w: synced users are managed by their directory", fault.ErrConflict)
+		}
+		if _, err := tx.Exec(ctx, `DELETE FROM users WHERE id = $1`, id); err != nil {
+			return postgres.MutationError(err)
 		}
 		return nil
 	})

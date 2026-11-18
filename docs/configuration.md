@@ -40,7 +40,7 @@ Single sign-on is enabled when the issuer, client ID, and client secret are all 
 | `WOODGATE_ENTRA_TRANSITIVE_GROUPS` | `false`                     |
 | `WOODGATE_ENTRA_SYNC_INTERVAL`     | `1h`                        |
 
-Sync is enabled when all three credentials are configured. Provider object IDs identify directory records across updates; retained check-ins continue to refer to the same people when directory attributes change.
+With all three credentials configured, the server syncs Microsoft Entra groups and member accounts only. Disabled members cannot sign in or use personal API keys. A successful full sync soft-deletes absent members.
 
 ## Storage
 
