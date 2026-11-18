@@ -8,6 +8,7 @@ import { createTableSearchSchema, TABLE_SEARCH_DEFAULTS } from "@lib/table-searc
 const searchSchema = createTableSearchSchema([
   "name",
   "email",
+  "enabled",
   "department",
   "created_at",
   "updated_at",

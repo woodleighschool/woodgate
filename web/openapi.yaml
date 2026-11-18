@@ -989,6 +989,8 @@ components:
         email:
           format: email
           type: string
+        enabled:
+          type: boolean
         external_id:
           type: string
         family_name:
@@ -1023,6 +1025,7 @@ components:
         - roles
         - effective_roles
         - source
+        - enabled
         - created_at
         - updated_at
       type: object

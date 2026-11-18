@@ -381,6 +381,7 @@ export type User = {
     department?: string;
     effective_roles: Array<RoleSummary>;
     email: string;
+    enabled: boolean;
     external_id?: string;
     family_name?: string;
     given_name?: string;

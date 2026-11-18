@@ -325,8 +325,8 @@ func TestLocationGroupFiltersStationPeopleAndCheckins(t *testing.T) {
 	service := NewService(store, nil)
 
 	var eligibleID, outsiderID, groupID int64
-	if err := db.QueryRow(ctx, `INSERT INTO users (email,name,source,external_id,department)
-VALUES ('eligible@example.invalid','Eligible Person','entra','user-eligible','Students') RETURNING id`).Scan(&eligibleID); err != nil {
+	if err := db.QueryRow(ctx, `INSERT INTO users (email,name,source,external_id,department,enabled)
+VALUES ('eligible@example.invalid','Eligible Person','entra','user-eligible','Students',false) RETURNING id`).Scan(&eligibleID); err != nil {
 		t.Fatalf("insert eligible user: %v", err)
 	}
 	if err := db.QueryRow(ctx, `INSERT INTO users (email,name,source,external_id,department)

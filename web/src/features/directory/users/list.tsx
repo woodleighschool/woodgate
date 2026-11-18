@@ -2,6 +2,7 @@ import { getRouteApi } from "@tanstack/react-router";
 import { MoreHorizontal, UserPlus, Users } from "lucide-react";
 import * as React from "react";
 
+import { BooleanIndicator } from "@components/boolean-indicator";
 import { DataTable } from "@components/data-table/data-table";
 import { DataTableEmpty } from "@components/data-table/data-table-empty";
 import { DataTableFacetedFilter } from "@components/data-table/data-table-faceted-filter";
@@ -94,6 +95,13 @@ const userColumns: DataTableColumnDef<UserTableRow>[] = [
     enableSorting: false,
     enableColumnFilter: true,
     meta: { label: "Roles" },
+  },
+  {
+    id: "enabled",
+    accessorFn: (row) => row.user.enabled,
+    header: "Enabled",
+    cell: ({ row }) => <BooleanIndicator value={row.original.user.enabled} />,
+    meta: { label: "Enabled" },
   },
   {
     id: "source",
@@ -203,7 +211,7 @@ export function UserListPage() {
           onRetry={() => void query.refetch()}
         />
       ) : query.isLoading ? (
-        <DataTableSkeleton columnCount={6} filterCount={1} />
+        <DataTableSkeleton columnCount={table.getVisibleLeafColumns().length} filterCount={2} />
       ) : (
         <DataTable
           table={table}
