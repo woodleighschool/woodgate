@@ -6,7 +6,7 @@ ignore node_modules/
 
 require (
 	github.com/Azure/azure-sdk-for-go/sdk/azidentity v1.15.0
-	github.com/alexedwards/scs/pgxstore v0.0.0-20251002162104-209de6e426de
+	github.com/alexedwards/scs/pgxstore v0.0.0-20261119174900-ed2e92329119
 	github.com/alexedwards/scs/v2 v2.9.0
 	github.com/caarlos0/env/v11 v11.4.2
 	github.com/coder/websocket v1.8.15
