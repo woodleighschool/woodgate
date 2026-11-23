@@ -2,7 +2,6 @@
 run = "pnpm install --frozen-lockfile"
 
 [tasks.types]
-description = "Generate Cloudflare Worker types"
 depends = [":deps"]
 run = "pnpm run types"
 
@@ -46,10 +45,8 @@ run = "pnpm run format"
 run = "pnpm run format:check"
 
 [tasks.deploy]
-description = "Deploy the development mock"
 depends = [":deps"]
 run = "pnpm run deploy"
 
 [tasks.clean]
-description = "Remove build output and Wrangler state"
 run = "rm -rf dist .wrangler"

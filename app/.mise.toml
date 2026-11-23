@@ -5,7 +5,7 @@ run = "swiftformat WoodGate"
 run = "swiftformat WoodGate --lint"
 
 [tasks.build]
-description = "Build the app for an iOS simulator"
+description = "iOS simulator"
 run = """
 xcodebuild build \
   -project WoodGate.xcodeproj \
@@ -15,7 +15,6 @@ xcodebuild build \
 """
 
 [tasks.periphery]
-description = "Build the app and reject unused Swift code"
 run = """
 periphery scan \
   --project WoodGate.xcodeproj \
@@ -30,5 +29,4 @@ periphery scan \
 """
 
 [tasks.lint]
-description = "Check for unused Swift code"
 depends = [":periphery"]

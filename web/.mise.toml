@@ -8,12 +8,10 @@ pnpm run dev
 """
 
 [tasks.build]
-description = "Type-check and build the web bundle"
 depends = [":deps"]
 run = "pnpm run build"
 
 [tasks.serve]
-description = "Serve the production build"
 run = "pnpm run preview"
 
 [tasks.lint]
@@ -35,7 +33,6 @@ run = "pnpm run format"
 run = "oxfmt --check"
 
 [tasks.openapi-types]
-description = "Generate web OpenAPI client types"
 depends = [":deps"]
 run = "pnpm run openapi:types"
 
