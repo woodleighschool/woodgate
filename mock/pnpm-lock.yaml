@@ -201,8 +201,8 @@ importers:
         specifier: 5.1.1
         version: 5.1.1(vite@8.3.5(esbuild@0.28.2))
       wrangler:
-        specifier: 4.167.0
-        version: 4.167.0(@cloudflare/workers-types@5.20261124.1)(vitest@5.1.1(vite@8.3.5(esbuild@0.28.2)))
+        specifier: 4.168.0
+        version: 4.168.0(@cloudflare/workers-types@5.20261124.1)(vitest@5.1.1(vite@8.3.5(esbuild@0.28.2)))
 
 packages:
 
@@ -1485,8 +1485,8 @@ packages:
     engines: {node: '>=16'}
     hasBin: true
 
-  wrangler@4.167.0:
-    resolution: {integrity: sha512-9P1rSUpjH96RSIEntUjkycglR5m3WcwwYRjPqbf9VN83Wizhk5s7J+Q3g5eUZGGTgtPhv763KZ4hw3jFnUjlTg==}
+  wrangler@4.168.0:
+    resolution: {integrity: sha512-CqxlSPbapKwhH2moKcJlWCYqzB/Gk93rKQcul0KioLLYDKgJpuwuddE5rminAgDkI0YyEjzw4MoCasojog4lJw==}
     engines: {node: '>=22.12.0'}
     hasBin: true
     peerDependencies:
@@ -2450,7 +2450,7 @@ snapshots:
       '@cloudflare/workerd-linux-arm64': 1.20261123.1
       '@cloudflare/workerd-windows-64': 1.20261123.1
 
-  wrangler@4.167.0(@cloudflare/workers-types@5.20261124.1)(vitest@5.1.1(vite@8.3.5(esbuild@0.28.2))):
+  wrangler@4.168.0(@cloudflare/workers-types@5.20261124.1)(vitest@5.1.1(vite@8.3.5(esbuild@0.28.2))):
     dependencies:
       '@cloudflare/kv-asset-handler': 0.5.1
       '@cloudflare/unenv-preset': 2.16.2(unenv@2.0.0-rc.24)(workerd@1.20261123.1)
@@ -2460,7 +2460,7 @@ snapshots:
       cloudflare: 5.2.0
       devtools-protocol: 0.0.1182435
       esbuild: 0.28.2
-      miniflare: 5.20261123.0-beta
+      miniflare: 5.20261123.1-beta
       path-to-regexp: 6.3.0
       undici: 7.30.2
       unenv: 2.0.0-rc.24
